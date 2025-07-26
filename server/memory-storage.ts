@@ -968,7 +968,6 @@ export class MemoryStorage implements IStorage {
   async verifyAdminPassword(): Promise<boolean> { return false; }
   async changeAdminPassword(): Promise<boolean> { return false; }
   async updateOrderStatus(): Promise<any> { return undefined; }
-  async clearCart(): Promise<boolean> { return false; }
   async searchProducts(): Promise<Product[]> { return this.products; }
   async getProductsByCategory(): Promise<Product[]> { return this.products; }
 }
