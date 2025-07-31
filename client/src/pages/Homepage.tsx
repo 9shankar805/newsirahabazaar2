@@ -844,7 +844,7 @@ export default function Homepage() {
       </section>
 
       {/* Categories/Menu Section */}
-      <section className="py-1 bg-background" style={{ minHeight: '11.5vh', maxHeight: '11.5vh' }}>
+      <section className="py-1 bg-background relative" style={{ minHeight: '11.5vh', maxHeight: '11.5vh' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
           <div className="mb-1 sm:mb-2">
             <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground">
@@ -1022,38 +1022,125 @@ export default function Homepage() {
             </div>
           </div>
 
-          {/* Desktop Row Layout - Display categories in horizontal rows */}
-          <div className="hidden sm:grid sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 xl:grid-cols-12 gap-3 lg:gap-4">
-            {categories.map((category, index) => (
-              <Link key={category.name} href={category.href}>
-                <div className="group flex flex-col items-center p-2 lg:p-3 rounded-xl hover:bg-secondary/50 transition-colors">
-                  {/* Round Category Image - Smaller for row layout */}
-                  <div className="relative w-14 h-14 lg:w-16 lg:h-16 mb-2 overflow-hidden rounded-full shadow-lg">
-                    {category.images && category.images[0] ? (
-                      <img
-                        src={category.images[0]}
-                        alt={category.name}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                        loading="lazy"
-                      />
-                    ) : (
-                      <>
-                        <div className={`absolute inset-0 rounded-full bg-gradient-to-br ${category.gradient} opacity-90 group-hover:opacity-100 transition-opacity`} />
-                        <div className="absolute inset-0 rounded-full flex items-center justify-center">
-                          <span className="text-2xl lg:text-2xl drop-shadow-sm group-hover:scale-110 transition-transform">
-                            {category.icon}
-                          </span>
-                        </div>
-                      </>
-                    )}
+          {/* Desktop Slider Layout - Horizontal slider showing all categories in rows */}
+          <div className="hidden sm:block relative">
+            <Swiper
+              modules={[FreeMode, Navigation]}
+              spaceBetween={16}
+              slidesPerView="auto"
+              freeMode={{
+                enabled: true,
+                sticky: false,
+                momentumBounce: false,
+                momentumRatio: 0.6,
+                momentumVelocityRatio: 0.6,
+              }}
+              navigation={{
+                nextEl: '.desktop-categories-next',
+                prevEl: '.desktop-categories-prev',
+              }}
+              grabCursor={true}
+              className="desktop-categories-swiper !overflow-visible"
+              breakpoints={{
+                640: {
+                  slidesPerView: 6,
+                  spaceBetween: 16,
+                },
+                768: {
+                  slidesPerView: 8,
+                  spaceBetween: 16,
+                },
+                1024: {
+                  slidesPerView: 10,
+                  spaceBetween: 18,
+                },
+                1280: {
+                  slidesPerView: 12,
+                  spaceBetween: 20,
+                },
+                1536: {
+                  slidesPerView: 14,
+                  spaceBetween: 20,
+                },
+              }}
+            >
+              {categories.map((category, index) => (
+                <SwiperSlide key={category.name} className="!w-auto">
+                  <Link href={category.href}>
+                    <div className="group flex flex-col items-center p-2 lg:p-3 rounded-xl hover:bg-secondary/50 transition-colors">
+                      {/* Round Category Image */}
+                      <div className="relative w-16 h-16 lg:w-18 lg:h-18 mb-2 overflow-hidden rounded-full shadow-lg">
+                        {category.images && category.images[0] ? (
+                          <img
+                            src={category.images[0]}
+                            alt={category.name}
+                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                            loading="lazy"
+                          />
+                        ) : (
+                          <>
+                            <div className={`absolute inset-0 rounded-full bg-gradient-to-br ${category.gradient} opacity-90 group-hover:opacity-100 transition-opacity`} />
+                            <div className="absolute inset-0 rounded-full flex items-center justify-center">
+                              <span className="text-2xl lg:text-3xl drop-shadow-sm group-hover:scale-110 transition-transform">
+                                {category.icon}
+                              </span>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                      {/* Category Name */}
+                      <span className="text-xs lg:text-sm font-medium text-foreground text-center leading-tight group-hover:text-primary transition-colors min-w-0 w-20">
+                        {category.name}
+                      </span>
+                    </div>
+                  </Link>
+                </SwiperSlide>
+              ))}
+              
+              {/* View All Button - Last slide */}
+              <SwiperSlide className="!w-auto">
+                <Link href={mode === "shopping" ? "/categories" : "/food-categories"}>
+                  <div className="group flex flex-col items-center p-2 lg:p-3 rounded-xl hover:bg-secondary/50 transition-colors">
+                    <div className="relative w-16 h-16 lg:w-18 lg:h-18 mb-2 overflow-hidden rounded-full shadow-lg bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800">
+                      <div className="absolute inset-0 rounded-full flex items-center justify-center">
+                        <svg 
+                          className="w-6 h-6 lg:w-8 lg:h-8 text-primary group-hover:scale-110 transition-transform" 
+                          fill="none" 
+                          stroke="currentColor" 
+                          viewBox="0 0 24 24"
+                        >
+                          <path 
+                            strokeLinecap="round" 
+                            strokeLinejoin="round" 
+                            strokeWidth={2} 
+                            d="M4 6h16M4 12h16M4 18h16" 
+                          />
+                        </svg>
+                      </div>
+                    </div>
+                    <span className="text-xs lg:text-sm font-medium text-foreground text-center leading-tight group-hover:text-primary transition-colors min-w-0 w-20">
+                      View All
+                    </span>
                   </div>
-                  {/* Category Name - Smaller text for row layout */}
-                  <span className="text-xs lg:text-sm font-medium text-foreground text-center leading-tight group-hover:text-primary transition-colors">
-                    {category.name}
-                  </span>
-                </div>
-              </Link>
-            ))}
+                </Link>
+              </SwiperSlide>
+            </Swiper>
+            
+            {/* Navigation Arrows */}
+            <div className="desktop-categories-prev absolute left-2 top-1/2 -translate-y-1/2 z-10 cursor-pointer opacity-75 hover:opacity-100 transition-opacity">
+              <div className="w-8 h-8 lg:w-10 lg:h-10 rounded-full bg-white/90 dark:bg-gray-800/90 shadow-lg flex items-center justify-center">
+                <svg className="w-4 h-4 lg:w-5 lg:h-5 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+              </div>
+            </div>
+            <div className="desktop-categories-next absolute right-2 top-1/2 -translate-y-1/2 z-10 cursor-pointer opacity-75 hover:opacity-100 transition-opacity">
+              <div className="w-8 h-8 lg:w-10 lg:h-10 rounded-full bg-white/90 dark:bg-gray-800/90 shadow-lg flex items-center justify-center">
+                <svg className="w-4 h-4 lg:w-5 lg:h-5 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </div>
+            </div>
           </div>
         </div>
       </section>
