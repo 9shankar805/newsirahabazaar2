@@ -844,7 +844,7 @@ export default function Homepage() {
       </section>
 
       {/* Categories/Menu Section */}
-      <section className="py-1 bg-background" style={{ minHeight: '8vh', maxHeight: '8vh' }}>
+      <section className="py-1 bg-background" style={{ minHeight: '10vh', maxHeight: '10vh' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
           <div className="mb-1 sm:mb-2">
             <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground">
