@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { Store, Facebook, Twitter, Instagram, Youtube, Mail, Phone, Download, Smartphone, ChevronUp, ChevronDown } from "lucide-react";
+import { Store, Facebook, Twitter, Instagram, Youtube, Mail, Phone, Download, Smartphone, ChevronUp, ChevronDown, Music } from "lucide-react";
 import { useState } from "react";
 
 export default function Footer() {
@@ -36,6 +36,9 @@ export default function Footer() {
             <div className="flex space-x-2">
               <a href="https://www.facebook.com/profile.php?id=61578565817335" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-white transition-colors">
                 <Facebook className="h-3.5 w-3.5" />
+              </a>
+              <a href="https://www.tiktok.com/@sirahabazaar.service?_t=ZS-8ySvLQ8IiG1&_r=1" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-white transition-colors">
+                <Music className="h-3.5 w-3.5" />
               </a>
               <a href="#" className="text-gray-300 hover:text-white transition-colors">
                 <Instagram className="h-3.5 w-3.5" />
@@ -109,6 +112,9 @@ export default function Footer() {
                 <div className="flex items-center justify-center space-x-4">
                   <a href="https://www.facebook.com/profile.php?id=61578565817335" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-white transition-colors">
                     <Facebook className="h-4 w-4" />
+                  </a>
+                  <a href="https://www.tiktok.com/@sirahabazaar.service?_t=ZS-8ySvLQ8IiG1&_r=1" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-white transition-colors">
+                    <Music className="h-4 w-4" />
                   </a>
                   <a href="#" className="text-gray-300 hover:text-white transition-colors">
                     <Twitter className="h-4 w-4" />
