@@ -238,7 +238,7 @@ export default function SmartHomepage() {
           <h2 className="text-2xl sm:text-3xl font-bold text-center mb-8 sm:mb-12">
             Browse Categories
           </h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
+          <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 xl:grid-cols-12 gap-4 sm:gap-6">
             {categories.map((category) => (
               <Link key={category.name} href={category.href}>
                 <Card className="group hover:shadow-lg transition-all duration-200">

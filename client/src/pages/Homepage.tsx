@@ -1022,13 +1022,13 @@ export default function Homepage() {
             </div>
           </div>
 
-          {/* Desktop Grid Layout */}
-          <div className="hidden sm:grid sm:grid-cols-4 lg:grid-cols-6 gap-4 lg:gap-6">
+          {/* Desktop Row Layout - Display categories in horizontal rows */}
+          <div className="hidden sm:grid sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 xl:grid-cols-12 gap-3 lg:gap-4">
             {categories.map((category, index) => (
               <Link key={category.name} href={category.href}>
-                <div className="group flex flex-col items-center p-4 rounded-xl hover:bg-secondary/50 transition-colors">
-                  {/* Round Category Image */}
-                  <div className="relative w-20 h-20 mb-3 overflow-hidden rounded-full shadow-lg">
+                <div className="group flex flex-col items-center p-2 lg:p-3 rounded-xl hover:bg-secondary/50 transition-colors">
+                  {/* Round Category Image - Smaller for row layout */}
+                  <div className="relative w-14 h-14 lg:w-16 lg:h-16 mb-2 overflow-hidden rounded-full shadow-lg">
                     {category.images && category.images[0] ? (
                       <img
                         src={category.images[0]}
@@ -1040,15 +1040,15 @@ export default function Homepage() {
                       <>
                         <div className={`absolute inset-0 rounded-full bg-gradient-to-br ${category.gradient} opacity-90 group-hover:opacity-100 transition-opacity`} />
                         <div className="absolute inset-0 rounded-full flex items-center justify-center">
-                          <span className="text-3xl drop-shadow-sm group-hover:scale-110 transition-transform">
+                          <span className="text-2xl lg:text-2xl drop-shadow-sm group-hover:scale-110 transition-transform">
                             {category.icon}
                           </span>
                         </div>
                       </>
                     )}
                   </div>
-                  {/* Category Name */}
-                  <span className="text-sm font-medium text-foreground text-center leading-tight group-hover:text-primary transition-colors">
+                  {/* Category Name - Smaller text for row layout */}
+                  <span className="text-xs lg:text-sm font-medium text-foreground text-center leading-tight group-hover:text-primary transition-colors">
                     {category.name}
                   </span>
                 </div>
