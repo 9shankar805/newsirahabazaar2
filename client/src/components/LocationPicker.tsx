@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MapPin, Loader2, Map, Navigation, Crosshair } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
@@ -29,6 +30,16 @@ interface LocationPickerProps {
   }) => void;
 }
 
+// Component to handle map clicks
+function MapClickHandler({ onLocationSelect }: { onLocationSelect: (lat: number, lng: number) => void }) {
+  useMapEvents({
+    click: (e) => {
+      onLocationSelect(e.latlng.lat, e.latlng.lng);
+    },
+  });
+  return null;
+}
+
 export function LocationPicker({
   address,
   latitude,
@@ -37,80 +48,40 @@ export function LocationPicker({
 }: LocationPickerProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [showMap, setShowMap] = useState(false);
-  const mapRef = useRef<L.Map | null>(null);
-  const markerRef = useRef<L.Marker | null>(null);
+  const [mapLoading, setMapLoading] = useState(false);
+  const [markerPosition, setMarkerPosition] = useState<[number, number] | null>(null);
   const { toast } = useToast();
 
   // Default location - Siraha, Nepal
-  const defaultLocation = { lat: 26.6615, lng: 86.2348 };
+  const defaultLocation: [number, number] = [26.6615, 86.2348];
 
-  // Initialize map when showMap becomes true
+  // Set marker position when coordinates are available
   useEffect(() => {
-    if (showMap && !mapRef.current) {
-      initializeMap();
-    }
-    return () => {
-      // Cleanup map when component unmounts
-      if (mapRef.current) {
-        mapRef.current.remove();
-        mapRef.current = null;
-        markerRef.current = null;
-      }
-    };
-  }, [showMap]);
-
-  const initializeMap = () => {
-    // Use existing coordinates if available, otherwise use default location
-    const currentLat = parseFloat(latitude || '') || defaultLocation.lat;
-    const currentLng = parseFloat(longitude || '') || defaultLocation.lng;
-
-    // Initialize map
-    mapRef.current = L.map('location-picker-map').setView([currentLat, currentLng], 13);
-
-    // Add tile layer
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(mapRef.current);
-
-    // Add marker if coordinates exist
     if (latitude && longitude) {
-      markerRef.current = L.marker([currentLat, currentLng]).addTo(mapRef.current)
-        .bindPopup('Store Location')
-        .openPopup();
+      setMarkerPosition([parseFloat(latitude), parseFloat(longitude)]);
     }
+  }, [latitude, longitude]);
 
-    // Handle map clicks to set location
-    mapRef.current.on('click', async (e: L.LeafletMouseEvent) => {
-      const { lat, lng } = e.latlng;
-      
-      // Remove existing marker
-      if (markerRef.current) {
-        mapRef.current?.removeLayer(markerRef.current);
-      }
+  const handleMapClick = useCallback(async (lat: number, lng: number) => {
+    setMarkerPosition([lat, lng]);
+    
+    // Get address for the clicked location
+    const newAddress = await reverseGeocode(lat, lng);
+    const googleMapsLink = `https://maps.google.com/?q=${lat},${lng}`;
 
-      // Add new marker
-      markerRef.current = L.marker([lat, lng]).addTo(mapRef.current!)
-        .bindPopup('Selected Location')
-        .openPopup();
-
-      // Get address for the clicked location
-      const newAddress = await reverseGeocode(lat, lng);
-      const googleMapsLink = `https://maps.google.com/?q=${lat},${lng}`;
-
-      // Update form data
-      onLocationChange({
-        address: newAddress,
-        latitude: lat.toString(),
-        longitude: lng.toString(),
-        googleMapsLink,
-      });
-
-      toast({
-        title: "Location selected",
-        description: "Location has been set from map",
-      });
+    // Update form data
+    onLocationChange({
+      address: newAddress,
+      latitude: lat.toString(),
+      longitude: lng.toString(),
+      googleMapsLink,
     });
-  };
+
+    toast({
+      title: "Location selected",
+      description: "Location has been set from map",
+    });
+  }, [onLocationChange, toast]);
 
   const getCurrentLocation = async () => {
     if (!navigator.geolocation) {
@@ -263,11 +234,31 @@ export function LocationPicker({
             </p>
           </CardHeader>
           <CardContent>
-            <div 
-              id="location-picker-map" 
-              className="w-full h-[400px] rounded-lg border border-border"
-              style={{ zIndex: 1 }}
-            />
+            <div className="w-full h-[400px] rounded-lg border border-border overflow-hidden">
+              <MapContainer
+                center={markerPosition || defaultLocation}
+                zoom={13}
+                style={{ height: '100%', width: '100%' }}
+                scrollWheelZoom={true}
+                doubleClickZoom={true}
+                touchZoom={true}
+                zoomControl={true}
+              >
+                <TileLayer
+                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                />
+                {markerPosition && (
+                  <Marker position={markerPosition}>
+                    <Popup>
+                      Store Location<br />
+                      {address || `${markerPosition[0].toFixed(6)}, ${markerPosition[1].toFixed(6)}`}
+                    </Popup>
+                  </Marker>
+                )}
+                <MapClickHandler onLocationSelect={handleMapClick} />
+              </MapContainer>
+            </div>
           </CardContent>
         </Card>
       )}
