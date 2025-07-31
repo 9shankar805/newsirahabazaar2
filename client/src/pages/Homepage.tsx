@@ -844,9 +844,9 @@ export default function Homepage() {
       </section>
 
       {/* Categories/Menu Section */}
-      <section className="py-3 sm:py-8 lg:py-12 bg-background">
+      <section className="py-2 sm:py-8 lg:py-12 bg-background">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="mb-4 sm:mb-6">
+          <div className="mb-2 sm:mb-6">
             <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground">
               {mode === "shopping" ? "Categories" : "Menu"}
             </h2>
@@ -993,7 +993,7 @@ export default function Homepage() {
             </Swiper>
             
             {/* Pagination Dots - Noon Style */}
-            <div className="mobile-categories-pagination flex justify-center mt-2">
+            <div className="mobile-categories-pagination flex justify-center mt-1">
               {/* Pagination bullets will be inserted here by Swiper */}
             </div>
           </div>
