@@ -889,11 +889,6 @@ export default function Homepage() {
                 el: '.mobile-categories-pagination',
                 type: 'bullets',
                 dynamicBullets: false,
-                bulletClass: 'mobile-category-bullet',
-                bulletActiveClass: 'mobile-category-bullet-active',
-                renderBullet: function (index, className) {
-                  return '<span class="' + className + '"></span>';
-                },
               }}
               className="mobile-categories-swiper !overflow-visible !pb-2"
               style={{
@@ -995,7 +990,14 @@ export default function Homepage() {
             </Swiper>
             
             {/* Pagination Dots - Noon Style */}
-            <div className="mobile-categories-pagination"></div>
+            <div className="mobile-categories-pagination" style={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              marginTop: '8px',
+              marginBottom: '8px',
+              minHeight: '16px'
+            }}></div>
           </div>
 
           {/* Desktop Grid Layout */}
