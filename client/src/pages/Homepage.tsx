@@ -204,37 +204,67 @@ export default function Homepage() {
       name: "Beauty", 
       icon: "💄", 
       href: "/products?category=5",
-      gradient: "from-purple-500 to-pink-500"
+      gradient: "from-purple-500 to-pink-500",
+      images: [
+        "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=300&h=300&fit=crop&auto=format",
+        "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=300&h=300&fit=crop&auto=format",
+        "https://images.unsplash.com/photo-1549298916-f52d724204b4?w=300&h=300&fit=crop&auto=format"
+      ]
     },
     { 
       name: "Sports", 
       icon: "⚽", 
       href: "/products?category=6",
-      gradient: "from-orange-500 to-red-500"
+      gradient: "from-orange-500 to-red-500",
+      images: [
+        "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=300&h=300&fit=crop&auto=format",
+        "https://images.unsplash.com/photo-1544966503-7cc5ac882d5e?w=300&h=300&fit=crop&auto=format",
+        "https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=300&h=300&fit=crop&auto=format"
+      ]
     },
     { 
       name: "Toys", 
       icon: "🧸", 
       href: "/products?category=7",
-      gradient: "from-yellow-400 to-orange-400"
+      gradient: "from-yellow-400 to-orange-400",
+      images: [
+        "https://images.unsplash.com/photo-1558060370-d644479cb6f7?w=300&h=300&fit=crop&auto=format",
+        "https://images.unsplash.com/photo-1587654780291-39c9404d746b?w=300&h=300&fit=crop&auto=format",
+        "https://images.unsplash.com/photo-1520887480574-5c2279f2c7e7?w=300&h=300&fit=crop&auto=format"
+      ]
     },
     { 
       name: "Health", 
       icon: "🏥", 
       href: "/products?category=8",
-      gradient: "from-teal-500 to-green-500"
+      gradient: "from-teal-500 to-green-500",
+      images: [
+        "https://images.unsplash.com/photo-1559757175-0eb30cd8c063?w=300&h=300&fit=crop&auto=format",
+        "https://images.unsplash.com/photo-1505751172876-fa1923c5c528?w=300&h=300&fit=crop&auto=format",
+        "https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?w=300&h=300&fit=crop&auto=format"
+      ]
     },
     { 
       name: "Automotive", 
       icon: "🚗", 
       href: "/products?category=9",
-      gradient: "from-gray-600 to-gray-800"
+      gradient: "from-gray-600 to-gray-800",
+      images: [
+        "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=300&h=300&fit=crop&auto=format",
+        "https://images.unsplash.com/photo-1603584173870-7f23fdae1b7a?w=300&h=300&fit=crop&auto=format",
+        "https://images.unsplash.com/photo-1517524206127-cd5d58c4f5d8?w=300&h=300&fit=crop&auto=format"
+      ]
     },
     { 
       name: "Music", 
       icon: "🎵", 
       href: "/products?category=10",
-      gradient: "from-indigo-500 to-purple-500"
+      gradient: "from-indigo-500 to-purple-500",
+      images: [
+        "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop&auto=format",
+        "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=300&h=300&fit=crop&auto=format",
+        "https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?w=300&h=300&fit=crop&auto=format"
+      ]
     },
   ];
 
@@ -710,16 +740,37 @@ export default function Homepage() {
                 <SwiperSlide key={category.name} className="!w-auto">
                   <Link href={category.href}>
                     <div className="group flex flex-col items-center">
-                      {/* Round Category Icon */}
-                      <div className="relative w-16 h-16 mb-2">
-                        <div className={`absolute inset-0 rounded-full bg-gradient-to-br ${category.gradient} opacity-90 group-active:opacity-100 transition-opacity`} />
-                        <div className="absolute inset-0 rounded-full flex items-center justify-center">
-                          <span className="text-2xl drop-shadow-sm">
-                            {category.icon}
-                          </span>
-                        </div>
+                      {/* Round Category Image */}
+                      <div className="relative w-16 h-16 mb-2 overflow-hidden rounded-full shadow-lg">
+                        {category.images && category.images[0] ? (
+                          <>
+                            <img
+                              src={category.images[imageRotation % category.images.length]}
+                              alt={category.name}
+                              className="w-full h-full object-cover group-active:scale-110 transition-transform duration-200"
+                              loading="lazy"
+                            />
+                            {/* Subtle overlay for better icon visibility */}
+                            <div className="absolute inset-0 bg-black/20 group-active:bg-black/10 transition-colors" />
+                            {/* Icon overlay */}
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <span className="text-xl text-white drop-shadow-lg">
+                                {category.icon}
+                              </span>
+                            </div>
+                          </>
+                        ) : (
+                          <>
+                            <div className={`absolute inset-0 rounded-full bg-gradient-to-br ${category.gradient} opacity-90 group-active:opacity-100 transition-opacity`} />
+                            <div className="absolute inset-0 rounded-full flex items-center justify-center">
+                              <span className="text-2xl drop-shadow-sm">
+                                {category.icon}
+                              </span>
+                            </div>
+                          </>
+                        )}
                         {/* Ring effect on press */}
-                        <div className="absolute inset-0 rounded-full ring-2 ring-primary/20 scale-0 group-active:scale-110 transition-transform duration-150" />
+                        <div className="absolute inset-0 rounded-full ring-2 ring-primary/30 scale-0 group-active:scale-110 transition-transform duration-150" />
                       </div>
                       {/* Category Name */}
                       <span className="text-xs font-medium text-foreground text-center leading-tight max-w-[80px] group-active:text-primary transition-colors">
@@ -737,14 +788,35 @@ export default function Homepage() {
             {categories.map((category, index) => (
               <Link key={category.name} href={category.href}>
                 <div className="group flex flex-col items-center p-4 rounded-xl hover:bg-secondary/50 transition-colors">
-                  {/* Round Category Icon */}
-                  <div className="relative w-20 h-20 mb-3">
-                    <div className={`absolute inset-0 rounded-full bg-gradient-to-br ${category.gradient} opacity-90 group-hover:opacity-100 transition-opacity`} />
-                    <div className="absolute inset-0 rounded-full flex items-center justify-center">
-                      <span className="text-3xl drop-shadow-sm group-hover:scale-110 transition-transform">
-                        {category.icon}
-                      </span>
-                    </div>
+                  {/* Round Category Image */}
+                  <div className="relative w-20 h-20 mb-3 overflow-hidden rounded-full shadow-lg">
+                    {category.images && category.images[0] ? (
+                      <>
+                        <img
+                          src={category.images[imageRotation % category.images.length]}
+                          alt={category.name}
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                          loading="lazy"
+                        />
+                        {/* Subtle overlay for better icon visibility */}
+                        <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors" />
+                        {/* Icon overlay */}
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <span className="text-2xl text-white drop-shadow-lg group-hover:scale-110 transition-transform">
+                            {category.icon}
+                          </span>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div className={`absolute inset-0 rounded-full bg-gradient-to-br ${category.gradient} opacity-90 group-hover:opacity-100 transition-opacity`} />
+                        <div className="absolute inset-0 rounded-full flex items-center justify-center">
+                          <span className="text-3xl drop-shadow-sm group-hover:scale-110 transition-transform">
+                            {category.icon}
+                          </span>
+                        </div>
+                      </>
+                    )}
                   </div>
                   {/* Category Name */}
                   <span className="text-sm font-medium text-foreground text-center leading-tight group-hover:text-primary transition-colors">
