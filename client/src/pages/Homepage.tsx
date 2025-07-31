@@ -759,6 +759,9 @@ export default function Homepage() {
               touchAngle={45}
               threshold={5}
               longSwipesRatio={0.5}
+              autoplay={false}
+              loop={false}
+              effect="slide"
               pagination={{
                 clickable: true,
                 el: '.categories-pagination',
