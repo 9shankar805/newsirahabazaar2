@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 
-// Fast image compression utility targeting 200KB
+// Smart image compression utility targeting 1MB with HD quality preservation
 const compressImage = (file: File): Promise<string> => {
   return new Promise((resolve, reject) => {
     const canvas = document.createElement('canvas');
@@ -16,7 +16,7 @@ const compressImage = (file: File): Promise<string> => {
     // Set timeout to prevent hanging
     const timeout = setTimeout(() => {
       reject(new Error('Image compression timeout'));
-    }, 10000);
+    }, 15000);
     
     img.onload = () => {
       try {
@@ -24,19 +24,23 @@ const compressImage = (file: File): Promise<string> => {
         
         let { width, height } = img;
         
-        // Aggressive resize for 200KB target
-        const targetSizeKB = 200;
+        // Target 1MB maximum for HD quality
+        const targetSizeKB = 1024; // 1MB
         const targetSizeBytes = targetSizeKB * 1024;
+        const base64Overhead = 1.37; // Base64 encoding overhead
         
-        // Start with smaller dimensions for 200KB target
-        let maxDimension = 600;
-        if (file.size > targetSizeBytes * 2) {
-          maxDimension = 400;
-        }
-        if (file.size > targetSizeBytes * 5) {
-          maxDimension = 300;
+        // Smart resizing for HD quality preservation
+        // Keep larger dimensions for better quality with 1MB target
+        let maxDimension = 2048; // Start with high resolution
+        
+        // Only resize if file is very large or dimensions are excessive
+        if (file.size > targetSizeBytes * 10) {
+          maxDimension = 1600; // Still HD quality
+        } else if (file.size > targetSizeBytes * 5) {
+          maxDimension = 1920; // Full HD
         }
         
+        // Resize only if necessary
         if (width > maxDimension || height > maxDimension) {
           if (width > height) {
             height = (height * maxDimension) / width;
@@ -55,17 +59,29 @@ const compressImage = (file: File): Promise<string> => {
           return;
         }
         
+        // Use high-quality rendering
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
         ctx.drawImage(img, 0, 0, width, height);
         
-        // Aggressive compression for 200KB target
-        let quality = 0.6;
+        // Start with high quality for better HD preservation
+        let quality = 0.92;
         let compressedData = canvas.toDataURL('image/jpeg', quality);
         
-        // Reduce quality if still too large
-        while (compressedData.length > targetSizeBytes * 1.37 && quality > 0.1) { // 1.37 accounts for base64 overhead
-          quality -= 0.1;
+        // If image is already under 1MB, keep the high quality
+        if (compressedData.length <= targetSizeBytes * base64Overhead) {
+          console.log(`Image ${file.name} compressed to ${(compressedData.length / 1024).toFixed(1)}KB with quality ${quality}`);
+          resolve(compressedData);
+          return;
+        }
+        
+        // Gradually reduce quality to reach 1MB target
+        while (compressedData.length > targetSizeBytes * base64Overhead && quality > 0.3) {
+          quality -= 0.05; // Smaller decrements for better quality control
           compressedData = canvas.toDataURL('image/jpeg', quality);
         }
+        
+        console.log(`Compressed ${file.name} from ${(file.size / 1024).toFixed(1)}KB to ${(compressedData.length / 1024).toFixed(1)}KB with quality ${quality.toFixed(2)}`);
         
         resolve(compressedData);
       } catch (error) {
@@ -140,11 +156,11 @@ export default function ImageUpload({
           continue;
         }
 
-        // Validate file size (5MB limit for faster processing)
-        if (file.size > 5 * 1024 * 1024) {
+        // Validate file size (20MB limit for high-quality processing)
+        if (file.size > 20 * 1024 * 1024) {
           toast({
             title: "File too large",
-            description: "Please select images smaller than 5MB",
+            description: "Please select images smaller than 20MB",
             variant: "destructive"
           });
           continue;
@@ -299,7 +315,7 @@ export default function ImageUpload({
                   Click to select images from your device
                 </p>
                 <p className="text-xs text-gray-400 mt-1">
-                  Auto-compressed to 200KB for fast loading
+                  Auto-compressed to 1MB max with HD quality preserved
                 </p>
               </div>
               <input

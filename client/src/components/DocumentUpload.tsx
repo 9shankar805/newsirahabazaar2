@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
 
-// Enhanced image compression utility targeting 200KB maximum
+// Smart image compression utility targeting 1MB with HD quality preservation
 const compressImage = (file: File): Promise<string> => {
   return new Promise((resolve, reject) => {
     const canvas = document.createElement('canvas');
@@ -24,23 +24,23 @@ const compressImage = (file: File): Promise<string> => {
         
         let { width, height } = img;
         
-        // Target 200KB maximum
-        const targetSizeKB = 200;
+        // Target 1MB maximum for HD quality
+        const targetSizeKB = 1024; // 1MB
         const targetSizeBytes = targetSizeKB * 1024;
+        const base64Overhead = 1.37; // Base64 encoding overhead
         
-        // Aggressive resize based on original file size
-        let maxDimension = 800;
-        if (file.size > targetSizeBytes * 3) {
-          maxDimension = 600;
-        }
-        if (file.size > targetSizeBytes * 5) {
-          maxDimension = 400;
-        }
+        // Smart resizing for HD quality preservation
+        // Keep larger dimensions for better quality with 1MB target
+        let maxDimension = 2048; // Start with high resolution
+        
+        // Only resize if file is very large or dimensions are excessive
         if (file.size > targetSizeBytes * 10) {
-          maxDimension = 300;
+          maxDimension = 1600; // Still HD quality
+        } else if (file.size > targetSizeBytes * 5) {
+          maxDimension = 1920; // Full HD
         }
         
-        // Resize image if needed
+        // Resize only if necessary
         if (width > maxDimension || height > maxDimension) {
           if (width > height) {
             height = (height * maxDimension) / width;
@@ -59,22 +59,29 @@ const compressImage = (file: File): Promise<string> => {
           return;
         }
         
+        // Use high-quality rendering
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
         ctx.drawImage(img, 0, 0, width, height);
         
-        // Start with moderate quality and reduce if needed
-        let quality = 0.8;
+        // Start with high quality for better HD preservation
+        let quality = 0.92;
         let compressedData = canvas.toDataURL('image/jpeg', quality);
         
-        // Calculate base64 overhead (approximately 1.37x)
-        const base64Overhead = 1.37;
+        // If image is already under 1MB, keep the high quality
+        if (compressedData.length <= targetSizeBytes * base64Overhead) {
+          console.log(`Image ${file.name} compressed to ${(compressedData.length / 1024).toFixed(1)}KB with quality ${quality}`);
+          resolve(compressedData);
+          return;
+        }
         
-        // Reduce quality iteratively until under 200KB
-        while (compressedData.length > targetSizeBytes * base64Overhead && quality > 0.1) {
-          quality -= 0.1;
+        // Gradually reduce quality to reach 1MB target
+        while (compressedData.length > targetSizeBytes * base64Overhead && quality > 0.3) {
+          quality -= 0.05; // Smaller decrements for better quality control
           compressedData = canvas.toDataURL('image/jpeg', quality);
         }
         
-        console.log(`Compressed ${file.name} from ${(file.size / 1024).toFixed(1)}KB to ${(compressedData.length / 1024).toFixed(1)}KB`);
+        console.log(`Compressed ${file.name} from ${(file.size / 1024).toFixed(1)}KB to ${(compressedData.length / 1024).toFixed(1)}KB with quality ${quality.toFixed(2)}`);
         
         resolve(compressedData);
       } catch (error) {
@@ -160,7 +167,7 @@ function DocumentUpload({
       
       toast({
         title: "Document uploaded successfully",
-        description: `File compressed to ${finalSizeKB}KB for fast loading`,
+        description: `File compressed to ${finalSizeKB}KB with HD quality preserved`,
       });
       
     } catch (error) {
@@ -223,7 +230,7 @@ function DocumentUpload({
           {label}
         </h3>
         <p className="text-sm text-gray-600 dark:text-gray-400">
-          All documents will be automatically compressed to 200KB for fast loading
+          All documents will be automatically compressed to 1MB max with HD quality preserved
         </p>
       </div>
 

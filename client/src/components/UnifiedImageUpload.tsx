@@ -107,8 +107,96 @@ export function UnifiedImageUpload({
     ]
   };
 
-  // Handle file upload
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  // Smart image compression utility targeting 1MB with HD quality preservation
+  const compressImage = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const img = new Image();
+      
+      const timeout = setTimeout(() => {
+        reject(new Error('Image compression timeout'));
+      }, 15000);
+      
+      img.onload = () => {
+        try {
+          clearTimeout(timeout);
+          
+          let { width, height } = img;
+          
+          // Target 1MB maximum for HD quality
+          const targetSizeKB = 1024; // 1MB
+          const targetSizeBytes = targetSizeKB * 1024;
+          const base64Overhead = 1.37; // Base64 encoding overhead
+          
+          // Smart resizing for HD quality preservation
+          let maxDimension = 2048; // Start with high resolution
+          
+          // Only resize if file is very large or dimensions are excessive
+          if (file.size > targetSizeBytes * 10) {
+            maxDimension = 1600; // Still HD quality
+          } else if (file.size > targetSizeBytes * 5) {
+            maxDimension = 1920; // Full HD
+          }
+          
+          // Resize only if necessary
+          if (width > maxDimension || height > maxDimension) {
+            if (width > height) {
+              height = (height * maxDimension) / width;
+              width = maxDimension;
+            } else {
+              width = (width * maxDimension) / height;
+              height = maxDimension;
+            }
+          }
+          
+          canvas.width = width;
+          canvas.height = height;
+          
+          if (!ctx) {
+            reject(new Error('Canvas context not available'));
+            return;
+          }
+          
+          // Use high-quality rendering
+          ctx.imageSmoothingEnabled = true;
+          ctx.imageSmoothingQuality = 'high';
+          ctx.drawImage(img, 0, 0, width, height);
+          
+          // Start with high quality for better HD preservation
+          let quality = 0.92;
+          let compressedData = canvas.toDataURL('image/jpeg', quality);
+          
+          // If image is already under 1MB, keep the high quality
+          if (compressedData.length <= targetSizeBytes * base64Overhead) {
+            resolve(compressedData);
+            return;
+          }
+          
+          // Gradually reduce quality to reach 1MB target
+          while (compressedData.length > targetSizeBytes * base64Overhead && quality > 0.3) {
+            quality -= 0.05; // Smaller decrements for better quality control
+            compressedData = canvas.toDataURL('image/jpeg', quality);
+          }
+          
+          resolve(compressedData);
+        } catch (error) {
+          clearTimeout(timeout);
+          reject(error);
+        }
+      };
+      
+      img.onerror = () => {
+        clearTimeout(timeout);
+        reject(new Error('Failed to load image'));
+      };
+      
+      img.src = URL.createObjectURL(file);
+    });
+  };
+
+  // Handle file upload with compression
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
@@ -121,18 +209,75 @@ export function UnifiedImageUpload({
       return;
     }
 
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const result = e.target?.result as string;
-      if (result && !selectedImages.includes(result)) {
-        onImageSelect(result);
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: "Invalid file type",
+        description: "Please select only image files",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Validate file size (20MB limit for high-quality processing)
+    if (file.size > 20 * 1024 * 1024) {
+      toast({
+        title: "File too large",
+        description: "Please select images smaller than 20MB",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      const compressedImage = await compressImage(file);
+      
+      if (!selectedImages.includes(compressedImage)) {
+        onImageSelect(compressedImage);
         toast({
           title: "Image Added",
-          description: "File uploaded successfully"
+          description: `File compressed to ${Math.round(compressedImage.length / 1024)}KB with HD quality preserved`
+        });
+      } else {
+        toast({
+          title: "Duplicate Image",
+          description: "This image has already been added",
+          variant: "destructive"
         });
       }
-    };
-    reader.readAsDataURL(file);
+    } catch (error) {
+      console.error('Compression failed:', error);
+      
+      // Fallback: use original file as data URL if it's small enough (< 1MB)
+      if (file.size < 1024 * 1024) {
+        try {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            const result = e.target?.result as string;
+            if (result && !selectedImages.includes(result)) {
+              onImageSelect(result);
+              toast({
+                title: "Image Added",
+                description: "File uploaded without compression"
+              });
+            }
+          };
+          reader.readAsDataURL(file);
+        } catch (readerError) {
+          toast({
+            title: "Upload Failed",
+            description: "Failed to process the image. Please try again.",
+            variant: "destructive"
+          });
+        }
+      } else {
+        toast({
+          title: "Upload Failed",
+          description: "File is too large and compression failed. Try a smaller image.",
+          variant: "destructive"
+        });
+      }
+    }
   };
 
   // Handle camera capture
