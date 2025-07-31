@@ -16,6 +16,53 @@
   display: none; /* WebKit browsers (Chrome, Safari, etc.) */
 }
 
+/* Categories Swiper Mobile Fixes */
+.categories-swiper {
+  width: 100% !important;
+  overflow: visible !important;
+  touch-action: pan-x !important;
+}
+
+.categories-swiper .swiper-wrapper {
+  align-items: flex-start !important;
+  transform-style: preserve-3d !important;
+}
+
+.categories-swiper .swiper-slide {
+  display: flex !important;
+  justify-content: center !important;
+  width: auto !important;
+  flex-shrink: 0 !important;
+  touch-action: manipulation !important;
+}
+
+/* Better container for categories to prevent overflow */
+@media (max-width: 640px) {
+  .categories-container {
+    position: relative;
+    overflow: hidden;
+    margin: 0 -1rem;
+    padding: 0 1rem;
+  }
+  
+  .categories-swiper {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+  
+  /* Ensure pagination bullets are properly styled */
+  .categories-pagination .swiper-pagination-bullet {
+    background: rgba(37, 99, 235, 0.3) !important;
+    width: 8px !important;
+    height: 8px !important;
+  }
+  
+  .categories-pagination .swiper-pagination-bullet-active {
+    background: #2563eb !important;
+    transform: scale(1.2) !important;
+  }
+}
+
 html, body {
   scrollbar-width: none;
   -ms-overflow-style: none;
