@@ -726,21 +726,10 @@ export default function Homepage() {
       {/* Categories/Menu Section */}
       <section className="py-6 sm:py-8 lg:py-12 bg-background">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center mb-4 sm:mb-6">
+          <div className="mb-4 sm:mb-6">
             <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground">
               {mode === "shopping" ? "Categories" : "Menu"}
             </h2>
-            <Link
-              href={mode === "shopping" ? "/categories" : "/food-categories"}
-            >
-              <Button
-                variant="ghost"
-                className="text-primary hover:bg-primary/10 text-sm p-2"
-              >
-                View All
-                <ArrowRight className="ml-1 h-4 w-4" />
-              </Button>
-            </Link>
           </div>
           
           {/* Mobile Grid Layout - Modern Noon-style */}
