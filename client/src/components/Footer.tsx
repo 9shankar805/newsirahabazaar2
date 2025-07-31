@@ -40,7 +40,7 @@ export default function Footer() {
               <a href="https://www.tiktok.com/@sirahabazaar.service?_t=ZS-8ySvLQ8IiG1&_r=1" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-white transition-colors">
                 <Music className="h-3.5 w-3.5" />
               </a>
-              <a href="#" className="text-gray-300 hover:text-white transition-colors">
+              <a href="https://www.instagram.com/sirahabazaar?igsh=MTJnZnh3cmR1MWkxeQ==" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-white transition-colors">
                 <Instagram className="h-3.5 w-3.5" />
               </a>
             </div>
@@ -119,7 +119,7 @@ export default function Footer() {
                   <a href="#" className="text-gray-300 hover:text-white transition-colors">
                     <Twitter className="h-4 w-4" />
                   </a>
-                  <a href="#" className="text-gray-300 hover:text-white transition-colors">
+                  <a href="https://www.instagram.com/sirahabazaar?igsh=MTJnZnh3cmR1MWkxeQ==" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-white transition-colors">
                     <Instagram className="h-4 w-4" />
                   </a>
                   <a href="#" className="text-gray-300 hover:text-white transition-colors">
