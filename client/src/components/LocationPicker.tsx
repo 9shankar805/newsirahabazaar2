@@ -230,13 +230,18 @@ export function LocationPicker({
               <Crosshair className="h-5 w-5" />
               Pick Location on Map
             </CardTitle>
-            <p className="text-sm text-muted-foreground">
-              Click anywhere on the map to set your store location
-            </p>
+            <div className="space-y-2">
+              <p className="text-sm text-muted-foreground">
+                Click anywhere on the map to set your store location. Use mouse wheel to zoom in/out for precise selection.
+              </p>
+              <div className="text-xs text-blue-600 bg-blue-50 p-2 rounded">
+                💡 Tip: Zoom in closer (zoom level 16-18) for street-level precision in Siraha or any area
+              </div>
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="w-full h-[400px] rounded-lg border border-border overflow-hidden">
-              <TestMap />
+            <div className="w-full h-[600px] rounded-lg border border-border overflow-hidden">
+              <TestMap onLocationSelect={handleMapClick} />
             </div>
           </CardContent>
         </Card>
