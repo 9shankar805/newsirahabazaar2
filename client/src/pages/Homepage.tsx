@@ -282,6 +282,78 @@ export default function Homepage() {
         "https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?w=300&h=300&fit=crop&auto=format"
       ]
     },
+    { 
+      name: "Baby & Kids", 
+      icon: "👶", 
+      href: "/products?category=11",
+      gradient: "from-rose-400 to-pink-500",
+      images: [
+        "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=300&h=200&fit=crop&auto=format"
+      ]
+    },
+    { 
+      name: "Kitchen", 
+      icon: "🍳", 
+      href: "/products?category=12",
+      gradient: "from-red-500 to-orange-500",
+      images: [
+        "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=300&h=200&fit=crop&auto=format"
+      ]
+    },
+    { 
+      name: "Gaming", 
+      icon: "🎮", 
+      href: "/products?category=13",
+      gradient: "from-indigo-600 to-purple-600",
+      images: [
+        "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=300&h=200&fit=crop&auto=format"
+      ]
+    },
+    { 
+      name: "Furniture", 
+      icon: "🛋️", 
+      href: "/products?category=14",
+      gradient: "from-amber-600 to-yellow-500",
+      images: [
+        "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=300&h=200&fit=crop&auto=format"
+      ]
+    },
+    { 
+      name: "Tools", 
+      icon: "🔧", 
+      href: "/products?category=15",
+      gradient: "from-gray-600 to-slate-700",
+      images: [
+        "https://images.unsplash.com/photo-1581833971358-2c8b550f87b3?w=300&h=200&fit=crop&auto=format"
+      ]
+    },
+    { 
+      name: "Jewelry", 
+      icon: "💎", 
+      href: "/products?category=16",
+      gradient: "from-violet-500 to-purple-500",
+      images: [
+        "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=300&h=200&fit=crop&auto=format"
+      ]
+    },
+    { 
+      name: "Pet Supplies", 
+      icon: "🐾", 
+      href: "/products?category=17",
+      gradient: "from-emerald-500 to-teal-500",
+      images: [
+        "https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=300&h=200&fit=crop&auto=format"
+      ]
+    },
+    { 
+      name: "Office", 
+      icon: "💼", 
+      href: "/products?category=18",
+      gradient: "from-slate-500 to-gray-600",
+      images: [
+        "https://images.unsplash.com/photo-1497032628192-86f99bcd76bc?w=300&h=200&fit=crop&auto=format"
+      ]
+    },
   ];
 
   const foodCategories = [
@@ -364,6 +436,54 @@ export default function Homepage() {
       icon: "🥗",
       href: "/products?category=food&type=healthy",
       gradient: "from-green-400 to-lime-500"
+    },
+    {
+      name: "Seafood",
+      icon: "🦐",
+      href: "/products?category=food&type=seafood",
+      gradient: "from-cyan-500 to-blue-500"
+    },
+    {
+      name: "BBQ & Grill",
+      icon: "🍖",
+      href: "/products?category=food&type=bbq",
+      gradient: "from-red-600 to-orange-600"
+    },
+    {
+      name: "Sweets",
+      icon: "🍭",
+      href: "/products?category=food&type=sweets",
+      gradient: "from-pink-400 to-purple-400"
+    },
+    {
+      name: "Coffee",
+      icon: "☕",
+      href: "/products?category=food&type=coffee",
+      gradient: "from-amber-700 to-yellow-600"
+    },
+    {
+      name: "Ice Cream",
+      icon: "🍦",
+      href: "/products?category=food&type=ice-cream",
+      gradient: "from-blue-300 to-cyan-300"
+    },
+    {
+      name: "Bakery",
+      icon: "🥖",
+      href: "/products?category=food&type=bakery",
+      gradient: "from-yellow-600 to-orange-500"
+    },
+    {
+      name: "Sandwiches",
+      icon: "🥪",
+      href: "/products?category=food&type=sandwiches",
+      gradient: "from-green-500 to-yellow-500"
+    },
+    {
+      name: "Noodles",
+      icon: "🍜",
+      href: "/products?category=food&type=noodles",
+      gradient: "from-red-500 to-orange-500"
     },
   ];
 
@@ -732,65 +852,146 @@ export default function Homepage() {
             </h2>
           </div>
           
-          {/* Mobile Grid Layout - Modern Noon-style */}
+          {/* Mobile Horizontal Slider - Noon-style */}
           <div className="block sm:hidden categories-section">
-            <div className="mobile-categories-grid">
-              {categories.slice(0, 9).map((category, index) => (
-                <Link key={category.name} href={category.href}>
-                  <div className="mobile-category-item">
-                    {/* Round Category Image */}
-                    <div className="mobile-category-icon">
-                      {category.images && category.images[0] ? (
-                        <img
-                          src={category.images[0]}
-                          alt={category.name}
-                          className="w-full h-full object-cover"
-                          loading="lazy"
-                        />
-                      ) : (
-                        <>
-                          <div className={`absolute inset-0 rounded-full bg-gradient-to-br ${category.gradient} opacity-90`} />
-                          <div className="absolute inset-0 rounded-full flex items-center justify-center">
-                            <span className="text-lg">
-                              {category.icon}
-                            </span>
-                          </div>
-                        </>
-                      )}
+            <Swiper
+              modules={[FreeMode, Pagination]}
+              spaceBetween={15}
+              slidesPerView={5}
+              freeMode={{
+                enabled: true,
+                sticky: false,
+                momentumBounce: false,
+                momentumRatio: 0.6,
+                momentumVelocityRatio: 0.6,
+              }}
+              grabCursor={true}
+              touchRatio={1}
+              touchAngle={45}
+              threshold={5}
+              longSwipesRatio={0.5}
+              longSwipesMs={300}
+              shortSwipes={true}
+              followFinger={true}
+              autoplay={false}
+              loop={false}
+              effect="slide"
+              resistance={true}
+              resistanceRatio={0.85}
+              preventInteractionOnTransition={false}
+              allowTouchMove={true}
+              simulateTouch={true}
+              touchStartPreventDefault={false}
+              touchStartForcePreventDefault={false}
+              touchMoveStopPropagation={false}
+              pagination={{
+                clickable: true,
+                el: '.mobile-categories-pagination',
+                type: 'bullets',
+                dynamicBullets: true,
+                dynamicMainBullets: 1,
+                bulletClass: 'mobile-category-bullet',
+                bulletActiveClass: 'mobile-category-bullet-active',
+              }}
+              className="mobile-categories-swiper !overflow-visible !pb-8"
+              style={{
+                paddingLeft: '16px',
+                paddingRight: '16px',
+                overflow: 'visible',
+                touchAction: 'pan-x'
+              }}
+              breakpoints={{
+                280: {
+                  slidesPerView: 4,
+                  spaceBetween: 12,
+                },
+                320: {
+                  slidesPerView: 4.5,
+                  spaceBetween: 12,
+                },
+                360: {
+                  slidesPerView: 5,
+                  spaceBetween: 15,
+                },
+                375: {
+                  slidesPerView: 5,
+                  spaceBetween: 15,
+                },
+                414: {
+                  slidesPerView: 5.5,
+                  spaceBetween: 15,
+                },
+                480: {
+                  slidesPerView: 6,
+                  spaceBetween: 18,
+                },
+              }}
+            >
+              {categories.map((category, index) => (
+                <SwiperSlide key={category.name} className="!w-auto">
+                  <Link href={category.href}>
+                    <div className="mobile-category-item">
+                      {/* Round Category Image */}
+                      <div className="mobile-category-icon">
+                        {category.images && category.images[0] ? (
+                          <img
+                            src={category.images[0]}
+                            alt={category.name}
+                            className="w-full h-full object-cover"
+                            loading="lazy"
+                          />
+                        ) : (
+                          <>
+                            <div className={`absolute inset-0 rounded-full bg-gradient-to-br ${category.gradient} opacity-90`} />
+                            <div className="absolute inset-0 rounded-full flex items-center justify-center">
+                              <span className="text-lg">
+                                {category.icon}
+                              </span>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                      {/* Category Name */}
+                      <span className="mobile-category-name">
+                        {category.name}
+                      </span>
                     </div>
-                    {/* Category Name */}
-                    <span className="mobile-category-name">
-                      {category.name}
+                  </Link>
+                </SwiperSlide>
+              ))}
+              
+              {/* View All Button - Last slide */}
+              <SwiperSlide className="!w-auto">
+                <Link href={mode === "shopping" ? "/categories" : "/food-categories"}>
+                  <div className="mobile-category-item mobile-view-all-category">
+                    <div className="mobile-category-icon mobile-view-all-icon">
+                      <div className="absolute inset-0 rounded-full flex items-center justify-center">
+                        <svg 
+                          className="w-5 h-5 text-primary" 
+                          fill="none" 
+                          stroke="currentColor" 
+                          viewBox="0 0 24 24"
+                        >
+                          <path 
+                            strokeLinecap="round" 
+                            strokeLinejoin="round" 
+                            strokeWidth={2} 
+                            d="M4 6h16M4 12h16M4 18h16" 
+                          />
+                        </svg>
+                      </div>
+                    </div>
+                    <span className="mobile-category-name mobile-view-all-name">
+                      View All
                     </span>
                   </div>
                 </Link>
-              ))}
-              
-              {/* View All Button - 10th item */}
-              <Link href={mode === "shopping" ? "/categories" : "/food-categories"}>
-                <div className="mobile-category-item mobile-view-all-category">
-                  <div className="mobile-category-icon mobile-view-all-icon">
-                    <div className="absolute inset-0 rounded-full flex items-center justify-center">
-                      <svg 
-                        className="w-5 h-5 text-primary" 
-                        fill="none" 
-                        stroke="currentColor" 
-                        viewBox="0 0 24 24"
-                      >
-                        <path 
-                          strokeLinecap="round" 
-                          strokeLinejoin="round" 
-                          strokeWidth={2} 
-                          d="M4 6h16M4 12h16M4 18h16" 
-                        />
-                      </svg>
-                    </div>
-                  </div>
-                  <span className="mobile-category-name mobile-view-all-name">
-                    View All
-                  </span>
-                </div>
-              </Link>
+              </SwiperSlide>
+            </Swiper>
+            
+            {/* Pagination Dots - Noon Style */}
+            <div className="mobile-categories-pagination flex justify-center mt-4">
+              {/* Pagination bullets will be inserted here by Swiper */}
             </div>
           </div>
 

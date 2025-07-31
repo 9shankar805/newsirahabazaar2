@@ -141,7 +141,7 @@
   -webkit-user-select: none !important;
 }
 
-/* Ensure no horizontal overflow on mobile */
+/* Mobile Categories Swiper - Noon Style */
 @media (max-width: 640px) {
   .categories-section {
     overflow: hidden !important;
@@ -149,14 +149,67 @@
     max-width: 100vw !important;
   }
   
-  /* Hide swiper on mobile - use grid instead */
-  .categories-swiper {
-    display: none !important;
+  .mobile-categories-swiper {
+    width: 100% !important;
+    overflow: visible !important;
+    touch-action: pan-x pan-y !important;
+    -webkit-overflow-scrolling: touch !important;
   }
   
-  /* Show grid on mobile */
-  .mobile-categories-grid {
-    display: grid !important;
+  .mobile-categories-swiper .swiper-wrapper {
+    align-items: flex-start !important;
+    transform-style: preserve-3d !important;
+    will-change: transform !important;
+  }
+  
+  .mobile-categories-swiper .swiper-slide {
+    display: flex !important;
+    justify-content: center !important;
+    width: auto !important;
+    flex-shrink: 0 !important;
+    touch-action: manipulation !important;
+    user-select: none !important;
+    -webkit-user-select: none !important;
+  }
+  
+  /* Noon-style pagination dots */
+  .mobile-categories-pagination {
+    margin-top: 1rem !important;
+  }
+  
+  .mobile-category-bullet {
+    width: 6px !important;
+    height: 6px !important;
+    border-radius: 50% !important;
+    background: hsl(var(--muted-foreground) / 0.3) !important;
+    margin: 0 3px !important;
+    opacity: 1 !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+  }
+  
+  .mobile-category-bullet-active {
+    background: hsl(var(--primary)) !important;
+    transform: scale(1.3) !important;
+    width: 8px !important;
+    height: 8px !important;
+  }
+  
+  /* Dynamic bullets animation */
+  .swiper-pagination-bullet-active-main {
+    background: hsl(var(--primary)) !important;
+  }
+  
+  .swiper-pagination-bullet-active-prev,
+  .swiper-pagination-bullet-active-next {
+    background: hsl(var(--primary) / 0.6) !important;
+    transform: scale(0.8) !important;
+  }
+  
+  .swiper-pagination-bullet-active-prev-prev,
+  .swiper-pagination-bullet-active-next-next {
+    background: hsl(var(--primary) / 0.3) !important;
+    transform: scale(0.6) !important;
   }
 }
 
