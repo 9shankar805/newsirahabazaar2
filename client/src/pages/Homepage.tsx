@@ -744,39 +744,54 @@ export default function Homepage() {
           </div>
           
           {/* Mobile Horizontal Slider */}
-          <div className="block sm:hidden overflow-hidden">
+          <div className="block sm:hidden">
             <Swiper
               modules={[FreeMode, Pagination]}
-              spaceBetween={12}
-              slidesPerView={3.2}
-              freeMode={true}
+              spaceBetween={16}
+              slidesPerView={3.5}
+              freeMode={{
+                enabled: true,
+                sticky: false,
+                momentumBounce: false,
+              }}
+              grabCursor={true}
+              touchRatio={1}
+              touchAngle={45}
+              threshold={5}
+              longSwipesRatio={0.5}
               pagination={{
                 clickable: true,
                 el: '.categories-pagination',
                 type: 'bullets',
+                dynamicBullets: true,
+                dynamicMainBullets: 3,
               }}
-              className="!overflow-hidden w-full"
+              className="!overflow-visible"
               breakpoints={{
                 320: {
-                  slidesPerView: 3,
-                  spaceBetween: 10,
-                },
-                375: {
-                  slidesPerView: 3.5,
+                  slidesPerView: 2.8,
                   spaceBetween: 12,
                 },
-                414: {
-                  slidesPerView: 4,
+                375: {
+                  slidesPerView: 3.2,
                   spaceBetween: 14,
+                },
+                414: {
+                  slidesPerView: 3.8,
+                  spaceBetween: 16,
+                },
+                480: {
+                  slidesPerView: 4.2,
+                  spaceBetween: 18,
                 },
               }}
             >
               {categories.map((category, index) => (
-                <SwiperSlide key={category.name} className="!w-auto">
+                <SwiperSlide key={category.name}>
                   <Link href={category.href}>
-                    <div className="group flex flex-col items-center min-w-[70px] max-w-[80px]">
+                    <div className="group flex flex-col items-center w-full px-1">
                       {/* Round Category Image */}
-                      <div className="relative w-14 h-14 mb-2 overflow-hidden rounded-full shadow-lg">
+                      <div className="relative w-16 h-16 mb-2 overflow-hidden rounded-full shadow-lg">
                         {category.images && category.images[0] ? (
                           <img
                             src={category.images[0]}
@@ -798,7 +813,7 @@ export default function Homepage() {
                         <div className="absolute inset-0 rounded-full ring-2 ring-primary/30 scale-0 group-active:scale-110 transition-transform duration-150" />
                       </div>
                       {/* Category Name */}
-                      <span className="text-xs font-medium text-foreground text-center leading-tight w-full group-active:text-primary transition-colors px-1">
+                      <span className="text-xs font-medium text-foreground text-center leading-tight w-full group-active:text-primary transition-colors">
                         {category.name}
                       </span>
                     </div>
@@ -808,7 +823,7 @@ export default function Homepage() {
             </Swiper>
             
             {/* Categories Pagination Dots */}
-            <div className="categories-pagination flex justify-center mt-4 space-x-1">
+            <div className="categories-pagination flex justify-center mt-4">
               {/* Pagination bullets will be inserted here by Swiper */}
             </div>
           </div>
