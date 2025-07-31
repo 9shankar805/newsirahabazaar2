@@ -888,9 +888,10 @@ export default function Homepage() {
                 clickable: true,
                 el: '.mobile-categories-pagination',
                 type: 'bullets',
-                dynamicBullets: false,
+                dynamicBullets: true,
+                dynamicMainBullets: 3,
                 renderBullet: function (index, className) {
-                  return '<span class="' + className + ' mobile-category-bullet"></span>';
+                  return '<span class="' + className + ' mobile-category-bullet" data-index="' + index + '"></span>';
                 },
               }}
               className="mobile-categories-swiper !overflow-visible !pb-2"

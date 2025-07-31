@@ -172,7 +172,7 @@
     -webkit-user-select: none !important;
   }
 
-  /* Noon-style pagination dots */
+  /* Modern sliding line pagination */
   .mobile-categories-pagination {
     margin-top: 12px !important;
     margin-bottom: 16px !important;
@@ -224,43 +224,68 @@
       margin-top: 0.25rem !important;
       margin-bottom: 0.25rem !important;
       padding: 0.125rem 0 !important;
-      min-height: 12px !important;
+      min-height: 8px !important;
     }
   }
 
+  /* Animated sliding line pagination */
   .mobile-categories-pagination .swiper-pagination-bullet {
-    width: 8px !important;
-    height: 8px !important;
-    border-radius: 50% !important;
-    background: #000000 !important;
-    opacity: 0.3 !important;
-    margin: 0 4px !important;
+    width: 20px !important;
+    height: 2px !important;
+    border-radius: 1px !important;
+    background: rgba(0, 0, 0, 0.2) !important;
+    opacity: 1 !important;
+    margin: 0 2px !important;
     cursor: pointer !important;
-    transition: all 0.3s ease !important;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
     display: inline-block !important;
     position: relative !important;
     z-index: 1 !important;
+    transform: scaleX(0.6) !important;
   }
 
   .mobile-categories-pagination .swiper-pagination-bullet-active {
-    background: #000000 !important;
+    background: hsl(var(--primary)) !important;
     opacity: 1 !important;
-    transform: scale(1.2) !important;
+    transform: scaleX(1.2) !important;
+    width: 28px !important;
+    height: 2px !important;
   }
 
-  /* Force show pagination dots on mobile categories */
-  .mobile-categories-pagination::before {
+  /* Smooth sliding animation for line pagination */
+  .mobile-categories-pagination .swiper-pagination-bullet::before {
     content: '';
     position: absolute;
     top: 0;
     left: 0;
-    right: 0;
-    bottom: 0;
-    background: transparent;
-    z-index: -1;
+    width: 100%;
+    height: 100%;
+    background: hsl(var(--primary));
+    border-radius: 1px;
+    transform: scaleX(0);
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-origin: left;
   }
 
-  /* Make sure dots are always visible */
+  .mobile-categories-pagination .swiper-pagination-bullet-active::before {
+    transform: scaleX(1);
+  }
+
+  /* Force show pagination line on mobile categories */
+  .mobile-categories-pagination::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80px;
+    height: 2px;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 1px;
+    z-index: 0;
+  }
+
+  /* Make sure line is always visible */
   .mobile-categories-pagination > * {
     visibility: visible !important;
     display: inline-block !important;
@@ -268,38 +293,41 @@
   }
 
   .mobile-category-bullet {
-    width: 8px !important;
-    height: 8px !important;
-    border-radius: 50% !important;
-    background: #000000 !important;
-    opacity: 0.3 !important;
-    margin: 0 4px !important;
+    width: 20px !important;
+    height: 2px !important;
+    border-radius: 1px !important;
+    background: rgba(0, 0, 0, 0.2) !important;
+    opacity: 1 !important;
+    margin: 0 2px !important;
     cursor: pointer !important;
-    transition: all 0.3s ease !important;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
     display: inline-block !important;
+    transform: scaleX(0.6) !important;
   }
 
   .mobile-category-bullet-active {
-    background: #000000 !important;
+    background: hsl(var(--primary)) !important;
     opacity: 1 !important;
-    transform: scale(1.2) !important;
+    transform: scaleX(1.2) !important;
+    width: 28px !important;
   }
 
-  /* Dynamic bullets animation */
+  /* Progressive line animation based on scroll position */
   .swiper-pagination-bullet-active-main {
     background: hsl(var(--primary)) !important;
+    transform: scaleX(1.2) !important;
   }
 
   .swiper-pagination-bullet-active-prev,
   .swiper-pagination-bullet-active-next {
-    background: hsl(var(--primary) / 0.6) !important;
-    transform: scale(0.8) !important;
+    background: hsl(var(--primary) / 0.4) !important;
+    transform: scaleX(0.8) !important;
   }
 
   .swiper-pagination-bullet-active-prev-prev,
   .swiper-pagination-bullet-active-next-next {
-    background: hsl(var(--primary) / 0.3) !important;
-    transform: scale(0.6) !important;
+    background: rgba(0, 0, 0, 0.2) !important;
+    transform: scaleX(0.6) !important;
   }
 }
 
