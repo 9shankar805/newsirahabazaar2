@@ -118,6 +118,31 @@ import "swiper/css/navigation";
 import "swiper/css/pagination";
 import "swiper/css/autoplay";
 
+// Custom styles for categories pagination
+const categoriesPaginationStyles = `
+.categories-pagination .swiper-pagination-bullet {
+  background: #e2e8f0 !important;
+  opacity: 0.5 !important;
+  width: 8px !important;
+  height: 8px !important;
+  margin: 0 4px !important;
+  transition: all 0.3s ease !important;
+}
+
+.categories-pagination .swiper-pagination-bullet-active {
+  background: #3b82f6 !important;
+  opacity: 1 !important;
+  transform: scale(1.2) !important;
+}
+`;
+
+// Inject styles
+if (typeof document !== 'undefined') {
+  const styleSheet = document.createElement('style');
+  styleSheet.textContent = categoriesPaginationStyles;
+  document.head.appendChild(styleSheet);
+}
+
 // Smart Recommendations Response Type
 interface SmartRecommendationsResponse {
   products: Product[];
@@ -730,10 +755,15 @@ export default function Homepage() {
           {/* Mobile Horizontal Slider */}
           <div className="block sm:hidden">
             <Swiper
-              modules={[FreeMode]}
+              modules={[FreeMode, Pagination]}
               spaceBetween={16}
               slidesPerView={4.5}
               freeMode={true}
+              pagination={{
+                clickable: true,
+                el: '.categories-pagination',
+                type: 'bullets',
+              }}
               className="!overflow-visible"
               breakpoints={{
                 320: {
@@ -785,6 +815,11 @@ export default function Homepage() {
                 </SwiperSlide>
               ))}
             </Swiper>
+            
+            {/* Categories Pagination Dots */}
+            <div className="categories-pagination flex justify-center mt-4 space-x-1">
+              {/* Pagination bullets will be inserted here by Swiper */}
+            </div>
           </div>
 
           {/* Desktop Grid Layout */}
