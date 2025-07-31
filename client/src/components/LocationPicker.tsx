@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MapPin, Loader2, Map, Navigation, Crosshair } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet';
+import { TestMap } from './TestMap';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
@@ -235,29 +236,7 @@ export function LocationPicker({
           </CardHeader>
           <CardContent>
             <div className="w-full h-[400px] rounded-lg border border-border overflow-hidden">
-              <MapContainer
-                center={markerPosition || defaultLocation}
-                zoom={13}
-                style={{ height: '100%', width: '100%' }}
-                scrollWheelZoom={true}
-                doubleClickZoom={true}
-                touchZoom={true}
-                zoomControl={true}
-              >
-                <TileLayer
-                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                />
-                {markerPosition && (
-                  <Marker position={markerPosition}>
-                    <Popup>
-                      Store Location<br />
-                      {address || `${markerPosition[0].toFixed(6)}, ${markerPosition[1].toFixed(6)}`}
-                    </Popup>
-                  </Marker>
-                )}
-                <MapClickHandler onLocationSelect={handleMapClick} />
-              </MapContainer>
+              <TestMap />
             </div>
           </CardContent>
         </Card>
