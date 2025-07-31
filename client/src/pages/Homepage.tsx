@@ -844,7 +844,7 @@ export default function Homepage() {
       </section>
 
       {/* Categories/Menu Section */}
-      <section className="py-6 sm:py-8 lg:py-12 bg-background">
+      <section className="py-3 sm:py-8 lg:py-12 bg-background">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="mb-4 sm:mb-6">
             <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground">
@@ -860,10 +860,10 @@ export default function Homepage() {
               slidesPerView={5}
               freeMode={{
                 enabled: true,
-                sticky: false,
+                sticky: true,
                 momentumBounce: false,
-                momentumRatio: 0.6,
-                momentumVelocityRatio: 0.6,
+                momentumRatio: 0.8,
+                momentumVelocityRatio: 0.8,
               }}
               grabCursor={true}
               touchRatio={1}
@@ -881,9 +881,9 @@ export default function Homepage() {
               preventInteractionOnTransition={false}
               allowTouchMove={true}
               simulateTouch={true}
-              touchStartPreventDefault={false}
+              touchStartPreventDefault={true}
               touchStartForcePreventDefault={false}
-              touchMoveStopPropagation={false}
+              touchMoveStopPropagation={true}
               pagination={{
                 clickable: true,
                 el: '.mobile-categories-pagination',
@@ -893,12 +893,15 @@ export default function Homepage() {
                 bulletClass: 'mobile-category-bullet',
                 bulletActiveClass: 'mobile-category-bullet-active',
               }}
-              className="mobile-categories-swiper !overflow-visible !pb-8"
+              className="mobile-categories-swiper !overflow-visible !pb-2"
               style={{
                 paddingLeft: '16px',
                 paddingRight: '16px',
                 overflow: 'visible',
-                touchAction: 'pan-x'
+                touchAction: 'pan-x',
+                userSelect: 'none',
+                WebkitUserSelect: 'none',
+                WebkitTouchCallout: 'none'
               }}
               breakpoints={{
                 280: {
@@ -990,7 +993,7 @@ export default function Homepage() {
             </Swiper>
             
             {/* Pagination Dots - Noon Style */}
-            <div className="mobile-categories-pagination flex justify-center mt-4">
+            <div className="mobile-categories-pagination flex justify-center mt-2">
               {/* Pagination bullets will be inserted here by Swiper */}
             </div>
           </div>
