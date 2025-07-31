@@ -743,118 +743,65 @@ export default function Homepage() {
             </Link>
           </div>
           
-          {/* Mobile Horizontal Slider */}
-          <div className="block sm:hidden categories-container">
-            <Swiper
-                modules={[FreeMode, Pagination]}
-                spaceBetween={12}
-                slidesPerView={5}
-                freeMode={{
-                  enabled: true,
-                  sticky: false,
-                  momentumBounce: false,
-                  momentumRatio: 0.5,
-                  momentumVelocityRatio: 0.5,
-                }}
-                grabCursor={true}
-                touchRatio={1}
-                touchAngle={30}
-                threshold={5}
-                longSwipesRatio={0.2}
-                longSwipesMs={300}
-                shortSwipes={true}
-                followFinger={true}
-                autoplay={false}
-                loop={false}
-                effect="slide"
-                resistance={false}
-                resistanceRatio={0}
-                preventInteractionOnTransition={false}
-                allowTouchMove={true}
-                simulateTouch={true}
-                touchStartPreventDefault={false}
-                touchStartForcePreventDefault={false}
-                touchMoveStopPropagation={false}
-                pagination={{
-                  clickable: true,
-                  el: '.categories-pagination',
-                  type: 'bullets',
-                  dynamicBullets: true,
-                  dynamicMainBullets: 3,
-                }}
-                className="categories-swiper !overflow-visible !pb-4"
-                style={{
-                  paddingLeft: '0px',
-                  paddingRight: '0px',
-                  overflow: 'visible',
-                  touchAction: 'pan-x'
-                }}
-                breakpoints={{
-                  280: {
-                    slidesPerView: 4.2,
-                    spaceBetween: 8,
-                  },
-                  320: {
-                    slidesPerView: 4.5,
-                    spaceBetween: 10,
-                  },
-                  360: {
-                    slidesPerView: 5,
-                    spaceBetween: 12,
-                  },
-                  375: {
-                    slidesPerView: 5,
-                    spaceBetween: 12,
-                  },
-                  414: {
-                    slidesPerView: 5.2,
-                    spaceBetween: 14,
-                  },
-                  480: {
-                    slidesPerView: 6,
-                    spaceBetween: 16,
-                  },
-                }}
-              >
-                {categories.map((category, index) => (
-                  <SwiperSlide key={category.name} className="!w-auto">
-                    <Link href={category.href}>
-                      <div className="group flex flex-col items-center w-full max-w-[70px] mx-auto">
-                        {/* Round Category Image */}
-                        <div className="relative w-14 h-14 mb-2 overflow-hidden rounded-full shadow-lg flex-shrink-0">
-                          {category.images && category.images[0] ? (
-                            <img
-                              src={category.images[0]}
-                              alt={category.name}
-                              className="w-full h-full object-cover group-active:scale-110 transition-transform duration-200"
-                              loading="lazy"
-                            />
-                          ) : (
-                            <>
-                              <div className={`absolute inset-0 rounded-full bg-gradient-to-br ${category.gradient} opacity-90 group-active:opacity-100 transition-opacity`} />
-                              <div className="absolute inset-0 rounded-full flex items-center justify-center">
-                                <span className="text-xl drop-shadow-sm">
-                                  {category.icon}
-                                </span>
-                              </div>
-                            </>
-                          )}
-                          {/* Ring effect on press */}
-                          <div className="absolute inset-0 rounded-full ring-2 ring-primary/30 scale-0 group-active:scale-110 transition-transform duration-150" />
-                        </div>
-                        {/* Category Name */}
-                        <span className="text-[10px] font-medium text-foreground text-center leading-tight w-full group-active:text-primary transition-colors line-clamp-2">
-                          {category.name}
-                        </span>
-                      </div>
-                    </Link>
-                  </SwiperSlide>
-                ))}
-              </Swiper>
-            
-            {/* Categories Pagination Dots */}
-            <div className="categories-pagination flex justify-center mt-3">
-              {/* Pagination bullets will be inserted here by Swiper */}
+          {/* Mobile Grid Layout - Modern Noon-style */}
+          <div className="block sm:hidden categories-section">
+            <div className="mobile-categories-grid">
+              {categories.slice(0, 9).map((category, index) => (
+                <Link key={category.name} href={category.href}>
+                  <div className="mobile-category-item">
+                    {/* Round Category Image */}
+                    <div className="mobile-category-icon">
+                      {category.images && category.images[0] ? (
+                        <img
+                          src={category.images[0]}
+                          alt={category.name}
+                          className="w-full h-full object-cover"
+                          loading="lazy"
+                        />
+                      ) : (
+                        <>
+                          <div className={`absolute inset-0 rounded-full bg-gradient-to-br ${category.gradient} opacity-90`} />
+                          <div className="absolute inset-0 rounded-full flex items-center justify-center">
+                            <span className="text-lg">
+                              {category.icon}
+                            </span>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                    {/* Category Name */}
+                    <span className="mobile-category-name">
+                      {category.name}
+                    </span>
+                  </div>
+                </Link>
+              ))}
+              
+              {/* View All Button - 10th item */}
+              <Link href={mode === "shopping" ? "/categories" : "/food-categories"}>
+                <div className="mobile-category-item mobile-view-all-category">
+                  <div className="mobile-category-icon mobile-view-all-icon">
+                    <div className="absolute inset-0 rounded-full flex items-center justify-center">
+                      <svg 
+                        className="w-5 h-5 text-primary" 
+                        fill="none" 
+                        stroke="currentColor" 
+                        viewBox="0 0 24 24"
+                      >
+                        <path 
+                          strokeLinecap="round" 
+                          strokeLinejoin="round" 
+                          strokeWidth={2} 
+                          d="M4 6h16M4 12h16M4 18h16" 
+                        />
+                      </svg>
+                    </div>
+                  </div>
+                  <span className="mobile-category-name mobile-view-all-name">
+                    View All
+                  </span>
+                </div>
+              </Link>
             </div>
           </div>
 
