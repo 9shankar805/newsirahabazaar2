@@ -1,10 +1,21 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { MapPin, Loader2 } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { MapPin, Loader2, Map, Navigation, Crosshair } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+
+// Fix for default markers in Leaflet
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
+  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+});
 
 interface LocationPickerProps {
   address: string;
@@ -25,7 +36,81 @@ export function LocationPicker({
   onLocationChange,
 }: LocationPickerProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const [showMap, setShowMap] = useState(false);
+  const mapRef = useRef<L.Map | null>(null);
+  const markerRef = useRef<L.Marker | null>(null);
   const { toast } = useToast();
+
+  // Default location - Siraha, Nepal
+  const defaultLocation = { lat: 26.6615, lng: 86.2348 };
+
+  // Initialize map when showMap becomes true
+  useEffect(() => {
+    if (showMap && !mapRef.current) {
+      initializeMap();
+    }
+    return () => {
+      // Cleanup map when component unmounts
+      if (mapRef.current) {
+        mapRef.current.remove();
+        mapRef.current = null;
+        markerRef.current = null;
+      }
+    };
+  }, [showMap]);
+
+  const initializeMap = () => {
+    // Use existing coordinates if available, otherwise use default location
+    const currentLat = parseFloat(latitude || '') || defaultLocation.lat;
+    const currentLng = parseFloat(longitude || '') || defaultLocation.lng;
+
+    // Initialize map
+    mapRef.current = L.map('location-picker-map').setView([currentLat, currentLng], 13);
+
+    // Add tile layer
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(mapRef.current);
+
+    // Add marker if coordinates exist
+    if (latitude && longitude) {
+      markerRef.current = L.marker([currentLat, currentLng]).addTo(mapRef.current)
+        .bindPopup('Store Location')
+        .openPopup();
+    }
+
+    // Handle map clicks to set location
+    mapRef.current.on('click', async (e: L.LeafletMouseEvent) => {
+      const { lat, lng } = e.latlng;
+      
+      // Remove existing marker
+      if (markerRef.current) {
+        mapRef.current?.removeLayer(markerRef.current);
+      }
+
+      // Add new marker
+      markerRef.current = L.marker([lat, lng]).addTo(mapRef.current!)
+        .bindPopup('Selected Location')
+        .openPopup();
+
+      // Get address for the clicked location
+      const newAddress = await reverseGeocode(lat, lng);
+      const googleMapsLink = `https://maps.google.com/?q=${lat},${lng}`;
+
+      // Update form data
+      onLocationChange({
+        address: newAddress,
+        latitude: lat.toString(),
+        longitude: lng.toString(),
+        googleMapsLink,
+      });
+
+      toast({
+        title: "Location selected",
+        description: "Location has been set from map",
+      });
+    });
+  };
 
   const getCurrentLocation = async () => {
     if (!navigator.geolocation) {
@@ -135,23 +220,57 @@ export function LocationPicker({
             onChange={(e) => handleAddressChange(e.target.value)}
             className="flex-1"
           />
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={getCurrentLocation}
-            disabled={isLoading}
-            className="whitespace-nowrap"
-          >
-            {isLoading ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <MapPin className="h-4 w-4" />
-            )}
-            {isLoading ? "Getting..." : "Get My Location"}
-          </Button>
+          <div className="flex flex-col gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={getCurrentLocation}
+              disabled={isLoading}
+              className="whitespace-nowrap"
+            >
+              {isLoading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Navigation className="h-4 w-4" />
+              )}
+              {isLoading ? "Getting..." : "Get My Location"}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setShowMap(!showMap)}
+              className="whitespace-nowrap"
+            >
+              <Map className="h-4 w-4" />
+              {showMap ? "Hide Map" : "Pick on Map"}
+            </Button>
+          </div>
         </div>
       </div>
+
+      {/* Interactive Map Section */}
+      {showMap && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Crosshair className="h-5 w-5" />
+              Pick Location on Map
+            </CardTitle>
+            <p className="text-sm text-muted-foreground">
+              Click anywhere on the map to set your store location
+            </p>
+          </CardHeader>
+          <CardContent>
+            <div 
+              id="location-picker-map" 
+              className="w-full h-[400px] rounded-lg border border-border"
+              style={{ zIndex: 1 }}
+            />
+          </CardContent>
+        </Card>
+      )}
 
       {latitude && longitude && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
