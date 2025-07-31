@@ -889,6 +889,9 @@ export default function Homepage() {
                 el: '.mobile-categories-pagination',
                 type: 'bullets',
                 dynamicBullets: false,
+                renderBullet: function (index, className) {
+                  return '<span class="' + className + ' mobile-category-bullet"></span>';
+                },
               }}
               className="mobile-categories-swiper !overflow-visible !pb-2"
               style={{
@@ -994,10 +997,28 @@ export default function Homepage() {
               display: 'flex',
               justifyContent: 'center',
               alignItems: 'center',
-              marginTop: '4px',
-              marginBottom: '0px',
-              minHeight: '12px'
-            }}></div>
+              marginTop: '12px',
+              marginBottom: '16px',
+              minHeight: '20px',
+              padding: '8px 0'
+            }}>
+              {/* Fallback dots if Swiper pagination doesn't render */}
+              {Array.from({ length: Math.ceil(categories.length / 5) }).map((_, index) => (
+                <span 
+                  key={index}
+                  className="fallback-pagination-dot"
+                  style={{
+                    width: '8px',
+                    height: '8px',
+                    borderRadius: '50%',
+                    backgroundColor: index === 0 ? '#000000' : 'rgba(0,0,0,0.3)',
+                    margin: '0 4px',
+                    display: 'inline-block',
+                    transition: 'all 0.3s ease'
+                  }}
+                />
+              ))}
+            </div>
           </div>
 
           {/* Desktop Grid Layout */}

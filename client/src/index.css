@@ -174,13 +174,16 @@
 
   /* Noon-style pagination dots */
   .mobile-categories-pagination {
-    margin-top: 8px !important;
-    margin-bottom: 8px !important;
-    padding-bottom: 0 !important;
+    margin-top: 12px !important;
+    margin-bottom: 16px !important;
+    padding: 8px 0 !important;
     display: flex !important;
     justify-content: center !important;
     align-items: center !important;
-    min-height: 16px !important;
+    min-height: 20px !important;
+    position: relative !important;
+    z-index: 10 !important;
+    background: transparent !important;
   }
 
   /* Remove all bottom spacing on mobile categories */
@@ -216,22 +219,43 @@
     }
   }
 
-  .swiper-pagination-bullet {
+  .mobile-categories-pagination .swiper-pagination-bullet {
     width: 8px !important;
     height: 8px !important;
     border-radius: 50% !important;
-    background: rgba(0, 0, 0, 0.3) !important; /* Adjusted opacity for better visibility */
-    opacity: 1 !important; /* Ensure opacity is fully applied */
+    background: #000000 !important;
+    opacity: 0.3 !important;
     margin: 0 4px !important;
     cursor: pointer !important;
     transition: all 0.3s ease !important;
     display: inline-block !important;
+    position: relative !important;
+    z-index: 1 !important;
   }
 
-  .swiper-pagination-bullet-active {
-    background: hsl(var(--primary)) !important; /* Use primary color for active bullet */
+  .mobile-categories-pagination .swiper-pagination-bullet-active {
+    background: #000000 !important;
     opacity: 1 !important;
     transform: scale(1.2) !important;
+  }
+
+  /* Force show pagination dots on mobile categories */
+  .mobile-categories-pagination::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: transparent;
+    z-index: -1;
+  }
+
+  /* Make sure dots are always visible */
+  .mobile-categories-pagination > * {
+    visibility: visible !important;
+    display: inline-block !important;
+    opacity: 1 !important;
   }
 
   .mobile-category-bullet {
