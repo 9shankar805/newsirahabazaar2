@@ -44,7 +44,7 @@
     width: 100% !important;
     max-width: 70px !important;
     margin: 0 auto !important;
-    padding: 0.5rem 0.25rem !important;
+    padding: 0.25rem 0.125rem !important; /* Reduced padding for compact layout */
     text-align: center !important;
     border-radius: 0.75rem !important;
     transition: all 0.2s ease !important;
@@ -58,10 +58,10 @@
   }
 
   .mobile-category-icon {
-    width: 48px !important;
-    height: 48px !important;
+    width: 40px !important; /* Reduced size */
+    height: 40px !important; /* Reduced size */
     border-radius: 50% !important;
-    margin-bottom: 0.5rem !important;
+    margin-bottom: 0.25rem !important; /* Reduced margin */
     overflow: hidden !important;
     position: relative !important;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
@@ -80,9 +80,9 @@
   }
 
   .mobile-category-name {
-    font-size: 0.625rem !important; /* 10px */
+    font-size: 0.5rem !important; /* 8px - smaller for compact layout */
     font-weight: 500 !important;
-    line-height: 1.2 !important;
+    line-height: 1.1 !important; /* Tighter line height */
     color: hsl(var(--foreground)) !important;
     text-align: center !important;
     width: 100% !important;
@@ -192,30 +192,39 @@
     padding-bottom: 0 !important;
   }
 
-  /* Categories section on mobile - no bottom spacing */
+  /* Categories section on mobile - minimal spacing for 8% screen height */
   @media (max-width: 640px) {
     .pt-2.pb-0 {
-      padding-bottom: 0.5rem !important; /* Reduced padding */
-      margin-bottom: 0.5rem !important; /* Reduced margin */
+      padding-bottom: 0.125rem !important; /* Minimal padding */
+      margin-bottom: 0.125rem !important; /* Minimal margin */
     }
 
     .mobile-categories-swiper {
-      margin-bottom: 0.5rem !important; /* Reduced margin */
-      padding-bottom: 0.5rem !important; /* Reduced padding */
+      margin-bottom: 0.125rem !important; /* Minimal margin */
+      padding-bottom: 0.125rem !important; /* Minimal padding */
+      max-height: 6vh !important; /* Limit height within 8% section */
     }
 
     .mobile-categories-swiper .swiper-wrapper {
-      padding-bottom: 0.5rem !important; /* Reduced padding */
+      padding-bottom: 0.125rem !important; /* Minimal padding */
     }
 
     /* Force remove all bottom margins and padding */
     .mb-0.pb-0 {
-      margin-bottom: 0.5rem !important; /* Reduced margin */
-      padding-bottom: 0.5rem !important; /* Reduced padding */
+      margin-bottom: 0.125rem !important; /* Minimal margin */
+      padding-bottom: 0.125rem !important; /* Minimal padding */
     }
 
     .categories-section * {
-      margin-bottom: 0.5rem !important; /* Reduced margin */
+      margin-bottom: 0.125rem !important; /* Minimal margin */
+    }
+
+    /* Ensure pagination fits within the 8% constraint */
+    .mobile-categories-pagination {
+      margin-top: 0.25rem !important;
+      margin-bottom: 0.25rem !important;
+      padding: 0.125rem 0 !important;
+      min-height: 12px !important;
     }
   }
 

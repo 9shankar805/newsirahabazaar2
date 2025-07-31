@@ -844,10 +844,10 @@ export default function Homepage() {
       </section>
 
       {/* Categories/Menu Section */}
-      <section className="pt-2 pb-2 sm:py-8 lg:py-12 bg-background">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="mb-2 sm:mb-6">
-            <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground">
+      <section className="py-1 bg-background" style={{ minHeight: '8vh', maxHeight: '8vh' }}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
+          <div className="mb-1 sm:mb-2">
+            <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground">
               {mode === "shopping" ? "Categories" : "Menu"}
             </h2>
           </div>
