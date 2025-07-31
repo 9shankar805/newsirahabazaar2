@@ -3115,5 +3115,5 @@ async function createStorage(): Promise<IStorage> {
 // Export storage promise that resolves to the appropriate storage
 export const storagePromise = createStorage();
 
-// Use database storage directly
-export const storage = new DatabaseStorage();
+// Use memory storage due to database quota issues
+export const storage = new MemoryStorage();

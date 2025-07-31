@@ -103,14 +103,21 @@ export default function DistanceBasedProductSearch({
         // Fallback to regular products API for non-food items
         const params = new URLSearchParams();
         if (searchQuery?.trim()) params.append('search', searchQuery.trim());
-        if (category?.trim()) params.append('category', category.trim());
+        if (category?.trim()) {
+          // Convert category string to ID if it's a number, otherwise use as-is
+          const categoryParam = isNaN(Number(category)) ? category.trim() : category.trim();
+          params.append('category', categoryParam);
+          console.log(`[CATEGORY FILTER] Searching for category: ${categoryParam}`);
+        }
         
         const response = await fetch(`/api/products?${params}`);
         if (!response.ok) {
           const errorText = await response.text();
           throw new Error(`Failed to fetch products: ${response.status} ${errorText}`);
         }
-        return response.json();
+        const data = await response.json();
+        console.log(`[PRODUCTS] Found ${data.length} products for category: ${category}`);
+        return data;
       } catch (error) {
         console.error('Error fetching products:', error);
         throw error;

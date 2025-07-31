@@ -7,17 +7,17 @@ export default function Categories() {
   const { mode } = useAppMode();
 
   const shoppingCategories = [
-    { name: "Electronics", icon: "📱", href: "/products?category=4" },
-    { name: "Clothing", icon: "👕", href: "/products?category=5" },
-    { name: "Books", icon: "📚", href: "/products?category=6" },
-    { name: "Sports", icon: "⚽", href: "/products?category=7" },
-    { name: "Beauty", icon: "💄", href: "/products?category=8" },
-    { name: "Toys", icon: "🧸", href: "/products?category=9" },
-    { name: "Health", icon: "🏥", href: "/products?category=10" },
-    { name: "Automotive", icon: "🚗", href: "/products?category=11" },
-    { name: "Garden", icon: "🌱", href: "/products?category=12" },
-    { name: "Groceries", icon: "🛒", href: "/products?category=2" },
-    { name: "Fancy Items", icon: "💎", href: "/products?category=3" },
+    { name: "Electronics", icon: "📱", href: "/products?category=1" },
+    { name: "Fashion & Clothing", icon: "👕", href: "/products?category=2" },
+    { name: "Food & Beverages", icon: "🍔", href: "/products?category=3" },
+    { name: "Health & Pharmacy", icon: "🏥", href: "/products?category=4" },
+    { name: "Sports & Fitness", icon: "⚽", href: "/products?category=5" },
+    { name: "Books & Education", icon: "📚", href: "/products?category=6" },
+    { name: "Beauty & Personal Care", icon: "💄", href: "/products?category=7" },
+    { name: "Toys & Games", icon: "🧸", href: "/products?category=8" },
+    { name: "Home & Garden", icon: "🏠", href: "/products?category=9" },
+    { name: "Automotive", icon: "🚗", href: "/products?category=10" },
+    { name: "Music & Entertainment", icon: "🎵", href: "/products?category=11" },
   ];
 
   const foodCategories = [

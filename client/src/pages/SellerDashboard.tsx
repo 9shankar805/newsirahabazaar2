@@ -156,6 +156,7 @@ export default function ShopkeeperDashboard() {
   const [allergens, setAllergens] = useState<string[]>([]);
   const [newIngredient, setNewIngredient] = useState("");
   const [newAllergen, setNewAllergen] = useState("");
+  const [isEditStoreOpen, setIsEditStoreOpen] = useState(false);
   const { user } = useAuth();
   const { toast } = useToast();
 
@@ -349,6 +350,28 @@ export default function ShopkeeperDashboard() {
     },
   });
 
+  const editStoreForm = useForm<StoreForm>({
+    resolver: zodResolver(storeSchema),
+    defaultValues: {
+      name: "",
+      description: "",
+      address: "",
+      latitude: "",
+      longitude: "",
+      phone: "",
+      website: "",
+      logo: "",
+      coverImage: "",
+      storeType: "retail",
+      cuisineType: "",
+      deliveryTime: "",
+      minimumOrder: "",
+      deliveryFee: "",
+      isDeliveryAvailable: false,
+      openingHours: "",
+    },
+  });
+
   // Stats calculations
   const totalOrders = orders.length;
   const totalProducts = products.length;
@@ -506,6 +529,63 @@ export default function ShopkeeperDashboard() {
           error instanceof Error ? error.message : "Failed to create store",
         variant: "destructive",
       });
+    }
+  };
+
+  // Store update handler
+  const handleUpdateStore = async (data: StoreForm) => {
+    if (!currentStore?.id) return;
+    
+    try {
+      const storeData = {
+        ...data,
+        minimumOrder: data.minimumOrder || null,
+        deliveryFee: data.deliveryFee || null,
+        latitude: storeLocation?.latitude?.toString() || data.latitude,
+        longitude: storeLocation?.longitude?.toString() || data.longitude,
+      };
+
+      await apiPut(`/api/stores/${currentStore.id}`, storeData);
+      
+      queryClient.invalidateQueries({ queryKey: [`/api/stores/owner`, user?.id] });
+      
+      setIsEditStoreOpen(false);
+      toast({
+        title: "Success",
+        description: "Store updated successfully",
+      });
+    } catch (error) {
+      console.error("Store update error:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update store",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Open edit store dialog
+  const openEditStoreDialog = () => {
+    if (currentStore) {
+      editStoreForm.reset({
+        name: currentStore.name || "",
+        description: currentStore.description || "",
+        address: currentStore.address || "",
+        latitude: currentStore.latitude || "",
+        longitude: currentStore.longitude || "",
+        phone: currentStore.phone || "",
+        website: currentStore.website || "",
+        logo: currentStore.logo || "",
+        coverImage: currentStore.coverImage || "",
+        storeType: currentStore.storeType === "restaurant" ? "restaurant" : "retail",
+        cuisineType: currentStore.cuisineType || "",
+        deliveryTime: currentStore.deliveryTime || "",
+        minimumOrder: currentStore.minimumOrder?.toString() || "",
+        deliveryFee: currentStore.deliveryFee?.toString() || "",
+        isDeliveryAvailable: Boolean(currentStore.isDeliveryAvailable),
+        openingHours: currentStore.openingHours || "",
+      });
+      setIsEditStoreOpen(true);
     }
   };
 
@@ -2154,6 +2234,13 @@ export default function ShopkeeperDashboard() {
                       <div className="flex items-center gap-2">
                         <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
                         <span className="text-sm text-muted-foreground">{currentStore.rating || "0.0"} ({currentStore.totalReviews || 0} reviews)</span>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => window.open(`/store/${currentStore.id}#store-reviews`, '_blank')}
+                        >
+                          View Reviews
+                        </Button>
                       </div>
                     </div>
                     <div className="space-y-2">
@@ -2167,7 +2254,7 @@ export default function ShopkeeperDashboard() {
                   <Separator />
                   
                   <div className="flex gap-4">
-                    <Button variant="outline" className="flex-1">
+                    <Button variant="outline" className="flex-1" onClick={openEditStoreDialog}>
                       <Edit className="h-4 w-4 mr-2" />
                       Edit Store Details
                     </Button>
@@ -3097,6 +3184,94 @@ export default function ShopkeeperDashboard() {
             </DialogContent>
           </Dialog>
         )}
+
+        {/* Edit Store Dialog */}
+        <Dialog open={isEditStoreOpen} onOpenChange={setIsEditStoreOpen}>
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Edit Store Details</DialogTitle>
+              <DialogDescription>
+                Update your store information and settings
+              </DialogDescription>
+            </DialogHeader>
+            <Form {...editStoreForm}>
+              <form
+                onSubmit={editStoreForm.handleSubmit(handleUpdateStore)}
+                className="space-y-6"
+              >
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormField
+                    control={editStoreForm.control}
+                    name="name"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Store Name</FormLabel>
+                        <FormControl>
+                          <Input placeholder="My Awesome Store" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={editStoreForm.control}
+                    name="phone"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Phone Number</FormLabel>
+                        <FormControl>
+                          <Input placeholder="+1234567890" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <FormField
+                  control={editStoreForm.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Description</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Tell customers about your store"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={editStoreForm.control}
+                  name="address"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Address</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Store Address" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <div className="flex justify-end space-x-2">
+                  <Button type="button" variant="outline" onClick={() => setIsEditStoreOpen(false)}>
+                    Cancel
+                  </Button>
+                  <Button type="submit">
+                    Update Store
+                  </Button>
+                </div>
+              </form>
+            </Form>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
