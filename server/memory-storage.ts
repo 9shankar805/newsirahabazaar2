@@ -713,10 +713,40 @@ export class MemoryStorage implements IStorage {
     return true;
   }
 
-  // Placeholder implementations for other required methods
-  async getPendingUsers(): Promise<User[]> { return []; }
-  async approveUser(): Promise<User | undefined> { return undefined; }
-  async rejectUser(): Promise<User | undefined> { return undefined; }
+  // User approval operations
+  async getPendingUsers(): Promise<User[]> { 
+    return this.users.filter(user => user.status === 'pending');
+  }
+  
+  async approveUser(userId: number, adminId: number): Promise<User | undefined> {
+    const userIndex = this.users.findIndex(user => user.id === userId);
+    if (userIndex === -1) return undefined;
+    
+    this.users[userIndex] = {
+      ...this.users[userIndex],
+      status: 'active',
+      approvalDate: new Date(),
+      approvedBy: adminId,
+      updatedAt: new Date()
+    };
+    
+    return this.users[userIndex];
+  }
+  
+  async rejectUser(userId: number, adminId: number): Promise<User | undefined> {
+    const userIndex = this.users.findIndex(user => user.id === userId);
+    if (userIndex === -1) return undefined;
+    
+    this.users[userIndex] = {
+      ...this.users[userIndex],
+      status: 'rejected',
+      approvalDate: new Date(),
+      approvedBy: adminId,
+      updatedAt: new Date()
+    };
+    
+    return this.users[userIndex];
+  }
   async getAllUsersWithStatus(): Promise<User[]> { return this.users; }
   async getAdminUser(): Promise<any> { return undefined; }
   async getAdminUserByEmail(): Promise<any> { return undefined; }
