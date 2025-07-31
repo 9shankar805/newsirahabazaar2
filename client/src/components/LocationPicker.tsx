@@ -64,24 +64,37 @@ export function LocationPicker({
   }, [latitude, longitude]);
 
   const handleMapClick = useCallback(async (lat: number, lng: number) => {
+    console.log('Map clicked at:', lat, lng); // Debug log
     setMarkerPosition([lat, lng]);
+    setMapLoading(true);
     
-    // Get address for the clicked location
-    const newAddress = await reverseGeocode(lat, lng);
-    const googleMapsLink = `https://maps.google.com/?q=${lat},${lng}`;
+    try {
+      // Get address for the clicked location
+      const newAddress = await reverseGeocode(lat, lng);
+      const googleMapsLink = `https://maps.google.com/?q=${lat},${lng}`;
 
-    // Update form data
-    onLocationChange({
-      address: newAddress,
-      latitude: lat.toString(),
-      longitude: lng.toString(),
-      googleMapsLink,
-    });
+      // Update form data
+      onLocationChange({
+        address: newAddress,
+        latitude: lat.toString(),
+        longitude: lng.toString(),
+        googleMapsLink,
+      });
 
-    toast({
-      title: "Location selected",
-      description: "Location has been set from map",
-    });
+      toast({
+        title: "📍 Location Selected",
+        description: `Location set: ${newAddress}`,
+      });
+    } catch (error) {
+      console.error('Error processing map click:', error);
+      toast({
+        title: "Error",
+        description: "Failed to get address for selected location",
+        variant: "destructive",
+      });
+    } finally {
+      setMapLoading(false);
+    }
   }, [onLocationChange, toast]);
 
   const getCurrentLocation = async () => {
@@ -240,7 +253,15 @@ export function LocationPicker({
             </div>
           </CardHeader>
           <CardContent>
-            <div className="w-full h-[600px] rounded-lg border border-border overflow-hidden">
+            <div className="w-full h-[600px] rounded-lg border border-border overflow-hidden relative">
+              {mapLoading && (
+                <div className="absolute inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center z-50">
+                  <div className="flex items-center gap-2">
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                    <span className="text-sm">Getting location details...</span>
+                  </div>
+                </div>
+              )}
               <TestMap onLocationSelect={handleMapClick} />
             </div>
           </CardContent>

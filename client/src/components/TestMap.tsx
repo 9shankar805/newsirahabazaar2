@@ -55,6 +55,7 @@ interface TestMapProps {
 function MapClickHandler({ onLocationSelect }: { onLocationSelect?: (lat: number, lng: number) => void }) {
   useMapEvents({
     click: (e) => {
+      console.log('Map clicked:', e.latlng); // Debug log
       if (onLocationSelect) {
         onLocationSelect(e.latlng.lat, e.latlng.lng);
       }
@@ -75,7 +76,14 @@ export function TestMap({ onLocationSelect }: TestMapProps) {
   }, [onLocationSelect]);
 
   return (
-    <div style={{ height: '600px', width: '100%' }}>
+    <div style={{ height: '600px', width: '100%', position: 'relative' }}>
+      {/* Instructions overlay */}
+      <div className="absolute top-2 left-2 bg-white/90 backdrop-blur-sm rounded-lg p-2 z-[1000] shadow-md">
+        <div className="text-xs font-medium text-gray-700">
+          🎯 Click anywhere to select location
+        </div>
+      </div>
+      
       <MapContainer
         center={defaultPosition}
         zoom={15}
@@ -83,6 +91,7 @@ export function TestMap({ onLocationSelect }: TestMapProps) {
         scrollWheelZoom={true}
         doubleClickZoom={true}
         dragging={true}
+        attributionControl={true}
       >
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -99,14 +108,27 @@ export function TestMap({ onLocationSelect }: TestMapProps) {
           </Popup>
         </Marker>
 
-        {/* Clicked location marker */}
+        {/* Clicked location marker with custom icon */}
         {clickedPosition && (
-          <Marker position={clickedPosition}>
+          <Marker 
+            position={clickedPosition}
+            icon={L.icon({
+              iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+              shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+              iconSize: [25, 41],
+              iconAnchor: [12, 41],
+              popupAnchor: [1, -34],
+              shadowSize: [41, 41],
+              className: 'selected-location-marker'
+            })}
+          >
             <Popup>
-              <div className="text-center">
-                <strong>Selected Location</strong><br />
-                Lat: {clickedPosition[0].toFixed(6)}<br />
-                Lng: {clickedPosition[1].toFixed(6)}
+              <div className="text-center p-2">
+                <strong className="text-green-600">✅ Selected Location</strong><br />
+                <span className="text-xs text-gray-600">
+                  Lat: {clickedPosition[0].toFixed(6)}<br />
+                  Lng: {clickedPosition[1].toFixed(6)}
+                </span>
               </div>
             </Popup>
           </Marker>
