@@ -1022,124 +1022,65 @@ export default function Homepage() {
             </div>
           </div>
 
-          {/* Desktop Slider Layout - Horizontal slider showing all categories in rows */}
-          <div className="hidden sm:block relative">
-            <Swiper
-              modules={[FreeMode, Navigation]}
-              spaceBetween={16}
-              slidesPerView="auto"
-              freeMode={{
-                enabled: true,
-                sticky: false,
-                momentumBounce: false,
-                momentumRatio: 0.6,
-                momentumVelocityRatio: 0.6,
-              }}
-              navigation={{
-                nextEl: '.desktop-categories-next',
-                prevEl: '.desktop-categories-prev',
-              }}
-              grabCursor={true}
-              className="desktop-categories-swiper !overflow-visible"
-              breakpoints={{
-                640: {
-                  slidesPerView: 6,
-                  spaceBetween: 16,
-                },
-                768: {
-                  slidesPerView: 8,
-                  spaceBetween: 16,
-                },
-                1024: {
-                  slidesPerView: 10,
-                  spaceBetween: 18,
-                },
-                1280: {
-                  slidesPerView: 12,
-                  spaceBetween: 20,
-                },
-                1536: {
-                  slidesPerView: 14,
-                  spaceBetween: 20,
-                },
-              }}
-            >
+          {/* Desktop Row Layout - Fixed width categories in proper grid */}
+          <div className="hidden sm:block overflow-x-auto">
+            <div className="flex gap-4 lg:gap-6 min-w-fit px-2">
               {categories.map((category, index) => (
-                <SwiperSlide key={category.name} className="!w-auto">
-                  <Link href={category.href}>
-                    <div className="group flex flex-col items-center p-2 lg:p-3 rounded-xl hover:bg-secondary/50 transition-colors">
-                      {/* Round Category Image */}
-                      <div className="relative w-16 h-16 lg:w-18 lg:h-18 mb-2 overflow-hidden rounded-full shadow-lg">
-                        {category.images && category.images[0] ? (
-                          <img
-                            src={category.images[0]}
-                            alt={category.name}
-                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                            loading="lazy"
-                          />
-                        ) : (
-                          <>
-                            <div className={`absolute inset-0 rounded-full bg-gradient-to-br ${category.gradient} opacity-90 group-hover:opacity-100 transition-opacity`} />
-                            <div className="absolute inset-0 rounded-full flex items-center justify-center">
-                              <span className="text-2xl lg:text-3xl drop-shadow-sm group-hover:scale-110 transition-transform">
-                                {category.icon}
-                              </span>
-                            </div>
-                          </>
-                        )}
-                      </div>
-                      {/* Category Name */}
-                      <span className="text-xs lg:text-sm font-medium text-foreground text-center leading-tight group-hover:text-primary transition-colors min-w-0 w-20">
-                        {category.name}
-                      </span>
+                <Link key={category.name} href={category.href}>
+                  <div className="group flex flex-col items-center p-2 lg:p-3 rounded-xl hover:bg-secondary/50 transition-colors flex-shrink-0">
+                    {/* Round Category Image */}
+                    <div className="relative w-16 h-16 lg:w-20 lg:h-20 mb-2 overflow-hidden rounded-full shadow-lg">
+                      {category.images && category.images[0] ? (
+                        <img
+                          src={category.images[0]}
+                          alt={category.name}
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                          loading="lazy"
+                        />
+                      ) : (
+                        <>
+                          <div className={`absolute inset-0 rounded-full bg-gradient-to-br ${category.gradient} opacity-90 group-hover:opacity-100 transition-opacity`} />
+                          <div className="absolute inset-0 rounded-full flex items-center justify-center">
+                            <span className="text-2xl lg:text-3xl drop-shadow-sm group-hover:scale-110 transition-transform">
+                              {category.icon}
+                            </span>
+                          </div>
+                        </>
+                      )}
                     </div>
-                  </Link>
-                </SwiperSlide>
-              ))}
-              
-              {/* View All Button - Last slide */}
-              <SwiperSlide className="!w-auto">
-                <Link href={mode === "shopping" ? "/categories" : "/food-categories"}>
-                  <div className="group flex flex-col items-center p-2 lg:p-3 rounded-xl hover:bg-secondary/50 transition-colors">
-                    <div className="relative w-16 h-16 lg:w-18 lg:h-18 mb-2 overflow-hidden rounded-full shadow-lg bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800">
-                      <div className="absolute inset-0 rounded-full flex items-center justify-center">
-                        <svg 
-                          className="w-6 h-6 lg:w-8 lg:h-8 text-primary group-hover:scale-110 transition-transform" 
-                          fill="none" 
-                          stroke="currentColor" 
-                          viewBox="0 0 24 24"
-                        >
-                          <path 
-                            strokeLinecap="round" 
-                            strokeLinejoin="round" 
-                            strokeWidth={2} 
-                            d="M4 6h16M4 12h16M4 18h16" 
-                          />
-                        </svg>
-                      </div>
-                    </div>
-                    <span className="text-xs lg:text-sm font-medium text-foreground text-center leading-tight group-hover:text-primary transition-colors min-w-0 w-20">
-                      View All
+                    {/* Category Name */}
+                    <span className="text-xs lg:text-sm font-medium text-foreground text-center leading-tight group-hover:text-primary transition-colors w-20 lg:w-24">
+                      {category.name}
                     </span>
                   </div>
                 </Link>
-              </SwiperSlide>
-            </Swiper>
-            
-            {/* Navigation Arrows */}
-            <div className="desktop-categories-prev absolute left-2 top-1/2 -translate-y-1/2 z-10 cursor-pointer opacity-75 hover:opacity-100 transition-opacity">
-              <div className="w-8 h-8 lg:w-10 lg:h-10 rounded-full bg-white/90 dark:bg-gray-800/90 shadow-lg flex items-center justify-center">
-                <svg className="w-4 h-4 lg:w-5 lg:h-5 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                </svg>
-              </div>
-            </div>
-            <div className="desktop-categories-next absolute right-2 top-1/2 -translate-y-1/2 z-10 cursor-pointer opacity-75 hover:opacity-100 transition-opacity">
-              <div className="w-8 h-8 lg:w-10 lg:h-10 rounded-full bg-white/90 dark:bg-gray-800/90 shadow-lg flex items-center justify-center">
-                <svg className="w-4 h-4 lg:w-5 lg:h-5 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </div>
+              ))}
+              
+              {/* View All Button */}
+              <Link href={mode === "shopping" ? "/categories" : "/food-categories"}>
+                <div className="group flex flex-col items-center p-2 lg:p-3 rounded-xl hover:bg-secondary/50 transition-colors flex-shrink-0">
+                  <div className="relative w-16 h-16 lg:w-20 lg:h-20 mb-2 overflow-hidden rounded-full shadow-lg bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800">
+                    <div className="absolute inset-0 rounded-full flex items-center justify-center">
+                      <svg 
+                        className="w-6 h-6 lg:w-8 lg:h-8 text-primary group-hover:scale-110 transition-transform" 
+                        fill="none" 
+                        stroke="currentColor" 
+                        viewBox="0 0 24 24"
+                      >
+                        <path 
+                          strokeLinecap="round" 
+                          strokeLinejoin="round" 
+                          strokeWidth={2} 
+                          d="M4 6h16M4 12h16M4 18h16" 
+                        />
+                      </svg>
+                    </div>
+                  </div>
+                  <span className="text-xs lg:text-sm font-medium text-foreground text-center leading-tight group-hover:text-primary transition-colors w-20 lg:w-24">
+                    View All
+                  </span>
+                </div>
+              </Link>
             </div>
           </div>
         </div>
