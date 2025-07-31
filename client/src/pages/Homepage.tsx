@@ -753,39 +753,39 @@ export default function Homepage() {
           </div>
           
           {/* Mobile Horizontal Slider */}
-          <div className="block sm:hidden">
+          <div className="block sm:hidden overflow-hidden">
             <Swiper
               modules={[FreeMode, Pagination]}
-              spaceBetween={16}
-              slidesPerView={4.5}
+              spaceBetween={12}
+              slidesPerView={3.2}
               freeMode={true}
               pagination={{
                 clickable: true,
                 el: '.categories-pagination',
                 type: 'bullets',
               }}
-              className="!overflow-visible"
+              className="!overflow-hidden w-full"
               breakpoints={{
                 320: {
+                  slidesPerView: 3,
+                  spaceBetween: 10,
+                },
+                375: {
                   slidesPerView: 3.5,
                   spaceBetween: 12,
                 },
-                375: {
+                414: {
                   slidesPerView: 4,
                   spaceBetween: 14,
-                },
-                425: {
-                  slidesPerView: 4.5,
-                  spaceBetween: 16,
                 },
               }}
             >
               {categories.map((category, index) => (
-                <SwiperSlide key={category.name}>
+                <SwiperSlide key={category.name} className="!w-auto">
                   <Link href={category.href}>
-                    <div className="group flex flex-col items-center w-full">
+                    <div className="group flex flex-col items-center min-w-[70px] max-w-[80px]">
                       {/* Round Category Image */}
-                      <div className="relative w-16 h-16 mb-2 overflow-hidden rounded-full shadow-lg">
+                      <div className="relative w-14 h-14 mb-2 overflow-hidden rounded-full shadow-lg">
                         {category.images && category.images[0] ? (
                           <img
                             src={category.images[imageRotation % category.images.length]}
@@ -807,7 +807,7 @@ export default function Homepage() {
                         <div className="absolute inset-0 rounded-full ring-2 ring-primary/30 scale-0 group-active:scale-110 transition-transform duration-150" />
                       </div>
                       {/* Category Name */}
-                      <span className="text-xs font-medium text-foreground text-center leading-tight max-w-[80px] group-active:text-primary transition-colors">
+                      <span className="text-xs font-medium text-foreground text-center leading-tight w-full group-active:text-primary transition-colors px-1">
                         {category.name}
                       </span>
                     </div>
