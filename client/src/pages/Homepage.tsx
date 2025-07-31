@@ -731,15 +731,29 @@ export default function Homepage() {
           <div className="block sm:hidden">
             <Swiper
               modules={[FreeMode]}
-              spaceBetween={12}
-              slidesPerView="auto"
+              spaceBetween={16}
+              slidesPerView={4.5}
               freeMode={true}
               className="!overflow-visible"
+              breakpoints={{
+                320: {
+                  slidesPerView: 3.5,
+                  spaceBetween: 12,
+                },
+                375: {
+                  slidesPerView: 4,
+                  spaceBetween: 14,
+                },
+                425: {
+                  slidesPerView: 4.5,
+                  spaceBetween: 16,
+                },
+              }}
             >
               {categories.map((category, index) => (
-                <SwiperSlide key={category.name} className="!w-auto">
+                <SwiperSlide key={category.name}>
                   <Link href={category.href}>
-                    <div className="group flex flex-col items-center">
+                    <div className="group flex flex-col items-center w-full">
                       {/* Round Category Image */}
                       <div className="relative w-16 h-16 mb-2 overflow-hidden rounded-full shadow-lg">
                         {category.images && category.images[0] ? (
