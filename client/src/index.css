@@ -176,6 +176,40 @@
   .mobile-categories-pagination {
     margin-top: 0.25rem !important;
     margin-bottom: 0 !important;
+    padding-bottom: 0 !important;
+  }
+  
+  /* Remove all bottom spacing on mobile categories */
+  .categories-section {
+    margin-bottom: 0 !important;
+    padding-bottom: 0 !important;
+  }
+  
+  /* Categories section on mobile - no bottom spacing */
+  @media (max-width: 640px) {
+    .pt-2.pb-0 {
+      padding-bottom: 0 !important;
+      margin-bottom: 0 !important;
+    }
+    
+    .mobile-categories-swiper {
+      margin-bottom: 0 !important;
+      padding-bottom: 0 !important;
+    }
+    
+    .mobile-categories-swiper .swiper-wrapper {
+      padding-bottom: 0 !important;
+    }
+    
+    /* Force remove all bottom margins and padding */
+    .mb-0.pb-0 {
+      margin-bottom: 0 !important;
+      padding-bottom: 0 !important;
+    }
+    
+    .categories-section * {
+      margin-bottom: 0 !important;
+    }
   }
   
   .mobile-category-bullet {

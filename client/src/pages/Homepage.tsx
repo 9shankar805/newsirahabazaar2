@@ -844,7 +844,7 @@ export default function Homepage() {
       </section>
 
       {/* Categories/Menu Section */}
-      <section className="py-2 sm:py-8 lg:py-12 bg-background">
+      <section className="pt-2 pb-0 sm:py-8 lg:py-12 bg-background">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="mb-2 sm:mb-6">
             <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground">
@@ -853,7 +853,7 @@ export default function Homepage() {
           </div>
           
           {/* Mobile Horizontal Slider - Noon-style */}
-          <div className="block sm:hidden categories-section">
+          <div className="block sm:hidden categories-section mb-0 pb-0">
             <Swiper
               modules={[FreeMode, Pagination]}
               spaceBetween={15}
