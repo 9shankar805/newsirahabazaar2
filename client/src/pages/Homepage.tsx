@@ -20,7 +20,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useAppMode } from "@/hooks/useAppMode";
 import type { Product, Store } from "@shared/schema";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation, Pagination, Autoplay } from "swiper/modules";
+import { Navigation, Pagination, Autoplay, FreeMode } from "swiper/modules";
 import { useEffect, useRef, useState } from "react";
 import { apiRequest } from "@/lib/queryClient";
 
@@ -200,6 +200,42 @@ export default function Homepage() {
         "https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=300&h=200&fit=crop&auto=format"
       ]
     },
+    { 
+      name: "Beauty", 
+      icon: "💄", 
+      href: "/products?category=5",
+      gradient: "from-purple-500 to-pink-500"
+    },
+    { 
+      name: "Sports", 
+      icon: "⚽", 
+      href: "/products?category=6",
+      gradient: "from-orange-500 to-red-500"
+    },
+    { 
+      name: "Toys", 
+      icon: "🧸", 
+      href: "/products?category=7",
+      gradient: "from-yellow-400 to-orange-400"
+    },
+    { 
+      name: "Health", 
+      icon: "🏥", 
+      href: "/products?category=8",
+      gradient: "from-teal-500 to-green-500"
+    },
+    { 
+      name: "Automotive", 
+      icon: "🚗", 
+      href: "/products?category=9",
+      gradient: "from-gray-600 to-gray-800"
+    },
+    { 
+      name: "Music", 
+      icon: "🎵", 
+      href: "/products?category=10",
+      gradient: "from-indigo-500 to-purple-500"
+    },
   ];
 
   const foodCategories = [
@@ -246,6 +282,42 @@ export default function Homepage() {
         "https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?w=300&h=200&fit=crop&auto=format",
         "https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=300&h=200&fit=crop&auto=format"
       ]
+    },
+    {
+      name: "Chinese",
+      icon: "🥢",
+      href: "/products?category=food&cuisine=chinese",
+      gradient: "from-red-700 to-yellow-600"
+    },
+    {
+      name: "Italian",
+      icon: "🍝",
+      href: "/products?category=food&cuisine=italian",
+      gradient: "from-green-600 to-red-600"
+    },
+    {
+      name: "Mexican",
+      icon: "🌮",
+      href: "/products?category=food&cuisine=mexican",
+      gradient: "from-green-500 to-red-500"
+    },
+    {
+      name: "Beverages",
+      icon: "🥤",
+      href: "/products?category=food&type=beverages",
+      gradient: "from-blue-500 to-cyan-400"
+    },
+    {
+      name: "Biryani",
+      icon: "🍚",
+      href: "/products?category=food&type=biryani",
+      gradient: "from-orange-600 to-yellow-500"
+    },
+    {
+      name: "Healthy",
+      icon: "🥗",
+      href: "/products?category=food&type=healthy",
+      gradient: "from-green-400 to-lime-500"
     },
   ];
 
@@ -606,67 +678,78 @@ export default function Homepage() {
       </section>
 
       {/* Categories/Menu Section */}
-      <section className="py-8 sm:py-12 lg:py-16 bg-background">
+      <section className="py-6 sm:py-8 lg:py-12 bg-background">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 sm:mb-10 gap-4">
-            <h2 className="text-2xl sm:text-3xl font-bold text-foreground">
+          <div className="flex justify-between items-center mb-4 sm:mb-6">
+            <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground">
               {mode === "shopping" ? "Categories" : "Menu"}
             </h2>
             <Link
               href={mode === "shopping" ? "/categories" : "/food-categories"}
             >
               <Button
-                variant="outline"
-                className="border-primary text-primary hover:bg-primary hover:text-white w-8 h-8 p-0"
+                variant="ghost"
+                className="text-primary hover:bg-primary/10 text-sm p-2"
               >
-                <svg
-                  className="h-4 w-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 5l7 7-7 7"
-                  />
-                </svg>
+                View All
+                <ArrowRight className="ml-1 h-4 w-4" />
               </Button>
             </Link>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-6">
+          
+          {/* Mobile Horizontal Slider */}
+          <div className="block sm:hidden">
+            <Swiper
+              modules={[FreeMode]}
+              spaceBetween={12}
+              slidesPerView="auto"
+              freeMode={true}
+              className="!overflow-visible"
+            >
+              {categories.map((category, index) => (
+                <SwiperSlide key={category.name} className="!w-auto">
+                  <Link href={category.href}>
+                    <div className="group flex flex-col items-center">
+                      {/* Round Category Icon */}
+                      <div className="relative w-16 h-16 mb-2">
+                        <div className={`absolute inset-0 rounded-full bg-gradient-to-br ${category.gradient} opacity-90 group-active:opacity-100 transition-opacity`} />
+                        <div className="absolute inset-0 rounded-full flex items-center justify-center">
+                          <span className="text-2xl drop-shadow-sm">
+                            {category.icon}
+                          </span>
+                        </div>
+                        {/* Ring effect on press */}
+                        <div className="absolute inset-0 rounded-full ring-2 ring-primary/20 scale-0 group-active:scale-110 transition-transform duration-150" />
+                      </div>
+                      {/* Category Name */}
+                      <span className="text-xs font-medium text-foreground text-center leading-tight max-w-[80px] group-active:text-primary transition-colors">
+                        {category.name}
+                      </span>
+                    </div>
+                  </Link>
+                </SwiperSlide>
+              ))}
+            </Swiper>
+          </div>
+
+          {/* Desktop Grid Layout */}
+          <div className="hidden sm:grid sm:grid-cols-4 lg:grid-cols-6 gap-4 lg:gap-6">
             {categories.map((category, index) => (
               <Link key={category.name} href={category.href}>
-                <div className="group relative overflow-hidden rounded-xl bg-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-                  {/* Background Image with Rotation */}
-                  <div className="relative h-24 sm:h-32 overflow-hidden">
-                    <img
-                      src={category.images[imageRotation]}
-                      alt={category.name}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                      loading="lazy"
-                    />
-                    {/* Gradient Overlay */}
-                    <div className={`absolute inset-0 bg-gradient-to-br ${category.gradient} opacity-75 group-hover:opacity-60 transition-opacity duration-300`} />
-                    
-                    {/* Icon */}
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="text-2xl sm:text-3xl transform group-hover:scale-125 transition-transform duration-300 drop-shadow-lg">
+                <div className="group flex flex-col items-center p-4 rounded-xl hover:bg-secondary/50 transition-colors">
+                  {/* Round Category Icon */}
+                  <div className="relative w-20 h-20 mb-3">
+                    <div className={`absolute inset-0 rounded-full bg-gradient-to-br ${category.gradient} opacity-90 group-hover:opacity-100 transition-opacity`} />
+                    <div className="absolute inset-0 rounded-full flex items-center justify-center">
+                      <span className="text-3xl drop-shadow-sm group-hover:scale-110 transition-transform">
                         {category.icon}
-                      </div>
+                      </span>
                     </div>
                   </div>
-                  
                   {/* Category Name */}
-                  <div className="p-3 sm:p-4 bg-white">
-                    <h3 className="text-xs sm:text-sm font-bold text-gray-800 text-center leading-tight group-hover:text-gray-900 transition-colors">
-                      {category.name}
-                    </h3>
-                  </div>
-                  
-                  {/* Hover Effect Shimmer */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+                  <span className="text-sm font-medium text-foreground text-center leading-tight group-hover:text-primary transition-colors">
+                    {category.name}
+                  </span>
                 </div>
               </Link>
             ))}
