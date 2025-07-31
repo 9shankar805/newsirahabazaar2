@@ -169,16 +169,7 @@ export default function Homepage() {
     }
   }, [user, isLoading, setLocation]);
 
-  // Image rotation state
-  const [imageRotation, setImageRotation] = useState(0);
-
-  // Rotate images every 4 seconds
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setImageRotation(prev => (prev + 1) % 3);
-    }, 4000);
-    return () => clearInterval(interval);
-  }, []);
+  // Removed automatic image rotation to prevent confusion with slider movement
 
   const shoppingCategories = [
     { 
@@ -788,7 +779,7 @@ export default function Homepage() {
                       <div className="relative w-14 h-14 mb-2 overflow-hidden rounded-full shadow-lg">
                         {category.images && category.images[0] ? (
                           <img
-                            src={category.images[imageRotation % category.images.length]}
+                            src={category.images[0]}
                             alt={category.name}
                             className="w-full h-full object-cover group-active:scale-110 transition-transform duration-200"
                             loading="lazy"
@@ -831,7 +822,7 @@ export default function Homepage() {
                   <div className="relative w-20 h-20 mb-3 overflow-hidden rounded-full shadow-lg">
                     {category.images && category.images[0] ? (
                       <img
-                        src={category.images[imageRotation % category.images.length]}
+                        src={category.images[0]}
                         alt={category.name}
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                         loading="lazy"
