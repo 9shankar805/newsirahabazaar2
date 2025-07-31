@@ -888,10 +888,12 @@ export default function Homepage() {
                 clickable: true,
                 el: '.mobile-categories-pagination',
                 type: 'bullets',
-                dynamicBullets: true,
-                dynamicMainBullets: 1,
+                dynamicBullets: false,
                 bulletClass: 'mobile-category-bullet',
                 bulletActiveClass: 'mobile-category-bullet-active',
+                renderBullet: function (index, className) {
+                  return '<span class="' + className + '"></span>';
+                },
               }}
               className="mobile-categories-swiper !overflow-visible !pb-2"
               style={{
@@ -993,9 +995,7 @@ export default function Homepage() {
             </Swiper>
             
             {/* Pagination Dots - Noon Style */}
-            <div className="mobile-categories-pagination flex justify-center mt-1">
-              {/* Pagination bullets will be inserted here by Swiper */}
-            </div>
+            <div className="mobile-categories-pagination"></div>
           </div>
 
           {/* Desktop Grid Layout */}
