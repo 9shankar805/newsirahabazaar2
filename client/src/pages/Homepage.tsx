@@ -753,17 +753,28 @@ export default function Homepage() {
                   enabled: true,
                   sticky: false,
                   momentumBounce: false,
+                  momentumRatio: 0.5,
+                  momentumVelocityRatio: 0.5,
                 }}
                 grabCursor={true}
-                touchRatio={1.2}
-                touchAngle={45}
-                threshold={10}
-                longSwipesRatio={0.3}
+                touchRatio={1}
+                touchAngle={30}
+                threshold={5}
+                longSwipesRatio={0.2}
+                longSwipesMs={300}
+                shortSwipes={true}
+                followFinger={true}
                 autoplay={false}
                 loop={false}
                 effect="slide"
-                resistance={true}
-                resistanceRatio={0.85}
+                resistance={false}
+                resistanceRatio={0}
+                preventInteractionOnTransition={false}
+                allowTouchMove={true}
+                simulateTouch={true}
+                touchStartPreventDefault={false}
+                touchStartForcePreventDefault={false}
+                touchMoveStopPropagation={false}
                 pagination={{
                   clickable: true,
                   el: '.categories-pagination',
@@ -774,7 +785,9 @@ export default function Homepage() {
                 className="categories-swiper !overflow-visible !pb-4"
                 style={{
                   paddingLeft: '0px',
-                  paddingRight: '0px'
+                  paddingRight: '0px',
+                  overflow: 'visible',
+                  touchAction: 'pan-x'
                 }}
                 breakpoints={{
                   280: {
