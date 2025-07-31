@@ -743,22 +743,12 @@ export default function Homepage() {
                       {/* Round Category Image */}
                       <div className="relative w-16 h-16 mb-2 overflow-hidden rounded-full shadow-lg">
                         {category.images && category.images[0] ? (
-                          <>
-                            <img
-                              src={category.images[imageRotation % category.images.length]}
-                              alt={category.name}
-                              className="w-full h-full object-cover group-active:scale-110 transition-transform duration-200"
-                              loading="lazy"
-                            />
-                            {/* Subtle overlay for better icon visibility */}
-                            <div className="absolute inset-0 bg-black/20 group-active:bg-black/10 transition-colors" />
-                            {/* Icon overlay */}
-                            <div className="absolute inset-0 flex items-center justify-center">
-                              <span className="text-xl text-white drop-shadow-lg">
-                                {category.icon}
-                              </span>
-                            </div>
-                          </>
+                          <img
+                            src={category.images[imageRotation % category.images.length]}
+                            alt={category.name}
+                            className="w-full h-full object-cover group-active:scale-110 transition-transform duration-200"
+                            loading="lazy"
+                          />
                         ) : (
                           <>
                             <div className={`absolute inset-0 rounded-full bg-gradient-to-br ${category.gradient} opacity-90 group-active:opacity-100 transition-opacity`} />
@@ -791,22 +781,12 @@ export default function Homepage() {
                   {/* Round Category Image */}
                   <div className="relative w-20 h-20 mb-3 overflow-hidden rounded-full shadow-lg">
                     {category.images && category.images[0] ? (
-                      <>
-                        <img
-                          src={category.images[imageRotation % category.images.length]}
-                          alt={category.name}
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                          loading="lazy"
-                        />
-                        {/* Subtle overlay for better icon visibility */}
-                        <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors" />
-                        {/* Icon overlay */}
-                        <div className="absolute inset-0 flex items-center justify-center">
-                          <span className="text-2xl text-white drop-shadow-lg group-hover:scale-110 transition-transform">
-                            {category.icon}
-                          </span>
-                        </div>
-                      </>
+                      <img
+                        src={category.images[imageRotation % category.images.length]}
+                        alt={category.name}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                        loading="lazy"
+                      />
                     ) : (
                       <>
                         <div className={`absolute inset-0 rounded-full bg-gradient-to-br ${category.gradient} opacity-90 group-hover:opacity-100 transition-opacity`} />
