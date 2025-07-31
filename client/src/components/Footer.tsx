@@ -34,7 +34,7 @@ export default function Footer() {
 
             {/* Social Icons - Minimal */}
             <div className="flex space-x-2">
-              <a href="#" className="text-gray-300 hover:text-white transition-colors">
+              <a href="https://www.facebook.com/profile.php?id=61578565817335" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-white transition-colors">
                 <Facebook className="h-3.5 w-3.5" />
               </a>
               <a href="#" className="text-gray-300 hover:text-white transition-colors">
@@ -107,7 +107,7 @@ export default function Footer() {
                 
                 {/* Social Links */}
                 <div className="flex items-center justify-center space-x-4">
-                  <a href="#" className="text-gray-300 hover:text-white transition-colors">
+                  <a href="https://www.facebook.com/profile.php?id=61578565817335" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-white transition-colors">
                     <Facebook className="h-4 w-4" />
                   </a>
                   <a href="#" className="text-gray-300 hover:text-white transition-colors">
