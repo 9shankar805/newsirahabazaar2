@@ -144,11 +144,62 @@ export default function Homepage() {
     }
   }, [user, isLoading, setLocation]);
 
+  // Image rotation state
+  const [imageRotation, setImageRotation] = useState(0);
+
+  // Rotate images every 4 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setImageRotation(prev => (prev + 1) % 3);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, []);
+
   const shoppingCategories = [
-    { name: "Electronics", icon: "📱", href: "/products?category=4" },
-    { name: "Clothing", icon: "👕", href: "/products?category=5" },
-    { name: "Home & Garden", icon: "🏠", href: "/products?category=3" },
-    { name: "Books", icon: "📚", href: "/products?category=6" },
+    { 
+      name: "Electronics", 
+      icon: "📱", 
+      href: "/products?category=1",
+      gradient: "from-blue-500 to-cyan-500",
+      images: [
+        "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=300&h=200&fit=crop&auto=format",
+        "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=300&h=200&fit=crop&auto=format",
+        "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=300&h=200&fit=crop&auto=format"
+      ]
+    },
+    { 
+      name: "Fashion", 
+      icon: "👕", 
+      href: "/products?category=2",
+      gradient: "from-pink-500 to-rose-500",
+      images: [
+        "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=300&h=200&fit=crop&auto=format",
+        "https://images.unsplash.com/photo-1445205170230-053b83016050?w=300&h=200&fit=crop&auto=format",
+        "https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?w=300&h=200&fit=crop&auto=format"
+      ]
+    },
+    { 
+      name: "Home & Garden", 
+      icon: "🏠", 
+      href: "/products?category=3",
+      gradient: "from-green-500 to-emerald-500",
+      images: [
+        "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=300&h=200&fit=crop&auto=format",
+        "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=300&h=200&fit=crop&auto=format",
+        "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=300&h=200&fit=crop&auto=format"
+      ]
+    },
+    { 
+      name: "Books", 
+      icon: "📚", 
+      href: "/products?category=4",
+      gradient: "from-amber-500 to-orange-500",
+      images: [
+        "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=300&h=200&fit=crop&auto=format",
+        "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=200&fit=crop&auto=format",
+        "https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=300&h=200&fit=crop&auto=format"
+      ]
+    },
   ];
 
   const foodCategories = [
@@ -156,17 +207,45 @@ export default function Homepage() {
       name: "Indian Cuisine",
       icon: "🍛",
       href: "/products?category=food&cuisine=indian",
+      gradient: "from-red-600 to-orange-600",
+      images: [
+        "https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=300&h=200&fit=crop&auto=format",
+        "https://images.unsplash.com/photo-1567188040759-fb8a883dc6d8?w=300&h=200&fit=crop&auto=format",
+        "https://images.unsplash.com/photo-1574653853027-5d6f2d96c22d?w=300&h=200&fit=crop&auto=format"
+      ]
     },
     {
       name: "Fast Food",
       icon: "🍔",
       href: "/products?category=food&cuisine=fast-food",
+      gradient: "from-yellow-500 to-red-500",
+      images: [
+        "https://images.unsplash.com/photo-1571091718767-18b5b1457add?w=300&h=200&fit=crop&auto=format",
+        "https://images.unsplash.com/photo-1550547660-d9450f859349?w=300&h=200&fit=crop&auto=format",
+        "https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=300&h=200&fit=crop&auto=format"
+      ]
     },
-    { name: "Pizza", icon: "🍕", href: "/products?category=food&type=pizza" },
+    { 
+      name: "Pizza", 
+      icon: "🍕", 
+      href: "/products?category=food&type=pizza",
+      gradient: "from-red-500 to-yellow-500",
+      images: [
+        "https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=300&h=200&fit=crop&auto=format",
+        "https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=300&h=200&fit=crop&auto=format",
+        "https://images.unsplash.com/photo-1590534450747-36e3ae8a9daf?w=300&h=200&fit=crop&auto=format"
+      ]
+    },
     {
       name: "Desserts",
       icon: "🍰",
       href: "/products?category=food&cuisine=desserts",
+      gradient: "from-pink-500 to-purple-500",
+      images: [
+        "https://images.unsplash.com/photo-1551024506-0bccd828d307?w=300&h=200&fit=crop&auto=format",
+        "https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?w=300&h=200&fit=crop&auto=format",
+        "https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=300&h=200&fit=crop&auto=format"
+      ]
     },
   ];
 
@@ -556,16 +635,38 @@ export default function Homepage() {
               </Button>
             </Link>
           </div>
-          <div className="grid grid-cols-4 gap-2 sm:gap-4">
-            {categories.map((category) => (
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-6">
+            {categories.map((category, index) => (
               <Link key={category.name} href={category.href}>
-                <div className="category-card flex flex-col items-center justify-center gap-1 sm:gap-2 p-2 sm:p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow min-h-[80px] sm:min-h-[100px] active:scale-95 transition-transform text-center">
-                  <div className="text-lg sm:text-2xl">
-                    {category.icon}
+                <div className="group relative overflow-hidden rounded-xl bg-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                  {/* Background Image with Rotation */}
+                  <div className="relative h-24 sm:h-32 overflow-hidden">
+                    <img
+                      src={category.images[imageRotation]}
+                      alt={category.name}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                      loading="lazy"
+                    />
+                    {/* Gradient Overlay */}
+                    <div className={`absolute inset-0 bg-gradient-to-br ${category.gradient} opacity-75 group-hover:opacity-60 transition-opacity duration-300`} />
+                    
+                    {/* Icon */}
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="text-2xl sm:text-3xl transform group-hover:scale-125 transition-transform duration-300 drop-shadow-lg">
+                        {category.icon}
+                      </div>
+                    </div>
                   </div>
-                  <div className="text-xs sm:text-sm font-semibold text-foreground leading-tight">
-                    {category.name}
+                  
+                  {/* Category Name */}
+                  <div className="p-3 sm:p-4 bg-white">
+                    <h3 className="text-xs sm:text-sm font-bold text-gray-800 text-center leading-tight group-hover:text-gray-900 transition-colors">
+                      {category.name}
+                    </h3>
                   </div>
+                  
+                  {/* Hover Effect Shimmer */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
                 </div>
               </Link>
             ))}
