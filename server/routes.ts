@@ -5009,6 +5009,107 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Modern food delivery: Get restaurants within 10km radius (like Uber Eats, DoorDash)
+  app.get("/api/food/restaurants", async (req, res) => {
+    try {
+      const { lat, lon, radius } = req.query;
+
+      if (!lat || !lon) {
+        return res.status(400).json({ error: "User location (lat, lon) is required for food delivery" });
+      }
+
+      const userLat = parseFloat(lat as string);
+      const userLon = parseFloat(lon as string);
+      const radiusKm = radius ? parseFloat(radius as string) : 10; // Default 10km like modern food apps
+
+      if (isNaN(userLat) || isNaN(userLon)) {
+        return res.status(400).json({ error: "Invalid coordinates provided" });
+      }
+
+      if (radiusKm <= 0 || radiusKm > 50) {
+        return res.status(400).json({ error: "Radius must be between 1-50 km" });
+      }
+
+      console.log(`[FOOD API] Fetching restaurants within ${radiusKm}km of (${userLat}, ${userLon})`);
+      const restaurants = await storage.getFoodStoresWithinRadius(userLat, userLon, radiusKm);
+      
+      res.json({
+        restaurants,
+        searchRadius: radiusKm,
+        userLocation: { lat: userLat, lon: userLon },
+        count: restaurants.length
+      });
+    } catch (error) {
+      console.error("Food restaurants fetch error:", error);
+      res.status(500).json({ error: "Failed to fetch nearby restaurants" });
+    }
+  });
+
+  // Modern food delivery: Get food items within 10km radius from restaurants
+  app.get("/api/food/items", async (req, res) => {
+    try {
+      const { lat, lon, radius, cuisine, spiceLevel, isVegetarian, search } = req.query;
+
+      if (!lat || !lon) {
+        return res.status(400).json({ error: "User location (lat, lon) is required for food delivery" });
+      }
+
+      const userLat = parseFloat(lat as string);
+      const userLon = parseFloat(lon as string);
+      const radiusKm = radius ? parseFloat(radius as string) : 10; // Default 10km like modern food apps
+
+      if (isNaN(userLat) || isNaN(userLon)) {
+        return res.status(400).json({ error: "Invalid coordinates provided" });
+      }
+
+      if (radiusKm <= 0 || radiusKm > 50) {
+        return res.status(400).json({ error: "Radius must be between 1-50 km" });
+      }
+
+      console.log(`[FOOD API] Fetching food items within ${radiusKm}km of (${userLat}, ${userLon})`);
+      let foodItems = await storage.getFoodItemsWithinRadius(userLat, userLon, radiusKm);
+
+      // Apply additional filters like modern food delivery apps
+      if (cuisine && cuisine !== 'all') {
+        // We'll need to join with store data for cuisine filtering
+        // For now, we can filter based on store name or implement cuisine filtering in the query
+      }
+
+      if (spiceLevel && spiceLevel !== 'all') {
+        foodItems = foodItems.filter(item => item.spiceLevel === spiceLevel);
+      }
+
+      if (isVegetarian === 'true') {
+        foodItems = foodItems.filter(item => item.isVegetarian === true);
+      }
+
+      if (search && search.toString().trim().length > 0) {
+        const searchTerm = search.toString().toLowerCase();
+        foodItems = foodItems.filter(item => 
+          item.name.toLowerCase().includes(searchTerm) ||
+          item.description?.toLowerCase().includes(searchTerm) ||
+          item.storeName.toLowerCase().includes(searchTerm)
+        );
+      }
+
+      res.json({
+        items: foodItems,
+        searchRadius: radiusKm,
+        userLocation: { lat: userLat, lon: userLon },
+        count: foodItems.length,
+        filters: {
+          cuisine: cuisine || 'all',
+          spiceLevel: spiceLevel || 'all',
+          isVegetarian: isVegetarian === 'true',
+          search: search || ''
+        }
+      });
+    } catch (error) {
+      console.error("Food items fetch error:", error);
+      res.status(500).json({ error: "Failed to fetch food items" });
+    }
+  });
+
   // Get single store by ID (must come after /api/stores/nearby to avoid conflicts)
   app.get("/api/stores/:id", async (req, res) => {
     try {

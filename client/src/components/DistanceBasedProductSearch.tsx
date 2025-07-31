@@ -68,11 +68,39 @@ export default function DistanceBasedProductSearch({
     getUserLocation();
   }, []);
 
-  // Fetch products
+  // Fetch products - use food-specific API when in food mode and location is available
   const { data: products = [], isLoading, error: productsError } = useQuery<Product[]>({
-    queryKey: ["/api/products", { search: searchQuery, category }],
+    queryKey: isFoodMode && userLocation 
+      ? ["/api/food/items", userLocation.latitude, userLocation.longitude, { 
+          search: searchQuery, 
+          spiceLevel: spiceLevelFilter,
+          isVegetarian: dietaryFilter === 'vegetarian',
+          radius: 10 // Modern food apps use 10km default
+        }]
+      : ["/api/products", { search: searchQuery, category }],
     queryFn: async () => {
       try {
+        // Use modern food delivery API for food items with 10km radius
+        if (isFoodMode && userLocation) {
+          const params = new URLSearchParams({
+            lat: userLocation.latitude.toString(),
+            lon: userLocation.longitude.toString(),
+            radius: '10', // 10km radius like Uber Eats, DoorDash
+          });
+          
+          if (searchQuery) params.append('search', searchQuery);
+          if (spiceLevelFilter !== 'all') params.append('spiceLevel', spiceLevelFilter);
+          if (dietaryFilter === 'vegetarian') params.append('isVegetarian', 'true');
+          
+          const response = await fetch(`/api/food/items?${params}`);
+          if (!response.ok) throw new Error('Failed to fetch food items');
+          
+          const data = await response.json();
+          console.log(`[FOOD] Found ${data.count} food items within ${data.searchRadius}km`);
+          return data.items;
+        }
+        
+        // Fallback to regular products API for non-food items
         const params = new URLSearchParams();
         if (searchQuery?.trim()) params.append('search', searchQuery.trim());
         if (category?.trim()) params.append('category', category.trim());

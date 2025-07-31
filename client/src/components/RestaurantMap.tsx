@@ -195,17 +195,24 @@ export default function RestaurantMap({ cuisineFilter }: RestaurantMapProps) {
     }
   };
 
-  // Fetch nearby restaurants when user location is available
+  // Fetch nearby restaurants when user location is available - using modern 10km radius API
   const { data: nearbyRestaurants, isLoading } = useQuery<RestaurantWithDistance[]>({
-    queryKey: ["/api/stores/nearby", userLocation?.latitude, userLocation?.longitude, "restaurant", cuisineFilter],
+    queryKey: ["/api/food/restaurants", userLocation?.latitude, userLocation?.longitude, cuisineFilter],
     queryFn: async () => {
       if (!userLocation) return [];
       
-      let url = `/api/stores/nearby?lat=${userLocation.latitude}&lon=${userLocation.longitude}&storeType=restaurant`;
-      const response = await fetch(url);
+      // Use modern food delivery API with 10km radius (like Uber Eats, DoorDash)
+      const params = new URLSearchParams({
+        lat: userLocation.latitude.toString(),
+        lon: userLocation.longitude.toString(),
+        radius: '10' // 10km radius for modern food delivery
+      });
+      
+      const response = await fetch(`/api/food/restaurants?${params}`);
       if (!response.ok) throw new Error("Failed to fetch nearby restaurants");
       
-      let restaurants = await response.json();
+      const data = await response.json();
+      let restaurants = data.restaurants;
       
       // Filter by cuisine type if specified
       if (cuisineFilter && cuisineFilter !== 'all') {
@@ -214,6 +221,7 @@ export default function RestaurantMap({ cuisineFilter }: RestaurantMapProps) {
         );
       }
       
+      console.log(`[RESTAURANT MAP] Found ${restaurants.length} restaurants within ${data.searchRadius}km`);
       return restaurants;
     },
     enabled: !!userLocation && showNearbyRestaurants,

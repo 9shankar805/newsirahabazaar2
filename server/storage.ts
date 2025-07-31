@@ -141,6 +141,10 @@ export interface IStorage {
   // Distance calculation between stores and user location
   calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number;
   getStoresWithDistance(userLat: number, userLon: number, storeType?: string): Promise<(Store & { distance: number })[]>;
+  
+  // Food-specific methods with 10km radius filtering like modern apps
+  getFoodStoresWithinRadius(userLat: number, userLon: number, radiusKm?: number): Promise<(Store & { distance: number })[]>;
+  getFoodItemsWithinRadius(userLat: number, userLon: number, radiusKm?: number): Promise<(Product & { distance: number; storeName: string; storeAddress: string; deliveryTime?: string })[]>;
 
   // Seller hub analytics
   getSellerDashboardStats(storeId: number): Promise<{
@@ -1169,6 +1173,159 @@ export class DatabaseStorage implements IStorage {
       return storesWithDistance.sort((a, b) => a.distance - b.distance);
     } catch (error) {
       console.error('Error getting stores with distance:', error);
+      throw error;
+    }
+  }
+
+  // Modern food delivery app: Get restaurants within 10km radius (default)
+  async getFoodStoresWithinRadius(userLat: number, userLon: number, radiusKm: number = 10): Promise<(Store & { distance: number })[]> {
+    try {
+      console.log(`[DEBUG] getFoodStoresWithinRadius called with userLat: ${userLat}, userLon: ${userLon}, radius: ${radiusKm}km`);
+      
+      // Get all restaurant/food stores only - with database fallback
+      const foodStores = await this.getAllStores();
+      const restaurantStores = foodStores.filter(store => 
+        store.storeType === 'restaurant' || 
+        store.name.toLowerCase().includes('restaurant') ||
+        store.name.toLowerCase().includes('pizza') ||
+        store.name.toLowerCase().includes('burger') ||
+        store.name.toLowerCase().includes('food')
+      );
+      
+      console.log(`[DEBUG] Found ${restaurantStores.length} food stores from ${foodStores.length} total stores`);
+
+      const storesWithDistance = restaurantStores.map((store) => {
+        const storeLat = parseFloat(store.latitude || '0');
+        const storeLon = parseFloat(store.longitude || '0');
+        
+        // Skip stores without coordinates
+        if (!store.latitude || !store.longitude || storeLat === 0 || storeLon === 0) {
+          console.log(`[DEBUG] Skipping food store ${store.name} - missing coordinates`);
+          return null;
+        }
+        
+        const distance = this.calculateDistance(userLat, userLon, storeLat, storeLon);
+        
+        // Filter by radius (10km default, like Uber Eats, DoorDash)
+        if (distance > radiusKm) {
+          console.log(`[DEBUG] Filtering out ${store.name} - ${distance}km exceeds ${radiusKm}km radius`);
+          return null;
+        }
+
+        console.log(`[DEBUG] Food store ${store.name} within radius: ${distance}km`);
+        return {
+          ...store,
+          distance: Math.round(distance * 100) / 100 // Round to 2 decimal places
+        };
+      }).filter(store => store !== null) as (Store & { distance: number })[];
+
+      console.log(`[DEBUG] Returning ${storesWithDistance.length} food stores within ${radiusKm}km radius`);
+      return storesWithDistance.sort((a, b) => a.distance - b.distance);
+    } catch (error) {
+      console.error('Error getting food stores within radius:', error);
+      throw error;
+    }
+  }
+
+  // Modern food delivery app: Get food items from restaurants within 10km radius
+  async getFoodItemsWithinRadius(userLat: number, userLon: number, radiusKm: number = 10): Promise<(Product & { distance: number; storeName: string; storeAddress: string; deliveryTime?: string })[]> {
+    try {
+      console.log(`[DEBUG] getFoodItemsWithinRadius called with userLat: ${userLat}, userLon: ${userLon}, radius: ${radiusKm}km`);
+      
+      // Use memory storage fallback - get all products and stores
+      const allProducts = await this.getAllProducts();
+      const allStores = await this.getAllStores();
+      
+      // Filter to food products only
+      const foodProducts = allProducts.filter(product => 
+        product.productType === 'food' || 
+        product.name.toLowerCase().includes('pizza') ||
+        product.name.toLowerCase().includes('burger') ||
+        product.name.toLowerCase().includes('sandwich') ||
+        product.name.toLowerCase().includes('chicken') ||
+        product.name.toLowerCase().includes('pasta') ||
+        product.name.toLowerCase().includes('rice') ||
+        product.name.toLowerCase().includes('noodles')
+      );
+      
+      // Create food items with store information
+      const foodItemsWithStores = foodProducts.map(product => {
+        const store = allStores.find(s => s.id === product.storeId);
+        if (!store) return null;
+        
+        return {
+          ...product,
+          storeName: store.name,
+          storeAddress: store.address,
+          storeLatitude: store.latitude,
+          storeLongitude: store.longitude,
+          deliveryTime: store.deliveryTime,
+          storeType: store.storeType,
+          cuisineType: store.cuisineType,
+          isDeliveryAvailable: store.isActive
+        };
+      }).filter(item => item !== null);
+
+      console.log(`[DEBUG] Found ${foodItemsWithStores.length} food items from restaurants`);
+
+      const itemsWithDistance = foodItemsWithStores.map((item) => {
+        const storeLat = parseFloat(item.storeLatitude || '0');
+        const storeLon = parseFloat(item.storeLongitude || '0');
+        
+        // Skip items from stores without coordinates
+        if (!item.storeLatitude || !item.storeLongitude || storeLat === 0 || storeLon === 0) {
+          console.log(`[DEBUG] Skipping food item ${item.name} from ${item.storeName} - missing store coordinates`);
+          return null;
+        }
+        
+        const distance = this.calculateDistance(userLat, userLon, storeLat, storeLon);
+        
+        // Filter by radius (10km default, like modern food apps)
+        if (distance > radiusKm) {
+          return null;
+        }
+
+        // Transform to match Product type with additional fields
+        return {
+          id: item.id,
+          name: item.name,
+          slug: item.slug,
+          description: item.description,
+          price: item.price,
+          originalPrice: item.originalPrice,
+          categoryId: item.categoryId,
+          storeId: item.storeId,
+          stock: item.stock,
+          imageUrl: item.imageUrl,
+          images: item.images,
+          rating: item.rating,
+          totalReviews: item.totalReviews,
+          isActive: item.isActive,
+          isFastSell: item.isFastSell,
+          isOnOffer: item.isOnOffer,
+          offerPercentage: item.offerPercentage,
+          offerEndDate: item.offerEndDate,
+          productType: item.productType,
+          preparationTime: item.preparationTime,
+          ingredients: item.ingredients,
+          allergens: item.allergens,
+          spiceLevel: item.spiceLevel,
+          isVegetarian: item.isVegetarian,
+          isVegan: item.isVegan,
+          nutritionInfo: item.nutritionInfo,
+          createdAt: item.createdAt,
+          // Additional fields for food delivery
+          distance: Math.round(distance * 100) / 100,
+          storeName: item.storeName,
+          storeAddress: item.storeAddress,
+          deliveryTime: item.deliveryTime,
+        };
+      }).filter(item => item !== null) as (Product & { distance: number; storeName: string; storeAddress: string; deliveryTime?: string })[];
+
+      console.log(`[DEBUG] Returning ${itemsWithDistance.length} food items within ${radiusKm}km radius`);
+      return itemsWithDistance.sort((a, b) => a.distance - b.distance);
+    } catch (error) {
+      console.error('Error getting food items within radius:', error);
       throw error;
     }
   }
