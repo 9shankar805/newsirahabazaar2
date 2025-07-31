@@ -35,7 +35,7 @@
     max-width: 100% !important;
     overflow: visible !important;
   }
-  
+
   .mobile-category-item {
     display: flex !important;
     flex-direction: column !important;
@@ -51,12 +51,12 @@
     touch-action: manipulation !important;
     -webkit-tap-highlight-color: transparent !important;
   }
-  
+
   .mobile-category-item:active {
     transform: scale(0.95) !important;
     background-color: rgba(37, 99, 235, 0.05) !important;
   }
-  
+
   .mobile-category-icon {
     width: 48px !important;
     height: 48px !important;
@@ -67,18 +67,18 @@
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
     flex-shrink: 0 !important;
   }
-  
+
   .mobile-category-icon img {
     width: 100% !important;
     height: 100% !important;
     object-fit: cover !important;
     transition: transform 0.2s ease !important;
   }
-  
+
   .mobile-category-item:active .mobile-category-icon img {
     transform: scale(1.05) !important;
   }
-  
+
   .mobile-category-name {
     font-size: 0.625rem !important; /* 10px */
     font-weight: 500 !important;
@@ -95,22 +95,22 @@
     word-wrap: break-word !important;
     hyphens: auto !important;
   }
-  
+
   .mobile-category-item:active .mobile-category-name {
     color: hsl(var(--primary)) !important;
   }
-  
+
   /* View All Button Styling */
   .mobile-view-all-category {
     background: linear-gradient(135deg, hsl(var(--primary) / 0.1), hsl(var(--primary) / 0.05)) !important;
     border: 1px solid hsl(var(--primary) / 0.2) !important;
   }
-  
+
   .mobile-view-all-icon {
     background: hsl(var(--primary) / 0.1) !important;
     border: 1px solid hsl(var(--primary) / 0.2) !important;
   }
-  
+
   .mobile-view-all-name {
     color: hsl(var(--primary)) !important;
     font-weight: 600 !important;
@@ -148,20 +148,20 @@
     width: 100% !important;
     max-width: 100vw !important;
   }
-  
+
   .mobile-categories-swiper {
     width: 100% !important;
     overflow: visible !important;
     touch-action: pan-x pan-y !important;
     -webkit-overflow-scrolling: touch !important;
   }
-  
+
   .mobile-categories-swiper .swiper-wrapper {
     align-items: flex-start !important;
     transform-style: preserve-3d !important;
     will-change: transform !important;
   }
-  
+
   .mobile-categories-swiper .swiper-slide {
     display: flex !important;
     justify-content: center !important;
@@ -171,7 +171,7 @@
     user-select: none !important;
     -webkit-user-select: none !important;
   }
-  
+
   /* Noon-style pagination dots */
   .mobile-categories-pagination {
     margin-top: 8px !important;
@@ -182,58 +182,58 @@
     align-items: center !important;
     min-height: 16px !important;
   }
-  
+
   /* Remove all bottom spacing on mobile categories */
   .categories-section {
     margin-bottom: 0 !important;
     padding-bottom: 0 !important;
   }
-  
+
   /* Categories section on mobile - no bottom spacing */
   @media (max-width: 640px) {
     .pt-2.pb-0 {
-      padding-bottom: 0 !important;
-      margin-bottom: 0 !important;
+      padding-bottom: 0.5rem !important; /* Reduced padding */
+      margin-bottom: 0.5rem !important; /* Reduced margin */
     }
-    
+
     .mobile-categories-swiper {
-      margin-bottom: 0 !important;
-      padding-bottom: 0 !important;
+      margin-bottom: 0.5rem !important; /* Reduced margin */
+      padding-bottom: 0.5rem !important; /* Reduced padding */
     }
-    
+
     .mobile-categories-swiper .swiper-wrapper {
-      padding-bottom: 0 !important;
+      padding-bottom: 0.5rem !important; /* Reduced padding */
     }
-    
+
     /* Force remove all bottom margins and padding */
     .mb-0.pb-0 {
-      margin-bottom: 0 !important;
-      padding-bottom: 0 !important;
+      margin-bottom: 0.5rem !important; /* Reduced margin */
+      padding-bottom: 0.5rem !important; /* Reduced padding */
     }
-    
+
     .categories-section * {
-      margin-bottom: 0 !important;
+      margin-bottom: 0.5rem !important; /* Reduced margin */
     }
   }
-  
+
   .swiper-pagination-bullet {
     width: 8px !important;
     height: 8px !important;
     border-radius: 50% !important;
-    background: #000000 !important;
-    opacity: 0.3 !important;
+    background: rgba(0, 0, 0, 0.3) !important; /* Adjusted opacity for better visibility */
+    opacity: 1 !important; /* Ensure opacity is fully applied */
     margin: 0 4px !important;
     cursor: pointer !important;
     transition: all 0.3s ease !important;
     display: inline-block !important;
   }
-  
+
   .swiper-pagination-bullet-active {
-    background: #000000 !important;
+    background: hsl(var(--primary)) !important; /* Use primary color for active bullet */
     opacity: 1 !important;
     transform: scale(1.2) !important;
   }
-  
+
   .mobile-category-bullet {
     width: 8px !important;
     height: 8px !important;
@@ -245,24 +245,24 @@
     transition: all 0.3s ease !important;
     display: inline-block !important;
   }
-  
+
   .mobile-category-bullet-active {
     background: #000000 !important;
     opacity: 1 !important;
     transform: scale(1.2) !important;
   }
-  
+
   /* Dynamic bullets animation */
   .swiper-pagination-bullet-active-main {
     background: hsl(var(--primary)) !important;
   }
-  
+
   .swiper-pagination-bullet-active-prev,
   .swiper-pagination-bullet-active-next {
     background: hsl(var(--primary) / 0.6) !important;
     transform: scale(0.8) !important;
   }
-  
+
   .swiper-pagination-bullet-active-prev-prev,
   .swiper-pagination-bullet-active-next-next {
     background: hsl(var(--primary) / 0.3) !important;
