@@ -243,28 +243,24 @@ export default function ModernProductDetail() {
   console.log('ArrowLeft, Share2, Heart icons from lucide-react');
 
   return (
-    <div className="min-h-screen bg-white modern-product-detail" style={{ paddingTop: '60px', paddingBottom: '144px', overflowX: 'hidden' }}>
-      {/* Header - Fixed position with proper z-index */}
-      <div className="fixed top-0 left-0 right-0 z-[9999] bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm">
-        <div className="flex items-center justify-between px-4 py-3 max-w-md mx-auto">
-          {/* Back Button */}
-          <button
-            onClick={() => {
-              console.log('Back button clicked');
-              setLocation('/products');
-            }}
-            className="flex items-center justify-center p-3 hover:bg-gray-100 rounded-full transition-colors border border-gray-200"
-            style={{ minWidth: '44px', minHeight: '44px' }}
-            title="Go Back"
-          >
-            <ArrowLeft className="h-6 w-6 text-gray-700" strokeWidth={2} />
-            <span className="sr-only">Back</span>
-          </button>
-        </div>
-      </div>
-
+    <div className="min-h-screen bg-white modern-product-detail" style={{ paddingBottom: '144px', overflowX: 'hidden' }}>
       {/* Share and Wishlist Icons - Above Product Image */}
-      <div className="flex justify-end items-center gap-2 px-4 pt-4 pb-2">
+      <div className="flex justify-between items-center gap-2 px-4 pt-4 pb-2">
+        {/* Back Button */}
+        <button
+          onClick={() => {
+            console.log('Back button clicked');
+            setLocation('/products');
+          }}
+          className="flex items-center justify-center p-3 hover:bg-gray-100 rounded-full transition-colors border border-gray-200 bg-white shadow-sm"
+          style={{ minWidth: '44px', minHeight: '44px' }}
+          title="Go Back"
+        >
+          <ArrowLeft className="h-6 w-6 text-gray-700" strokeWidth={2} />
+          <span className="sr-only">Back</span>
+        </button>
+        
+        <div className="flex items-center gap-2">
         {/* Share Button */}
         <button 
           onClick={(e) => {
@@ -303,6 +299,7 @@ export default function ModernProductDetail() {
           />
           <span className="sr-only">{isWishlisted ? "Remove from Wishlist" : "Add to Wishlist"}</span>
         </button>
+        </div>
       </div>
 
       {/* Single Product Image */}
