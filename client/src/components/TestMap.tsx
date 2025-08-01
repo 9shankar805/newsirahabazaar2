@@ -253,7 +253,7 @@ export function TestMap({ onLocationSelect, selectedLat, selectedLng }: TestMapP
     }
   }, [selectedLat, selectedLng]);
 
-  const handleMapClick = useCallback((lat: number, lng: number) => {
+  const handleMapClick = useCallback((lat: number, lng: lng) => {
     setIsLoading(true);
     setClickedPosition([lat, lng]);
     
@@ -265,6 +265,55 @@ export function TestMap({ onLocationSelect, selectedLat, selectedLng }: TestMapP
       setIsLoading(false);
     }, 300);
   }, [onLocationSelect]);
+
+  // Mobile arrow navigation with coordinates
+  const moveMapWithArrows = useCallback((direction: 'up' | 'down' | 'left' | 'right') => {
+    const mapContainer = document.querySelector('.leaflet-container') as any;
+    if (mapContainer && mapContainer._leaflet_map) {
+      const map = mapContainer._leaflet_map;
+      const center = map.getCenter();
+      const zoom = map.getZoom();
+      
+      // Smaller movement for precise mobile control
+      const moveDistance = zoom > 18 ? 0.00001 : zoom > 16 ? 0.00005 : zoom > 14 ? 0.0001 : 0.0005;
+      
+      let newLat = center.lat;
+      let newLng = center.lng;
+      
+      switch(direction) {
+        case 'up':
+          newLat += moveDistance;
+          break;
+        case 'down':
+          newLat -= moveDistance;
+          break;
+        case 'left':
+          newLng -= moveDistance;
+          break;
+        case 'right':
+          newLng += moveDistance;
+          break;
+      }
+      
+      map.setView([newLat, newLng], zoom);
+      
+      // Auto-update position after movement for mobile
+      setTimeout(() => {
+        setClickedPosition([newLat, newLng]);
+        if (onLocationSelect) {
+          onLocationSelect(newLat, newLng);
+        }
+      }, 100);
+    }
+  }, [onLocationSelect]);
+
+  const selectCurrentCenter = useCallback(() => {
+    const mapContainer = document.querySelector('.leaflet-container') as any;
+    if (mapContainer && mapContainer._leaflet_map) {
+      const center = mapContainer._leaflet_map.getCenter();
+      handleMapClick(center.lat, center.lng);
+    }
+  }, [handleMapClick]);
 
   const currentMapLayer = mapLayers[currentLayer];
 
@@ -280,20 +329,26 @@ export function TestMap({ onLocationSelect, selectedLat, selectedLng }: TestMapP
         </div>
       )}
 
-      {/* Instructions overlay */}
+      {/* Mobile Instructions overlay */}
       <div className="absolute top-4 left-4 z-[1000] max-w-sm">
         <div className="bg-white/95 backdrop-blur-sm rounded-lg p-3 shadow-lg border">
           <div className="flex items-center gap-2 mb-2">
-            <span className="text-lg">🎯</span>
-            <span className="text-sm font-semibold text-gray-800">Location Picker</span>
+            <span className="text-lg">📱</span>
+            <span className="text-sm font-semibold text-gray-800">Mobile Location Picker</span>
           </div>
           <div className="text-xs text-gray-600 space-y-1">
-            <div>• Click anywhere to select location</div>
-            <div>• Use ↑↓←→ arrow keys to navigate</div>
-            <div>• Press Enter/Space to select center</div>
-            <div>• Scroll to zoom in/out</div>
-            <div className="pt-1 text-blue-600 font-medium">
-              {clickedPosition ? '✓ Location selected!' : 'Use arrows or click to pick location'}
+            <div>• Use arrow buttons to navigate precisely</div>
+            <div>• Tap 📍 button to select current location</div>
+            <div>• Pinch to zoom in/out for accuracy</div>
+            <div>• Coordinates are auto-saved when moving</div>
+            <div className="pt-2 text-center">
+              <div className={`px-2 py-1 rounded-full text-xs font-medium ${
+                clickedPosition 
+                  ? 'bg-green-100 text-green-700' 
+                  : 'bg-blue-100 text-blue-700'
+              }`}>
+                {clickedPosition ? '✅ Location Captured!' : '🎯 Navigate with arrows'}
+              </div>
             </div>
           </div>
         </div>
@@ -317,105 +372,96 @@ export function TestMap({ onLocationSelect, selectedLat, selectedLng }: TestMapP
       {/* Zoom Control */}
       <ZoomControl />
 
-      {/* Arrow Navigation Controls */}
-      <div className="absolute top-1/2 right-4 transform -translate-y-1/2 z-[1000] bg-white/95 backdrop-blur-sm rounded-lg p-3 shadow-lg border">
-        <div className="text-xs font-semibold text-gray-700 mb-2 text-center">Arrow Navigation</div>
-        <div className="grid grid-cols-3 gap-1">
+      {/* Mobile-Optimized Arrow Navigation */}
+      <div className="absolute bottom-20 right-4 z-[1000] bg-white/95 backdrop-blur-sm rounded-lg p-4 shadow-lg border">
+        <div className="text-xs font-semibold text-gray-700 mb-3 text-center">
+          📱 Mobile Navigation
+        </div>
+        <div className="grid grid-cols-3 gap-2">
           <div></div>
           <button
-            onClick={() => {
-              const map = document.querySelector('.leaflet-container') as any;
-              if (map && map._leaflet_map) {
-                const center = map._leaflet_map.getCenter();
-                const zoom = map._leaflet_map.getZoom();
-                const moveDistance = zoom > 15 ? 0.0001 : 0.0005;
-                map._leaflet_map.setView([center.lat + moveDistance, center.lng], zoom);
-              }
-            }}
-            className="w-8 h-8 bg-gray-100 hover:bg-gray-200 rounded transition-colors flex items-center justify-center text-gray-600"
+            onClick={() => moveMapWithArrows('up')}
+            className="w-12 h-12 bg-blue-100 hover:bg-blue-200 active:bg-blue-300 rounded-lg transition-colors flex items-center justify-center text-blue-700 font-bold touch-manipulation"
             title="Move North"
           >
             ↑
           </button>
           <div></div>
           <button
-            onClick={() => {
-              const map = document.querySelector('.leaflet-container') as any;
-              if (map && map._leaflet_map) {
-                const center = map._leaflet_map.getCenter();
-                const zoom = map._leaflet_map.getZoom();
-                const moveDistance = zoom > 15 ? 0.0001 : 0.0005;
-                map._leaflet_map.setView([center.lat, center.lng - moveDistance], zoom);
-              }
-            }}
-            className="w-8 h-8 bg-gray-100 hover:bg-gray-200 rounded transition-colors flex items-center justify-center text-gray-600"
+            onClick={() => moveMapWithArrows('left')}
+            className="w-12 h-12 bg-blue-100 hover:bg-blue-200 active:bg-blue-300 rounded-lg transition-colors flex items-center justify-center text-blue-700 font-bold touch-manipulation"
             title="Move West"
           >
             ←
           </button>
           <button
-            onClick={() => {
-              const map = document.querySelector('.leaflet-container') as any;
-              if (map && map._leaflet_map) {
-                const center = map._leaflet_map.getCenter();
-                if (onLocationSelect) {
-                  onLocationSelect(center.lat, center.lng);
-                }
-              }
-            }}
-            className="w-8 h-8 bg-green-500 hover:bg-green-600 rounded transition-colors flex items-center justify-center text-white font-bold"
-            title="Select Center Location"
+            onClick={selectCurrentCenter}
+            className="w-12 h-12 bg-green-500 hover:bg-green-600 active:bg-green-700 rounded-lg transition-colors flex items-center justify-center text-white font-bold touch-manipulation shadow-md"
+            title="Select This Location"
           >
-            ✓
+            📍
           </button>
           <button
-            onClick={() => {
-              const map = document.querySelector('.leaflet-container') as any;
-              if (map && map._leaflet_map) {
-                const center = map._leaflet_map.getCenter();
-                const zoom = map._leaflet_map.getZoom();
-                const moveDistance = zoom > 15 ? 0.0001 : 0.0005;
-                map._leaflet_map.setView([center.lat, center.lng + moveDistance], zoom);
-              }
-            }}
-            className="w-8 h-8 bg-gray-100 hover:bg-gray-200 rounded transition-colors flex items-center justify-center text-gray-600"
+            onClick={() => moveMapWithArrows('right')}
+            className="w-12 h-12 bg-blue-100 hover:bg-blue-200 active:bg-blue-300 rounded-lg transition-colors flex items-center justify-center text-blue-700 font-bold touch-manipulation"
             title="Move East"
           >
             →
           </button>
           <div></div>
           <button
-            onClick={() => {
-              const map = document.querySelector('.leaflet-container') as any;
-              if (map && map._leaflet_map) {
-                const center = map._leaflet_map.getCenter();
-                const zoom = map._leaflet_map.getZoom();
-                const moveDistance = zoom > 15 ? 0.0001 : 0.0005;
-                map._leaflet_map.setView([center.lat - moveDistance, center.lng], zoom);
-              }
-            }}
-            className="w-8 h-8 bg-gray-100 hover:bg-gray-200 rounded transition-colors flex items-center justify-center text-gray-600"
+            onClick={() => moveMapWithArrows('down')}
+            className="w-12 h-12 bg-blue-100 hover:bg-blue-200 active:bg-blue-300 rounded-lg transition-colors flex items-center justify-center text-blue-700 font-bold touch-manipulation"
             title="Move South"
           >
             ↓
           </button>
           <div></div>
         </div>
-        <div className="text-xs text-gray-500 mt-2 text-center">
-          Use arrows or<br/>keyboard keys
+        <div className="text-xs text-gray-600 mt-3 text-center leading-tight">
+          Use arrows to move<br/>
+          📍 to select location<br/>
+          <span className="text-green-600 font-medium">Coordinates auto-saved</span>
         </div>
       </div>
 
-      {/* Coordinates display */}
-      {clickedPosition && (
-        <div className="absolute bottom-4 left-4 z-[1000] bg-white/95 backdrop-blur-sm rounded-lg p-3 shadow-lg border">
-          <div className="text-xs font-semibold text-gray-700 mb-1">Selected Coordinates</div>
-          <div className="text-xs font-mono text-gray-600">
-            <div>Lat: {clickedPosition[0].toFixed(6)}</div>
-            <div>Lng: {clickedPosition[1].toFixed(6)}</div>
-          </div>
+      {/* Live Coordinates Display for Mobile */}
+      <div className="absolute bottom-4 left-4 z-[1000] bg-white/95 backdrop-blur-sm rounded-lg p-3 shadow-lg border max-w-[200px]">
+        <div className="flex items-center gap-2 mb-2">
+          <span className="text-xs font-semibold text-gray-700">Live Coordinates</span>
+          {clickedPosition && (
+            <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">📍 Selected</span>
+          )}
         </div>
-      )}
+        <div className="text-xs font-mono text-gray-600 space-y-1">
+          {clickedPosition ? (
+            <>
+              <div className="flex justify-between">
+                <span>Lat:</span>
+                <span className="font-bold text-blue-600">{clickedPosition[0].toFixed(6)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Lng:</span>
+                <span className="font-bold text-blue-600">{clickedPosition[1].toFixed(6)}</span>
+              </div>
+              <div className="pt-1 text-center">
+                <button
+                  onClick={() => {
+                    navigator.clipboard?.writeText(`${clickedPosition[0]}, ${clickedPosition[1]}`);
+                  }}
+                  className="text-xs bg-blue-50 text-blue-600 px-2 py-1 rounded hover:bg-blue-100"
+                >
+                  📋 Copy Coordinates
+                </button>
+              </div>
+            </>
+          ) : (
+            <div className="text-center text-gray-500">
+              Use arrows or tap to select
+            </div>
+          )}
+        </div>
+      </div>
       
       <MapContainer
         center={clickedPosition || defaultPosition}
