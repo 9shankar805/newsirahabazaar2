@@ -447,14 +447,15 @@ body::-webkit-scrollbar {
   height: 100%;
 }
 
-.swiper-pagination-bullet {
+/* Only target Swiper pagination bullets, not product card dots */
+.swiper .swiper-pagination-bullet {
   width: 12px;
   height: 12px;
   background: rgba(255, 255, 255, 0.5);
   opacity: 1;
 }
 
-.swiper-pagination-bullet-active {
+.swiper .swiper-pagination-bullet-active {
   background: white;
   transform: scale(1.2);
 }
@@ -484,10 +485,32 @@ body::-webkit-scrollbar {
     display: none;
   }
 
-  .swiper-pagination-bullet {
+  .swiper .swiper-pagination-bullet {
     width: 8px;
     height: 8px;
   }
+}
+
+/* Product Card Pagination Dots - Override any conflicting styles */
+.product-card .absolute button {
+  border: none !important;
+  outline: none !important;
+  cursor: pointer !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  appearance: none !important;
+}
+
+/* Ensure product card pagination dots maintain their size */
+.product-card .absolute .bg-black\/20 button {
+  min-width: auto !important;
+  max-width: none !important;
+  min-height: auto !important;
+  max-height: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  background-clip: padding-box !important;
 }
 
 .dark {
