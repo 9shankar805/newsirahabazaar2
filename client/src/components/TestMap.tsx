@@ -14,8 +14,8 @@ L.Icon.Default.mergeOptions({
 
 // Custom icons
 const createCustomIcon = (color: string, isSelected: boolean = false) => {
-  const size = isSelected ? [35, 55] : [25, 41];
-  const anchor = isSelected ? [17, 55] : [12, 41];
+  const size: [number, number] = isSelected ? [35, 55] : [25, 41];
+  const anchor: [number, number] = isSelected ? [17, 55] : [12, 41];
   
   return L.divIcon({
     html: `
@@ -253,7 +253,7 @@ export function TestMap({ onLocationSelect, selectedLat, selectedLng }: TestMapP
     }
   }, [selectedLat, selectedLng]);
 
-  const handleMapClick = useCallback((lat: number, lng: lng) => {
+  const handleMapClick = useCallback((lat: number, lng: number) => {
     setIsLoading(true);
     setClickedPosition([lat, lng]);
     
