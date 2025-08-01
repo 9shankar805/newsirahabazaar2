@@ -13,14 +13,14 @@ export default function Products() {
   
   // Get search params directly from window.location.search instead of wouter location
   const [searchParams, setSearchParams] = useState(new URLSearchParams(window.location.search));
-  const [selectedCategory, setSelectedCategory] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('all');
 
   const searchQuery = searchParams.get('search') || '';
   const categoryQuery = searchParams.get('category');
 
   // Categories for filtering
   const categories = [
-    { id: '', label: 'All Categories' },
+    { id: 'all', label: 'All Categories' },
     { id: '1', label: 'Electronics' },
     { id: '2', label: 'Fashion & Clothing' },
     { id: '3', label: 'Food & Beverages' },
@@ -38,7 +38,7 @@ export default function Products() {
     // Update search params when URL changes
     const params = new URLSearchParams(window.location.search);
     setSearchParams(params);
-    const catQuery = params.get('category') || '';
+    const catQuery = params.get('category') || 'all';
     setSelectedCategory(catQuery);
     console.log("Products page location changed:", { 
       location, 
@@ -84,7 +84,7 @@ export default function Products() {
   const handleCategoryChange = (categoryId: string) => {
     setSelectedCategory(categoryId);
     const params = new URLSearchParams(window.location.search);
-    if (categoryId) {
+    if (categoryId && categoryId !== 'all') {
       params.set('category', categoryId);
     } else {
       params.delete('category');
@@ -135,7 +135,7 @@ export default function Products() {
         {/* Use the new distance-based product search component */}
         <DistanceBasedProductSearch 
           searchQuery={searchQuery}
-          category={categoryQuery || selectedCategory || ""}
+          category={categoryQuery && categoryQuery !== 'all' ? categoryQuery : (selectedCategory !== 'all' ? selectedCategory : "")}
           isRestaurantMode={mode === 'food'}
         />
       </div>
