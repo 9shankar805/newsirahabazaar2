@@ -139,6 +139,39 @@ export default function ModernProductDetail() {
     });
   };
 
+  const handleShare = async () => {
+    if (!product) return;
+
+    const shareData = {
+      title: product.name,
+      text: `Check out ${product.name} on Siraha Bazaar - ₹${Number(product.price).toLocaleString()}`,
+      url: window.location.href,
+    };
+
+    try {
+      if (navigator.share && navigator.canShare(shareData)) {
+        await navigator.share(shareData);
+        toast({
+          title: "Shared successfully",
+          description: "Product has been shared.",
+        });
+      } else {
+        // Fallback to copying to clipboard
+        await navigator.clipboard.writeText(window.location.href);
+        toast({
+          title: "Link copied",
+          description: "Product link copied to clipboard.",
+        });
+      }
+    } catch (error) {
+      // Fallback for browsers that don't support clipboard API
+      toast({
+        title: "Share link",
+        description: window.location.href,
+      });
+    }
+  };
+
 
 
   if (isLoading) {
@@ -178,33 +211,38 @@ export default function ModernProductDetail() {
     .slice(0, 8); // Limit to 8 related products
 
   return (
-    <div className="min-h-screen bg-white modern-product-detail" style={{ paddingBottom: '144px', overflowX: 'hidden' }}>
-      {/* Header */}
-      <div className="sticky top-0 z-50 bg-white border-b border-gray-100">
-        <div className="flex items-center justify-between px-4 py-3">
+    <div className="min-h-screen bg-white modern-product-detail" style={{ paddingTop: '60px', paddingBottom: '144px', overflowX: 'hidden' }}>
+      {/* Header - Fixed position with proper z-index */}
+      <div className="fixed top-0 left-0 right-0 z-[9999] bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm">
+        <div className="flex items-center justify-between px-4 py-3 max-w-md mx-auto">
           <Button
             variant="ghost"
             size="sm"
             onClick={() => setLocation('/products')}
-            className="p-2"
+            className="p-2 hover:bg-gray-100 rounded-full"
           >
-            <ArrowLeft className="h-5 w-5" />
+            <ArrowLeft className="h-5 w-5 text-gray-700" />
           </Button>
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm" className="p-2">
-              <Share2 className="h-5 w-5" />
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="p-2 hover:bg-gray-100 rounded-full"
+              onClick={handleShare}
+            >
+              <Share2 className="h-5 w-5 text-gray-700" />
             </Button>
             <Button 
               variant="ghost" 
               size="sm" 
-              className="p-2"
+              className="p-2 hover:bg-gray-100 rounded-full"
               onClick={handleWishlistToggle}
             >
               <Heart 
                 className={`h-5 w-5 ${
                   isWishlisted 
                     ? "fill-red-500 text-red-500" 
-                    : "text-gray-600"
+                    : "text-gray-700"
                 }`}
               />
             </Button>
