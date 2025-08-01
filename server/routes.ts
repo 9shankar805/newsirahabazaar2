@@ -2511,45 +2511,58 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Debug endpoint to inspect database structure
+  // Debug endpoint to inspect database structure with timeout protection
   app.get("/api/debug/database", async (req, res) => {
     try {
+      // Set a response timeout
+      const timeoutId = setTimeout(() => {
+        if (!res.headersSent) {
+          res.status(408).json({ error: "Database query timeout", timestamp: new Date().toISOString() });
+        }
+      }, 10000);
+
       const tablesQuery = await pool.query(`
         SELECT table_name, table_type
         FROM information_schema.tables 
         WHERE table_schema = 'public'
         ORDER BY table_name
+        LIMIT 20
       `);
       
-      const tableInfo = [];
-      for (const table of tablesQuery.rows) {
-        try {
-          const countResult = await pool.query(`SELECT COUNT(*) FROM ${table.table_name}`);
-          const count = parseInt(countResult.rows[0].count);
-          tableInfo.push({
-            name: table.table_name,
-            type: table.table_type,
-            records: count
-          });
-        } catch (error) {
-          tableInfo.push({
-            name: table.table_name,
-            type: table.table_type,
-            records: `Error: ${error.message}`
-          });
-        }
-      }
+      clearTimeout(timeoutId);
       
-      res.json({
+      if (res.headersSent) return;
+      
+      const basicInfo = {
         totalTables: tablesQuery.rows.length,
-        tables: tableInfo,
+        tableNames: tablesQuery.rows.map(row => row.table_name),
+        timestamp: new Date().toISOString(),
+        connectionStatus: "success"
+      };
+      
+      res.json(basicInfo);
+    } catch (error) {
+      if (!res.headersSent) {
+        res.status(500).json({ 
+          error: error.message,
+          timestamp: new Date().toISOString(),
+          connectionStatus: "failed"
+        });
+      }
+    }
+  });
+
+  // Simple database status endpoint
+  app.get("/api/debug/db-status", async (req, res) => {
+    try {
+      const result = await pool.query('SELECT current_database(), version()');
+      res.json({
+        database: result.rows[0].current_database,
+        version: result.rows[0].version,
         timestamp: new Date().toISOString()
       });
     } catch (error) {
-      res.status(500).json({ 
-        error: error.message,
-        timestamp: new Date().toISOString()
-      });
+      res.status(500).json({ error: error.message });
     }
   });
 
