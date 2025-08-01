@@ -205,9 +205,9 @@ export default function DistanceBasedProductSearch({
 
   // Filter products based on mode and store type
   const modeFilteredProducts = enrichedProducts.filter((product) => {
-    // If user is searching, bypass mode filtering to show all search results
-    if (bypassModeFiltering) {
-      console.log(`Search mode: Including all products for search "${searchQuery}"`);
+    // If user is searching or browsing categories, bypass mode filtering to show all search results
+    if (bypassModeFiltering || (category && category.trim())) {
+      console.log(`Category/Search mode: Including all products for category "${category}" or search "${searchQuery}"`);
       return true;
     }
 
@@ -230,12 +230,9 @@ export default function DistanceBasedProductSearch({
       console.log(`Food mode: Product "${product.name}" ${shouldInclude ? 'INCLUDED' : 'EXCLUDED'} (store type: ${store?.storeType}, isFoodItem: ${isFoodItem})`);
       return shouldInclude;
     } else {
-      // In shopping mode, prioritize retail but include items if store type is missing  
-      const isRetail = store?.storeType === 'retail';
-      const isRetailItem = !product.preparationTime; // No preparation time, likely retail
-      const shouldInclude = isRetail || (!store?.storeType && isRetailItem);
-      console.log(`Shopping mode: Product "${product.name}" ${shouldInclude ? 'INCLUDED' : 'EXCLUDED'} (store type: ${store?.storeType}, isRetailItem: ${isRetailItem})`);
-      return shouldInclude;
+      // In shopping mode, include all products (don't filter by store type when browsing categories)
+      console.log(`Shopping mode: Product "${product.name}" INCLUDED`);
+      return true;
     }
   });
 
