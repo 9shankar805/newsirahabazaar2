@@ -16,6 +16,15 @@ A cutting-edge multi-vendor e-commerce platform "Siraha Bazaar" that revolutioni
 
 ## Recent Changes
 
+### PostgreSQL Database Setup & Long-term Storage (August 1, 2025)
+✓ **NEW:** Configured robust PostgreSQL database connection with Neon database
+✓ **NEW:** Updated DATABASE_URL to: postgresql://neondb_owner:npg_x70rUbTWcLXC@ep-summer-bread-a88huiee-pooler.eastus2.azure.neon.tech/neondb
+✓ **NEW:** Pushed complete database schema with 40+ tables for comprehensive data storage
+✓ **NEW:** Verified user registration and data persistence across application restarts
+✓ **NEW:** Enhanced connection pooling and error handling for production reliability
+✓ **FIXED:** Database table creation and migration process for long-term data storage
+✓ **ENHANCED:** Secure secret management for database credentials
+
 ### Mobile Categories with Horizontal Slider (July 31, 2025)
 ✓ **NEW:** Implemented horizontal categories slider like Noon app for mobile
 ✓ **NEW:** Added 18+ shopping categories (Baby & Kids, Kitchen, Gaming, Furniture, Tools, Jewelry, Pet Supplies, Office)
