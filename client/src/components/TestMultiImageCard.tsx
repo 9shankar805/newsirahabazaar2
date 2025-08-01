@@ -168,8 +168,8 @@ export default function TestMultiImageCard() {
                     key={index}
                     className={`rounded-full transition-all duration-300 touch-manipulation ${
                       currentImageIndex === index 
-                        ? 'w-4 h-1.5 bg-white shadow-md sm:w-6 sm:h-2' 
-                        : 'w-1.5 h-1.5 bg-white/70 hover:bg-white/90 active:scale-110 sm:w-2 sm:h-2'
+                        ? 'w-3 h-1 bg-white shadow-md sm:w-6 sm:h-2' 
+                        : 'w-1 h-1 bg-white/70 hover:bg-white/90 active:scale-110 sm:w-2 sm:h-2'
                     }`}
                     onClick={(e) => {
                       e.preventDefault();
