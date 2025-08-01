@@ -4,6 +4,7 @@ import DistanceBasedProductSearch from "@/components/DistanceBasedProductSearch"
 import { useAppMode } from "@/hooks/useAppMode";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { ArrowLeft, Filter } from "lucide-react";
 import { Link } from "wouter";
 
@@ -102,18 +103,19 @@ export default function Products() {
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center">
             <Link href="/">
-              <Button variant="ghost" size="sm" className="mr-4">
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to Home
+              <Button variant="ghost" size="sm" className="mr-2 sm:mr-4">
+                <ArrowLeft className="h-4 w-4 mr-1 sm:mr-2" />
+                <span className="hidden sm:inline">Back to Home</span>
+                <span className="sm:hidden">Back</span>
               </Button>
             </Link>
-            <h1 className="text-3xl font-bold text-foreground">
+            <h1 className="text-xl sm:text-3xl font-bold text-foreground">
               {mode === 'food' ? 'Food Items' : 'Products'}
             </h1>
           </div>
 
-          {/* Category Filter */}
-          <div className="flex items-center gap-4">
+          {/* Category Filter - Desktop */}
+          <div className="hidden md:flex items-center gap-4">
             <div className="flex items-center gap-2">
               <Filter className="h-4 w-4 text-muted-foreground" />
               <Select value={selectedCategory} onValueChange={handleCategoryChange}>
@@ -130,7 +132,77 @@ export default function Products() {
               </Select>
             </div>
           </div>
+
+          {/* Category Filter - Mobile (Small Icon) */}
+          <div className="md:hidden">
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button 
+                  variant={selectedCategory !== 'all' ? "default" : "outline"} 
+                  size="sm" 
+                  className="p-2 relative"
+                >
+                  <Filter className="h-4 w-4" />
+                  {selectedCategory !== 'all' && (
+                    <div className="absolute -top-1 -right-1 w-2 h-2 bg-blue-500 rounded-full"></div>
+                  )}
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-80">
+                <SheetHeader>
+                  <SheetTitle>Filter Products</SheetTitle>
+                  <SheetDescription>
+                    Choose a category to filter products
+                  </SheetDescription>
+                </SheetHeader>
+                <div className="mt-6 space-y-4">
+                  <Select value={selectedCategory} onValueChange={handleCategoryChange}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Filter by category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {categories.map((category) => (
+                        <SelectItem key={category.id} value={category.id}>
+                          {category.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  
+                  {/* Show current filter status */}
+                  {selectedCategory !== 'all' && (
+                    <div className="p-3 bg-blue-50 dark:bg-blue-950 rounded-lg">
+                      <p className="text-sm text-blue-700 dark:text-blue-300">
+                        Filtering by: <span className="font-medium">
+                          {categories.find(cat => cat.id === selectedCategory)?.label}
+                        </span>
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </SheetContent>
+            </Sheet>
+          </div>
         </div>
+
+        {/* Category indicator for mobile */}
+        {selectedCategory !== 'all' && (
+          <div className="md:hidden mb-4 px-3 py-2 bg-blue-50 dark:bg-blue-950 rounded-lg">
+            <p className="text-sm text-blue-700 dark:text-blue-300">
+              Showing: <span className="font-medium">
+                {categories.find(cat => cat.id === selectedCategory)?.label}
+              </span>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="ml-2 h-auto p-1 text-blue-600 hover:text-blue-800"
+                onClick={() => handleCategoryChange('all')}
+              >
+                Clear
+              </Button>
+            </p>
+          </div>
+        )}
 
         {/* Use the new distance-based product search component */}
         <DistanceBasedProductSearch 
