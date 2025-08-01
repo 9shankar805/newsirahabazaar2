@@ -135,6 +135,64 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
+  // Admin route to clear all website data
+  app.post("/api/admin/clear-all-data", async (req, res) => {
+    try {
+      console.log('🗑️ Starting complete website data cleanup...');
+      
+      // Clear all data in proper order to avoid foreign key constraints
+      const tables = [
+        'order_items',
+        'orders', 
+        'deliveries',
+        'delivery_location_tracking',
+        'cart_items',
+        'wishlists',
+        'product_reviews',
+        'products',
+        'stores',
+        'delivery_partners',
+        'notifications',
+        'user_sessions',
+        'password_reset_tokens',
+        'users'
+      ];
+      
+      let totalDeleted = 0;
+      const results = {};
+      
+      for (const table of tables) {
+        try {
+          const result = await db.execute(sql.raw(`DELETE FROM ${table}`));
+          const count = result.rowCount || 0;
+          results[table] = count;
+          totalDeleted += count;
+          console.log(`✅ Cleared ${table}: ${count} rows deleted`);
+        } catch (e) {
+          console.log(`⚠️ Table ${table}: ${e.message}`);
+          results[table] = `Error: ${e.message}`;
+        }
+      }
+      
+      console.log('✅ Website data cleanup completed!');
+      
+      res.json({ 
+        success: true,
+        message: 'All website data cleared successfully',
+        totalRowsDeleted: totalDeleted,
+        details: results,
+        timestamp: new Date().toISOString()
+      });
+      
+    } catch (error) {
+      console.error('❌ Error clearing data:', error);
+      res.status(500).json({ 
+        error: 'Failed to clear data',
+        message: error.message 
+      });
+    }
+  });
+
   // Authentication routes
   app.post("/api/auth/register", async (req, res) => {
     try {

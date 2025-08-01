@@ -18,7 +18,8 @@ export class MemoryStorage implements IStorage {
   private nextId = 1;
 
   constructor() {
-    this.initializeDefaultData();
+    // Data initialization disabled - database will be empty by default
+    // this.initializeDefaultData();
   }
 
   private initializeDefaultData() {
