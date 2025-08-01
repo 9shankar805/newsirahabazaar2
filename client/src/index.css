@@ -995,7 +995,11 @@ body::-webkit-scrollbar {
   }
 }
 
-/* Hide bottom navigation when viewing product details */
+/* Hide bottom navigation only when viewing product details */
+body.hide-bottom-nav nav.fixed.bottom-0 {
+  display: none !important;
+}
+
 body.hide-bottom-nav nav[class*="fixed bottom-0"] {
   display: none !important;
 }
