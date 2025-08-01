@@ -22,6 +22,7 @@ import { useWishlist } from "@/hooks/useWishlist";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useAppMode } from "@/hooks/useAppMode";
+import { ProductReviews } from "@/components/ProductReviews";
 import type { Product, Store as StoreType } from "@shared/schema";
 import { getProductImages, getProductFallbackImage } from "@/utils/imageUtils";
 
@@ -38,8 +39,6 @@ export default function ModernProductDetail() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [userLocation, setUserLocation] = useState<{lat: number, lon: number} | null>(null);
   const [storeDistance, setStoreDistance] = useState<string | null>(null);
-  const [showReviewForm, setShowReviewForm] = useState(false);
-  const [newReview, setNewReview] = useState({ rating: 5, comment: '' });
 
   // Get user location for distance calculation
   useEffect(() => {
@@ -484,175 +483,11 @@ export default function ModernProductDetail() {
           </div>
         )}
 
-        {/* Product Rating and Reviews Section */}
+        {/* Product Reviews Section */}
         <div className="mb-6">
           <div className="border-t border-gray-100 pt-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Rating & Reviews</h3>
-            
-            {/* Overall Rating */}
-            <div className="flex items-center gap-4 mb-4">
-              <div className="flex items-center">
-                <div className="flex items-center gap-1">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <Star
-                      key={star}
-                      className={`h-5 w-5 ${
-                        star <= Number(product.rating || 4.2)
-                          ? 'fill-yellow-400 text-yellow-400'
-                          : 'text-gray-300'
-                      }`}
-                    />
-                  ))}
-                </div>
-                <span className="ml-2 text-lg font-semibold text-gray-900">
-                  {Number(product.rating || 4.2).toFixed(1)}
-                </span>
-              </div>
-              <span className="text-sm text-gray-500">
-                (127 reviews)
-              </span>
-            </div>
+            <ProductReviews productId={parseInt(id || '0')} productName={product.name} />
 
-            {/* Write Review Button */}
-            <Button 
-              variant="outline" 
-              size="sm"
-              className="mb-4"
-              onClick={() => setShowReviewForm(!showReviewForm)}
-            >
-              <Star className="h-4 w-4 mr-2" />
-              Write a Review
-            </Button>
-
-            {/* Review Form */}
-            {showReviewForm && (
-              <div className="bg-gray-50 rounded-lg p-4 mb-4">
-                <h4 className="font-semibold text-gray-900 mb-3">Share your experience</h4>
-                
-                {/* Star Rating Input */}
-                <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Rating</label>
-                  <div className="flex items-center gap-1">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <button
-                        key={star}
-                        type="button"
-                        onClick={() => setNewReview(prev => ({ ...prev, rating: star }))}
-                        className="p-0 bg-transparent border-0"
-                      >
-                        <Star
-                          className={`h-6 w-6 cursor-pointer transition-colors ${
-                            star <= newReview.rating
-                              ? 'fill-yellow-400 text-yellow-400'
-                              : 'text-gray-300 hover:text-yellow-300'
-                          }`}
-                        />
-                      </button>
-                    ))}
-                    <span className="ml-2 text-sm text-gray-600">
-                      {newReview.rating} star{newReview.rating !== 1 ? 's' : ''}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Comment Input */}
-                <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Your Review</label>
-                  <textarea
-                    value={newReview.comment}
-                    onChange={(e) => setNewReview(prev => ({ ...prev, comment: e.target.value }))}
-                    placeholder="Share your thoughts about this product..."
-                    rows={3}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none"
-                  />
-                </div>
-
-                {/* Submit Buttons */}
-                <div className="flex gap-2">
-                  <Button
-                    onClick={() => {
-                      toast({
-                        title: "Review submitted!",
-                        description: `Thank you for your ${newReview.rating}-star review. It will be published after moderation.`,
-                      });
-                      setShowReviewForm(false);
-                      setNewReview({ rating: 5, comment: '' });
-                    }}
-                    size="sm"
-                    className="bg-orange-500 hover:bg-orange-600"
-                  >
-                    Submit Review
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      setShowReviewForm(false);
-                      setNewReview({ rating: 5, comment: '' });
-                    }}
-                  >
-                    Cancel
-                  </Button>
-                </div>
-              </div>
-            )}
-
-            {/* Sample Reviews */}
-            <div className="space-y-4">
-              <div className="border-b border-gray-100 pb-4">
-                <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
-                    <span className="text-sm font-medium text-orange-700">A</span>
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="font-medium text-gray-900">Anonymous User</span>
-                      <div className="flex items-center">
-                        {[1, 2, 3, 4, 5].map((star) => (
-                          <Star
-                            key={star}
-                            className={`h-3 w-3 ${
-                              star <= 5 ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'
-                            }`}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                    <p className="text-sm text-gray-600">
-                      Excellent product! Great quality and fast delivery. Highly recommended.
-                    </p>
-                    <span className="text-xs text-gray-400">2 days ago</span>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="border-b border-gray-100 pb-4">
-                <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                    <span className="text-sm font-medium text-blue-700">S</span>
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="font-medium text-gray-900">Satisfied Customer</span>
-                      <div className="flex items-center">
-                        {[1, 2, 3, 4, 5].map((star) => (
-                          <Star
-                            key={star}
-                            className={`h-3 w-3 ${
-                              star <= 4 ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'
-                            }`}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                    <p className="text-sm text-gray-600">
-                      Good value for money. Product matches the description perfectly.
-                    </p>
-                    <span className="text-xs text-gray-400">1 week ago</span>
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </div>

@@ -2395,6 +2395,109 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Product Reviews API endpoints
+  app.get("/api/products/:id/reviews", async (req, res) => {
+    try {
+      const productId = parseInt(req.params.id);
+      const { minRating } = req.query;
+      
+      if (!productId) {
+        return res.status(400).json({ error: "Invalid product ID" });
+      }
+
+      let reviews = await storage.getProductReviews(productId);
+      
+      // Filter by minimum rating if provided
+      if (minRating) {
+        const minRatingNum = parseInt(minRating as string);
+        reviews = reviews.filter(review => review.rating >= minRatingNum);
+      }
+
+      // Add customer info to reviews
+      const reviewsWithCustomers = await Promise.all(
+        reviews.map(async (review) => {
+          const customer = await storage.getUser(review.customerId);
+          return {
+            ...review,
+            customer: customer ? {
+              id: customer.id,
+              fullName: customer.fullName,
+              username: customer.username
+            } : null
+          };
+        })
+      );
+
+      res.json(reviewsWithCustomers);
+    } catch (error) {
+      console.error("Error fetching product reviews:", error);
+      res.status(500).json({ error: "Failed to fetch product reviews" });
+    }
+  });
+
+  app.post("/api/products/:id/reviews", async (req, res) => {
+    try {
+      const productId = parseInt(req.params.id);
+      const reviewData = {
+        ...req.body,
+        productId: productId
+      };
+
+      console.log("Creating product review with data:", reviewData);
+
+      // Validate required fields
+      if (!productId || !reviewData.customerId || !reviewData.rating) {
+        return res.status(400).json({ 
+          error: "Missing required fields: productId, customerId, and rating are required",
+          received: { productId, customerId: reviewData.customerId, rating: reviewData.rating }
+        });
+      }
+
+      // Check if user already reviewed this product
+      const existingReviews = await storage.getProductReviews(productId);
+      const userAlreadyReviewed = existingReviews.some(review => review.customerId === reviewData.customerId);
+
+      if (userAlreadyReviewed) {
+        return res.status(400).json({ error: "You have already reviewed this product" });
+      }
+
+      // Validate rating
+      if (reviewData.rating < 1 || reviewData.rating > 5) {
+        return res.status(400).json({ error: "Rating must be between 1 and 5" });
+      }
+
+      const validatedData = {
+        productId: productId,
+        customerId: parseInt(reviewData.customerId),
+        rating: parseInt(reviewData.rating),
+        title: reviewData.title || null,
+        comment: reviewData.comment || null,
+        images: reviewData.images || [],
+        orderId: reviewData.orderId ? parseInt(reviewData.orderId) : null,
+        isVerifiedPurchase: reviewData.isVerifiedPurchase || false,
+        isApproved: reviewData.isApproved !== false
+      };
+
+      const newReview = await storage.createProductReview(validatedData);
+
+      // Get customer info for response
+      const customer = await storage.getUser(newReview.customerId);
+      const reviewWithCustomer = {
+        ...newReview,
+        customer: customer ? {
+          id: customer.id,
+          fullName: customer.fullName,
+          username: customer.username
+        } : null
+      };
+
+      res.status(201).json(reviewWithCustomer);
+    } catch (error) {
+      console.error("Error creating product review:", error);
+      res.status(400).json({ error: "Failed to create product review", details: error.message });
+    }
+  });
+
   // Store review likes
   app.post("/api/store-reviews/:reviewId/helpful", async (req, res) => {
     try {
