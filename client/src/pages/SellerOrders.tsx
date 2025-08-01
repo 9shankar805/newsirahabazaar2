@@ -3,7 +3,8 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { 
   ShoppingCart, Package, Truck, CheckCircle, XCircle, 
-  Eye, Edit, Search, Filter, Calendar, MapPin, Phone, Mail, Clock
+  Eye, Edit, Search, Filter, Calendar, MapPin, Phone, Mail, Clock,
+  Bell, Timer, Navigation, Store, Home, AlertCircle
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -15,7 +16,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
-import { apiRequest } from "@/lib/queryClient";
+import { apiRequest, apiPost, apiPut } from "@/lib/queryClient";
 
 interface Order {
   id: number;
@@ -112,16 +113,25 @@ export default function SellerOrders() {
     );
   }
 
+  // Get user's store first
+  const { data: stores = [] } = useQuery({
+    queryKey: ['/api/stores/owner', user?.id],
+    queryFn: () => fetch(`/api/stores/owner/${user?.id}`).then(res => res.json()),
+    enabled: !!user?.id,
+  });
+
+  const currentStore = stores[0];
+
   // Orders query with items included
-  const { data: orders, isLoading: ordersLoading, error: ordersError } = useQuery<Order[]>({
-    queryKey: ['/api/orders/store', user?.id],
+  const { data: orders = [], isLoading: ordersLoading, error: ordersError } = useQuery<Order[]>({
+    queryKey: ['/api/orders/store', currentStore?.id],
     queryFn: async () => {
-      if (!user?.id) {
-        throw new Error('User ID is required');
+      if (!currentStore?.id) {
+        return [];
       }
       
       try {
-        const response = await fetch(`/api/orders/store?userId=${user.id}`, {
+        const response = await fetch(`/api/orders/store/${currentStore.id}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -157,34 +167,59 @@ export default function SellerOrders() {
     enabled: !!selectedOrder?.id,
   });
 
-  // Update order status mutation
+  // Order status update mutation  
   const updateOrderStatusMutation = useMutation({
     mutationFn: async ({ orderId, status }: { orderId: number; status: string }) => {
-      return await apiRequest('PUT', `/api/orders/${orderId}/status`, { status });
+      return await apiPut(`/api/orders/${orderId}/status`, { status });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/orders/store'] });
+      toast({
+        title: "Success",
+        description: "Order status updated successfully",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update order status",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Notification mutation for delivery partners
+  const notifyDeliveryPartnerMutation = useMutation({
+    mutationFn: async ({ orderId, message, isAssigned }: { orderId: number; message: string; isAssigned: boolean }) => {
+      return await apiPost('/api/delivery-partners/notify', {
+        orderId,
+        message,
+        isAssigned,
+        storeId: currentStore?.id,
+      });
     },
     onSuccess: () => {
       toast({
-        title: "Order Updated",
-        description: "Order status has been updated successfully",
+        title: "Success",
+        description: "Delivery partners notified successfully",
       });
-      
-      // Invalidate all related queries
-      queryClient.invalidateQueries({ queryKey: ['/api/orders/store', user?.id] });
-      queryClient.invalidateQueries({ queryKey: ['/api/orders/store'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/orders'] });
-      
-      // Force refetch immediately
-      queryClient.refetchQueries({ queryKey: ['/api/orders/store', user?.id] });
     },
-    onError: (error) => {
-      console.error("Order status update error:", error);
+    onError: (error: any) => {
       toast({
         title: "Error",
-        description: "Failed to update order status",
-        variant: "destructive"
+        description: error.message || "Failed to notify delivery partners",
+        variant: "destructive",
       });
-    }
+    },
   });
+
+  const handleOrderStatusUpdate = (orderId: number, status: string) => {
+    updateOrderStatusMutation.mutate({ orderId, status });
+  };
+
+  const handleNotifyDeliveryPartner = (orderId: number, message: string, isAssigned: boolean) => {
+    notifyDeliveryPartnerMutation.mutate({ orderId, message, isAssigned });
+  };
 
   const handleStatusChange = (orderId: number, newStatus: string) => {
     updateOrderStatusMutation.mutate({ orderId, status: newStatus });
@@ -344,18 +379,18 @@ export default function SellerOrders() {
           </CardContent>
         </Card>
 
-        {/* Orders Table */}
+        {/* Orders Management */}
         <Card>
-          <CardHeader className="p-3 sm:p-6">
-            <CardTitle className="text-lg sm:text-xl">Customer Orders</CardTitle>
+          <CardHeader>
+            <CardTitle>Order Management</CardTitle>
           </CardHeader>
-          <CardContent className="p-0 sm:p-6">
+          <CardContent>
             {ordersError ? (
               <div className="text-center py-8">
                 <XCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
                 <p className="text-red-600 mb-4">Failed to load orders</p>
                 <Button 
-                  onClick={() => queryClient.invalidateQueries({ queryKey: ['/api/orders/store', user?.id] })}
+                  onClick={() => queryClient.invalidateQueries({ queryKey: ['/api/orders/store'] })}
                   variant="outline"
                 >
                   Retry
@@ -366,217 +401,134 @@ export default function SellerOrders() {
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
                 <p className="text-gray-500">Loading orders...</p>
               </div>
-            ) : (
-              <div>
-                {/* Mobile-first order cards */}
-                <div className="block sm:hidden space-y-3 px-3">
-                {filteredOrders.map((order) => (
-                  <Card key={order.id} className="p-4">
-                    <div className="space-y-3">
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <p className="font-mono text-sm font-medium">#{order.id}</p>
-                          <p className="text-sm text-muted-foreground">{order.customerName}</p>
-                        </div>
-                        <Badge variant={getStatusBadgeVariant(order.status)} className="text-xs">
-                          {order.status}
-                        </Badge>
-                      </div>
-                      
-                      <div className="flex justify-between items-center">
-                        <span className="text-lg font-bold">₹{parseFloat(order.totalAmount).toLocaleString()}</span>
-                        <span className="text-xs text-muted-foreground">{new Date(order.createdAt).toLocaleDateString()}</span>
-                      </div>
-                      
-                      {order.items && order.items.length > 0 && (
-                        <div className="space-y-2">
-                          {order.items.slice(0, 2).map((item, index) => (
-                            <div key={index} className="flex items-center gap-2">
-                              <div className="w-8 h-8 bg-gray-100 rounded-md overflow-hidden flex items-center justify-center">
-                                {item.product?.imageUrl ? (
-                                  <img 
-                                    src={item.product.imageUrl} 
-                                    alt={item.product.name || 'Product'}
-                                    className="w-full h-full object-cover"
-                                    onError={(e) => {
-                                      e.currentTarget.classList.add('hidden');
-                                      const fallback = e.currentTarget.parentElement?.querySelector('.fallback-icon') as HTMLElement;
-                                      if (fallback) fallback.classList.remove('hidden');
-                                    }}
-                                  />
-                                ) : null}
-                                <Package className={`h-4 w-4 text-gray-400 ${item.product?.imageUrl ? 'hidden' : 'flex'}`} />
-                              </div>
-                              <div className="flex-1 text-xs text-muted-foreground">
-                                <div className="truncate font-medium">{item.product?.name || `Product #${item.productId}`}</div>
-                                <div className="text-xs">Qty: {item.quantity} × ₹{parseFloat(item.price).toFixed(2)}</div>
-                              </div>
-                            </div>
-                          ))}
-                          {order.items.length > 2 && (
-                            <div className="text-xs text-muted-foreground pl-10">
-                              +{order.items.length - 2} more items
-                            </div>
-                          )}
-                        </div>
-                      )}
-                      
-                      <div className="flex gap-2">
-                        <Select
-                          value={order.status}
-                          onValueChange={(value) => handleStatusChange(order.id, value)}
-                        >
-                          <SelectTrigger className="flex-1 h-8 text-xs">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="pending">Pending</SelectItem>
-                            <SelectItem value="processing">Processing</SelectItem>
-                            <SelectItem value="shipped">Shipped</SelectItem>
-                            <SelectItem value="delivered">Delivered</SelectItem>
-                            <SelectItem value="cancelled">Cancelled</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => openOrderDetail(order)}
-                          className="h-8 px-3"
-                        >
-                          <Eye className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    </div>
-                  </Card>
-                ))}
-                
-                {filteredOrders.length === 0 && !ordersLoading && (
-                  <div className="text-center py-8">
-                    <ShoppingCart className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                    <p className="text-gray-500">No orders found</p>
-                    {statusFilter !== 'all' && (
-                      <p className="text-sm text-gray-400 mt-2">
-                        Try changing the filter or search term
-                      </p>
-                    )}
-                  </div>
-                )}
+            ) : filteredOrders.length === 0 ? (
+              <div className="text-center py-8">
+                <ShoppingCart className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                <p className="text-muted-foreground">No orders yet</p>
               </div>
-
-              {/* Desktop table */}
-              <div className="hidden sm:block overflow-x-auto">
-                <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Order & Products</TableHead>
-                    <TableHead>Customer</TableHead>
-                    <TableHead>Amount</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredOrders.map((order) => (
-                    <TableRow key={order.id}>
-                      <TableCell>
-                        <div className="space-y-1">
-                          <p className="font-mono text-sm">#{order.id}</p>
-                          {order.items && order.items.length > 0 && (
-                            <div className="space-y-1">
-                              {order.items.slice(0, 2).map((item, index) => (
-                                <div key={index} className="flex items-center gap-2">
-                                  <div className="w-6 h-6 bg-gray-100 rounded-sm overflow-hidden flex items-center justify-center">
-                                    {item.product?.imageUrl ? (
-                                      <img 
-                                        src={item.product.imageUrl} 
-                                        alt={item.product.name || 'Product'}
-                                        className="w-full h-full object-cover"
-                                        onError={(e) => {
-                                          e.currentTarget.classList.add('hidden');
-                                          const fallback = e.currentTarget.parentElement?.querySelector('.fallback-icon') as HTMLElement;
-                                          if (fallback) fallback.classList.remove('hidden');
-                                        }}
-                                      />
-                                    ) : null}
-                                    <Package className={`fallback-icon h-3 w-3 text-gray-400 ${item.product?.imageUrl ? 'hidden' : 'flex'}`} />
-                                  </div>
-                                  <div className="flex-1 text-xs text-muted-foreground">
-                                    <div className="truncate font-medium">{item.product?.name || `Product #${item.productId}`}</div>
-                                    <div className="text-xs opacity-75">Qty: {item.quantity}</div>
-                                  </div>
-                                </div>
-                              ))}
-                              {order.items.length > 2 && (
-                                <div className="text-xs text-muted-foreground pl-8">
-                                  +{order.items.length - 2} more items
-                                </div>
-                              )}
-                            </div>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div>
-                          <p className="font-medium">{order.customerName}</p>
-                          <p className="text-sm text-muted-foreground flex items-center">
-                            <Phone className="h-3 w-3 mr-1" />
-                            {order.phone}
-                          </p>
-                        </div>
-                      </TableCell>
-                      <TableCell className="font-medium">₹{parseFloat(order.totalAmount).toLocaleString()}</TableCell>
-                      <TableCell>
-                        <div className="flex items-center space-x-2">
-                          <Badge variant={getStatusBadgeVariant(order.status)}>
-                            {order.status}
-                          </Badge>
+            ) : (
+              <div className="space-y-4">
+                {filteredOrders.map((order) => (
+                  <div key={order.id} className="border rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-4">
+                      <div>
+                        <h3 className="font-semibold">Order #{order.id}</h3>
+                        <p className="text-sm text-muted-foreground">
+                          {order.customerName} • {order.phone}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          {new Date(order.createdAt).toLocaleDateString()}
+                        </p>
+                      </div>
+                      <div className="text-right space-y-2">
+                        <p className="font-semibold text-lg">
+                          ₹{Number(order.totalAmount).toLocaleString()}
+                        </p>
+                        <div className="flex gap-2">
                           <Select
                             value={order.status}
-                            onValueChange={(value) => handleStatusChange(order.id, value)}
+                            onValueChange={(value) =>
+                              handleOrderStatusUpdate(order.id, value)
+                            }
                           >
-                            <SelectTrigger className="w-32 h-7">
+                            <SelectTrigger className="w-32">
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="pending">Pending</SelectItem>
-                              <SelectItem value="processing">Processing</SelectItem>
-                              <SelectItem value="shipped">Shipped</SelectItem>
-                              <SelectItem value="delivered">Delivered</SelectItem>
-                              <SelectItem value="cancelled">Cancelled</SelectItem>
+                              <SelectItem value="pending">
+                                Pending
+                              </SelectItem>
+                              <SelectItem value="processing">
+                                Processing
+                              </SelectItem>
+                              <SelectItem value="ready_for_pickup">
+                                Ready for Pickup
+                              </SelectItem>
+                              <SelectItem value="assigned_for_delivery">
+                                Assigned for Delivery
+                              </SelectItem>
+                              <SelectItem value="shipped">
+                                Shipped
+                              </SelectItem>
+                              <SelectItem value="delivered">
+                                Delivered
+                              </SelectItem>
+                              <SelectItem value="cancelled">
+                                Cancelled
+                              </SelectItem>
                             </SelectContent>
                           </Select>
                         </div>
-                      </TableCell>
-                      <TableCell>{new Date(order.createdAt).toLocaleDateString()}</TableCell>
-                      <TableCell>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => openOrderDetail(order)}
-                        >
-                          <Eye className="h-3 w-3 mr-1" />
-                          View
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                  {filteredOrders.length === 0 && !ordersLoading && (
-                    <TableRow>
-                      <TableCell colSpan={6} className="text-center py-8">
-                        <ShoppingCart className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                        <p className="text-gray-500">No orders found</p>
-                        {statusFilter !== 'all' && (
-                          <p className="text-sm text-gray-400 mt-2">
-                            Try changing the filter or search term
-                          </p>
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-              </div>
+
+                        {/* First-Accept-First-Serve Delivery System */}
+                        <div className="flex flex-wrap gap-2 mt-2">
+                          {order.status !== "assigned_for_delivery" &&
+                            order.status !== "delivered" &&
+                            order.status !== "cancelled" && (
+                              <div className="flex gap-2">
+                                <Button
+                                  onClick={() => {
+                                    handleNotifyDeliveryPartner(
+                                      order.id,
+                                      `🚚 New Order Available: Order #${order.id} from ${currentStore?.name}. Customer: ${order.customerName}. Total: ₹${order.totalAmount}. First to accept gets delivery!`,
+                                      false,
+                                    );
+                                  }}
+                                  className="bg-orange-600 hover:bg-orange-700 text-white"
+                                >
+                                  <Bell className="h-4 w-4 mr-2" />
+                                  Send to All Partners (First Accept)
+                                </Button>
+                              </div>
+                            )}
+
+                          {order.status === "assigned_for_delivery" && (
+                            <div className="bg-green-50 border border-green-200 rounded-lg p-3 w-full">
+                              <p className="text-sm text-green-700 font-medium">
+                                ✅ Delivery partner assigned and notified
+                              </p>
+                              <p className="text-xs text-green-600 mt-1">
+                                Order is being processed for delivery
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Order Items Preview */}
+                    {order.items && order.items.length > 0 && (
+                      <div className="mt-4 pt-4 border-t">
+                        <p className="text-sm font-medium mb-2">Order Items:</p>
+                        <div className="space-y-2">
+                          {order.items.slice(0, 3).map((item) => (
+                            <div key={item.id} className="flex items-center justify-between text-sm">
+                              <span>{item.product?.name || `Product #${item.productId}`}</span>
+                              <span>{item.quantity} × ₹{Number(item.price).toFixed(2)}</span>
+                            </div>
+                          ))}
+                          {order.items.length > 3 && (
+                            <p className="text-xs text-muted-foreground">
+                              +{order.items.length - 3} more items
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Order Actions */}
+                    <div className="mt-4 pt-4 border-t flex gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => openOrderDetail(order)}
+                      >
+                        <Eye className="h-4 w-4 mr-2" />
+                        View Details
+                      </Button>
+                    </div>
+                  </div>
+                ))}
               </div>
             )}
           </CardContent>
