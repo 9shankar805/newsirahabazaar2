@@ -2773,21 +2773,30 @@ export default function ShopkeeperDashboard() {
             <DialogTrigger asChild>
               <Button
                 size="lg"
-                className="floating-button-mobile-optimized fixed bottom-20 right-4 sm:right-6 h-12 w-12 sm:h-14 sm:w-14 rounded-full shadow-2xl bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white z-40 transition-all duration-300 ease-in-out hover:scale-110 active:scale-95 border-2 border-white/20"
+                className="floating-button-mobile-optimized fixed bottom-20 right-4 sm:right-6 h-14 w-14 sm:h-16 sm:w-16 rounded-full shadow-2xl bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white z-[999] transition-all duration-300 ease-in-out hover:scale-110 active:scale-95 border-2 border-white/20"
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
+                  console.log('Floating button clicked - opening modal');
                   setEditingProduct(null);
                   form.reset();
+                  setShowAddProductModal(true);
+                }}
+                onTouchStart={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  console.log('Floating button touched');
                 }}
                 style={{
                   touchAction: 'manipulation',
                   WebkitTouchCallout: 'none',
                   WebkitUserSelect: 'none',
-                  userSelect: 'none'
+                  userSelect: 'none',
+                  pointerEvents: 'auto',
+                  cursor: 'pointer'
                 }}
               >
-                <Plus className="h-5 w-5 sm:h-6 sm:w-6" />
+                <Plus className="h-6 w-6 sm:h-7 sm:w-7" />
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-4xl max-h-[95vh] overflow-y-auto mx-4 sm:mx-auto rounded-lg">

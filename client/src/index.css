@@ -855,6 +855,8 @@ body::-webkit-scrollbar {
   -webkit-backface-visibility: hidden !important;
   position: fixed !important;
   transform: translateZ(0) !important; /* Force hardware acceleration */
+  pointer-events: auto !important;
+  z-index: 999 !important;
 }
 
 .floating-button-mobile-optimized:active {
@@ -867,17 +869,34 @@ body::-webkit-scrollbar {
   .floating-button-mobile-optimized {
     overscroll-behavior: contain;
     -webkit-overscroll-behavior: contain;
+    min-height: 56px !important;
+    min-width: 56px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
   }
 
   /* Enhanced mobile touch handling */
   .floating-button-mobile-optimized:hover {
     transform: scale(1.05) translateZ(0) !important;
   }
+  
+  .floating-button-mobile-optimized:focus {
+    outline: 2px solid rgba(255, 255, 255, 0.5) !important;
+    outline-offset: 2px !important;
+  }
 
   /* Fix for iOS Safari bottom safe area */
   @supports (padding-bottom: env(safe-area-inset-bottom)) {
     .floating-button-mobile-optimized {
       bottom: calc(5rem + env(safe-area-inset-bottom)) !important;
+    }
+  }
+  
+  /* Fix for mobile viewport issues */
+  @supports (height: 100dvh) {
+    .floating-button-mobile-optimized {
+      bottom: max(5rem, calc(5rem + env(safe-area-inset-bottom, 0px))) !important;
     }
   }
 }
