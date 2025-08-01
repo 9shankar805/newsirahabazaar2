@@ -687,27 +687,35 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getProductsByCategory(categoryId: number): Promise<Product[]> {
-    const productsWithRatings = await db
-      .select({
-        ...products,
-        avgRating: sql<number>`COALESCE(AVG(${productReviews.rating}), 0)`.as('avgRating'),
-        reviewCount: sql<number>`COUNT(${productReviews.id})`.as('reviewCount')
-      })
-      .from(products)
-      .leftJoin(productReviews, eq(products.id, productReviews.productId))
-      .where(eq(products.categoryId, categoryId))
-      .groupBy(products.id);
+    try {
+      console.log(`[STORAGE] Filtering products by categoryId: ${categoryId}`);
+      const productsWithRatings = await db
+        .select({
+          ...products,
+          avgRating: sql<number>`COALESCE(AVG(${productReviews.rating}), 0)`.as('avgRating'),
+          reviewCount: sql<number>`COUNT(${productReviews.id})`.as('reviewCount')
+        })
+        .from(products)
+        .leftJoin(productReviews, eq(products.id, productReviews.productId))
+        .where(eq(products.categoryId, categoryId))
+        .groupBy(products.id);
 
-    return productsWithRatings.map(product => {
-      const avgRating = product.avgRating ? Number(product.avgRating) : 0;
-      const reviewCount = product.reviewCount ? Number(product.reviewCount) : 0;
+      console.log(`[STORAGE] Found ${productsWithRatings.length} products for category ${categoryId}`);
       
-      return {
-        ...product,
-        rating: avgRating > 0 ? avgRating.toFixed(1) : "0.0",
-        totalReviews: reviewCount
-      };
-    });
+      return productsWithRatings.map(product => {
+        const avgRating = product.avgRating ? Number(product.avgRating) : 0;
+        const reviewCount = product.reviewCount ? Number(product.reviewCount) : 0;
+        
+        return {
+          ...product,
+          rating: avgRating > 0 ? avgRating.toFixed(1) : "0.0",
+          totalReviews: reviewCount
+        };
+      });
+    } catch (error) {
+      console.error(`[STORAGE] Error in getProductsByCategory:`, error);
+      throw error;
+    }
   }
 
   async searchProducts(query: string): Promise<Product[]> {

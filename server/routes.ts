@@ -640,7 +640,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         products = await storage.searchProducts(search as string);
       } else if (category) {
         console.log(`[Products API] Fetching products by category: ${category}`);
-        products = await storage.getProductsByCategory(parseInt(category as string));
+        const categoryId = parseInt(category as string);
+        if (isNaN(categoryId)) {
+          console.log(`[Products API] Invalid category ID: ${category}, fetching all products`);
+          products = await storage.getAllProducts();
+        } else {
+          products = await storage.getProductsByCategory(categoryId);
+          console.log(`[Products API] Found ${products.length} products for category ${categoryId}`);
+        }
       } else if (storeId) {
         console.log(`[Products API] Fetching products by store ID: ${storeId}`);
         products = await storage.getProductsByStoreId(parseInt(storeId as string));
