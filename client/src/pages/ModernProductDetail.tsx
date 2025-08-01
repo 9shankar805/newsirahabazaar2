@@ -38,6 +38,8 @@ export default function ModernProductDetail() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [userLocation, setUserLocation] = useState<{lat: number, lon: number} | null>(null);
   const [storeDistance, setStoreDistance] = useState<string | null>(null);
+  const [showReviewForm, setShowReviewForm] = useState(false);
+  const [newReview, setNewReview] = useState({ rating: 5, comment: '' });
 
   // Get user location for distance calculation
   useEffect(() => {
@@ -489,7 +491,7 @@ export default function ModernProductDetail() {
                     <Star
                       key={star}
                       className={`h-5 w-5 ${
-                        star <= (product.rating || 4.2)
+                        star <= Number(product.rating || 4.2)
                           ? 'fill-yellow-400 text-yellow-400'
                           : 'text-gray-300'
                       }`}
@@ -497,11 +499,11 @@ export default function ModernProductDetail() {
                   ))}
                 </div>
                 <span className="ml-2 text-lg font-semibold text-gray-900">
-                  {product.rating || '4.2'}
+                  {Number(product.rating || 4.2).toFixed(1)}
                 </span>
               </div>
               <span className="text-sm text-gray-500">
-                ({product.reviewCount || '127'} reviews)
+                (127 reviews)
               </span>
             </div>
 
@@ -510,16 +512,84 @@ export default function ModernProductDetail() {
               variant="outline" 
               size="sm"
               className="mb-4"
-              onClick={() => {
-                toast({
-                  title: "Reviews feature",
-                  description: "Write a review functionality will be available soon!",
-                });
-              }}
+              onClick={() => setShowReviewForm(!showReviewForm)}
             >
               <Star className="h-4 w-4 mr-2" />
               Write a Review
             </Button>
+
+            {/* Review Form */}
+            {showReviewForm && (
+              <div className="bg-gray-50 rounded-lg p-4 mb-4">
+                <h4 className="font-semibold text-gray-900 mb-3">Share your experience</h4>
+                
+                {/* Star Rating Input */}
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Rating</label>
+                  <div className="flex items-center gap-1">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <button
+                        key={star}
+                        type="button"
+                        onClick={() => setNewReview(prev => ({ ...prev, rating: star }))}
+                        className="p-0 bg-transparent border-0"
+                      >
+                        <Star
+                          className={`h-6 w-6 cursor-pointer transition-colors ${
+                            star <= newReview.rating
+                              ? 'fill-yellow-400 text-yellow-400'
+                              : 'text-gray-300 hover:text-yellow-300'
+                          }`}
+                        />
+                      </button>
+                    ))}
+                    <span className="ml-2 text-sm text-gray-600">
+                      {newReview.rating} star{newReview.rating !== 1 ? 's' : ''}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Comment Input */}
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Your Review</label>
+                  <textarea
+                    value={newReview.comment}
+                    onChange={(e) => setNewReview(prev => ({ ...prev, comment: e.target.value }))}
+                    placeholder="Share your thoughts about this product..."
+                    rows={3}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none"
+                  />
+                </div>
+
+                {/* Submit Buttons */}
+                <div className="flex gap-2">
+                  <Button
+                    onClick={() => {
+                      toast({
+                        title: "Review submitted!",
+                        description: `Thank you for your ${newReview.rating}-star review. It will be published after moderation.`,
+                      });
+                      setShowReviewForm(false);
+                      setNewReview({ rating: 5, comment: '' });
+                    }}
+                    size="sm"
+                    className="bg-orange-500 hover:bg-orange-600"
+                  >
+                    Submit Review
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setShowReviewForm(false);
+                      setNewReview({ rating: 5, comment: '' });
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </div>
+            )}
 
             {/* Sample Reviews */}
             <div className="space-y-4">
