@@ -24,40 +24,50 @@ if (isDigitalOcean) {
   console.log(`🌊 DigitalOcean database detected - SSL configured for managed database`);
 }
 
-// Enhanced pool configuration for Neon PostgreSQL
+// Robust connection configuration for DigitalOcean managed databases
 export const pool = new Pool({
   connectionString: finalDatabaseUrl,
-  // Optimized for Neon database
-  max: 5, // Neon supports more connections
-  min: 1,
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 15000,
-
-  // Application name for monitoring
-  application_name: "siraha_bazaar",
-  statement_timeout: 45000,
-  query_timeout: 40000,
-
-  // SSL configuration - handles DigitalOcean, Neon, and development
+  
+  // Conservative settings for DigitalOcean managed databases
+  max: isDigitalOcean ? 2 : 5, // Very conservative for managed databases
+  min: 0, // Allow pool to scale down completely
+  idleTimeoutMillis: isDigitalOcean ? 120000 : 30000, // 2 minutes for DigitalOcean
+  connectionTimeoutMillis: isDigitalOcean ? 60000 : 15000, // 1 minute timeout
+  acquireTimeoutMillis: isDigitalOcean ? 60000 : 30000, // Wait longer for connection
+  
+  // Application identification
+  application_name: "siraha_bazaar_app",
+  
+  // Query timeouts - very generous for managed databases
+  statement_timeout: isDigitalOcean ? 120000 : 45000, // 2 minutes
+  query_timeout: isDigitalOcean ? 110000 : 40000,
+  
+  // SSL configuration optimized for DigitalOcean
   ssl: isDigitalOcean ? {
-    rejectUnauthorized: false, // DigitalOcean requires this for managed databases
-    checkServerIdentity: () => undefined, // Bypass hostname verification
-    secureProtocol: 'TLSv1_2_method' // Force TLS 1.2
+    rejectUnauthorized: false,
+    checkServerIdentity: () => undefined,
+    secureProtocol: 'TLSv1_2_method',
+    servername: undefined,
+    // Additional SSL options for managed databases
+    requestCert: false,
+    agent: false
   } : isDevelopment ? {
     rejectUnauthorized: false,
     checkServerIdentity: () => undefined
   } : {
-    rejectUnauthorized: true,
-    ca: undefined // Use system CA bundle for other providers
+    rejectUnauthorized: true
   },
 
-  // Optimized reconnection settings for Neon
+  // Connection health and stability
   keepAlive: true,
-  keepAliveInitialDelayMillis: 3000,
+  keepAliveInitialDelayMillis: isDigitalOcean ? 10000 : 3000, // 10 seconds for managed
   
-  // Stability options for production
-  allowExitOnIdle: false, // Keep connections alive for Neon
-  maxUses: 5000, // Higher for Neon
+  // Connection lifecycle for managed databases
+  allowExitOnIdle: false,
+  maxUses: isDigitalOcean ? 500 : 5000, // Rotate connections more frequently
+  
+  // Retry configuration
+  connectionTimeoutMillis: isDigitalOcean ? 60000 : 15000
 });
 
 // Enhanced error handling with automatic recovery

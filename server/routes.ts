@@ -2511,6 +2511,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Debug endpoint to inspect database structure
+  app.get("/api/debug/database", async (req, res) => {
+    try {
+      const tablesQuery = await pool.query(`
+        SELECT table_name, table_type
+        FROM information_schema.tables 
+        WHERE table_schema = 'public'
+        ORDER BY table_name
+      `);
+      
+      const tableInfo = [];
+      for (const table of tablesQuery.rows) {
+        try {
+          const countResult = await pool.query(`SELECT COUNT(*) FROM ${table.table_name}`);
+          const count = parseInt(countResult.rows[0].count);
+          tableInfo.push({
+            name: table.table_name,
+            type: table.table_type,
+            records: count
+          });
+        } catch (error) {
+          tableInfo.push({
+            name: table.table_name,
+            type: table.table_type,
+            records: `Error: ${error.message}`
+          });
+        }
+      }
+      
+      res.json({
+        totalTables: tablesQuery.rows.length,
+        tables: tableInfo,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      res.status(500).json({ 
+        error: error.message,
+        timestamp: new Date().toISOString()
+      });
+    }
+  });
+
   // Product Reviews API endpoints
   app.get("/api/products/:id/reviews", async (req, res) => {
     try {
