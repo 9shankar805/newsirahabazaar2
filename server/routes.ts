@@ -380,7 +380,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Delete user account and all associated data
       await storage.deleteUserAccount(parsedUserId);
       
-      res.json({ message: "Account deleted successfully" });
+      res.json({ 
+        message: "Account deleted successfully",
+        details: "All user data including stores, products, reviews, and personal information have been permanently removed from our systems."
+      });
     } catch (error) {
       console.error("Account deletion error:", error);
       res.status(500).json({ error: "Failed to delete account" });

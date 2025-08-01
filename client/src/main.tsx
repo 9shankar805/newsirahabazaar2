@@ -33,8 +33,8 @@ try {
   
   const root = createRoot(rootElement);
   
-  // Force test mode to debug
-  const isTestMode = true; // window.location.search.includes('test=true');
+  // Test if basic React rendering works
+  const isTestMode = window.location.search.includes('test=true');
   
   console.log(`Rendering app in ${isTestMode ? 'test' : 'normal'} mode...`);
   

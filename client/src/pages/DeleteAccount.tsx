@@ -31,10 +31,10 @@ export default function DeleteAccount() {
         body: JSON.stringify(data),
       });
     },
-    onSuccess: () => {
+    onSuccess: (data: any) => {
       toast({
         title: "Account deleted successfully",
-        description: "Your account and all associated data have been permanently deleted.",
+        description: data?.details || "Your account and all associated data have been permanently deleted from our systems.",
       });
       logout();
       setLocation("/");
@@ -93,7 +93,7 @@ export default function DeleteAccount() {
             <span>Warning: This action cannot be undone</span>
           </CardTitle>
           <CardDescription>
-            Deleting your account will permanently remove all your data including:
+            This will permanently and completely remove all your data from our systems including:
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -102,23 +102,34 @@ export default function DeleteAccount() {
             <AlertDescription className="text-red-800">
               <ul className="list-disc list-inside space-y-1 mt-2">
                 <li>Your profile information and account details</li>
-                <li>Order history and purchase records</li>
-                <li>Saved addresses and payment methods</li>
                 <li>Wishlist items and shopping cart</li>
+                <li>All notifications and push notification tokens</li>
+                <li>Password reset tokens and security data</li>
+                <li>Website visits and tracking data</li>
+                <li>Support tickets and communications</li>
                 {user.role === "shopkeeper" && (
                   <>
-                    <li>Your store(s) and all product listings</li>
-                    <li>Store analytics and sales data</li>
-                    <li>Customer reviews and ratings</li>
+                    <li><strong>All your stores and their complete data</strong></li>
+                    <li><strong>All products, descriptions, and images</strong></li>
+                    <li><strong>Store reviews, ratings, and customer feedback</strong></li>
+                    <li><strong>Store analytics, sales data, and performance metrics</strong></li>
+                    <li><strong>Inventory logs and product history</strong></li>
+                    <li><strong>Promotions, advertisements, and marketing content</strong></li>
+                    <li><strong>Coupons, banners, and flash sales</strong></li>
+                    <li><strong>Settlement records and financial data</strong></li>
+                    <li><strong>Product reviews and customer ratings on your items</strong></li>
                   </>
                 )}
                 {user.role === "delivery_partner" && (
                   <>
-                    <li>Delivery history and earnings data</li>
-                    <li>Performance ratings and statistics</li>
+                    <li><strong>Delivery partner profile and verification data</strong></li>
+                    <li><strong>Location tracking history and delivery routes</strong></li>
+                    <li><strong>Performance ratings and delivery statistics</strong></li>
+                    <li><strong>Earnings data and commission records</strong></li>
                   </>
                 )}
-                <li>All notifications and communications</li>
+                <li><strong>Order history will be anonymized (kept for business records)</strong></li>
+                <li>Fraud alerts and vendor verification records</li>
               </ul>
             </AlertDescription>
           </Alert>
