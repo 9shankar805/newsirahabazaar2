@@ -1,5 +1,6 @@
 import { createRoot } from "react-dom/client";
 import App from "./App";
+import TestApp from "./TestApp";
 import ErrorBoundary from "./components/ErrorBoundary";
 import "./index.css";
 import "./utils/androidFCMHandler";
@@ -18,18 +19,28 @@ window.addEventListener('error', (event) => {
 });
 
 try {
+  console.log("Starting React app initialization...");
+  
   const rootElement = document.getElementById("root");
   if (!rootElement) {
     throw new Error("Root element not found");
   }
   
-  // Add a temporary loading indicator
-  rootElement.innerHTML = '<div style="padding: 20px; text-align: center;">Loading Siraha Bazaar...</div>';
+  console.log("Root element found, creating React root...");
+  
+  // Show immediate loading indicator
+  rootElement.innerHTML = '<div style="padding: 20px; text-align: center; font-family: Arial, sans-serif;">🚀 Loading Siraha Bazaar...</div>';
   
   const root = createRoot(rootElement);
+  
+  // Force test mode to debug
+  const isTestMode = true; // window.location.search.includes('test=true');
+  
+  console.log(`Rendering app in ${isTestMode ? 'test' : 'normal'} mode...`);
+  
   root.render(
     <ErrorBoundary>
-      <App />
+      {isTestMode ? <TestApp /> : <App />}
     </ErrorBoundary>
   );
   
