@@ -982,9 +982,14 @@ body::-webkit-scrollbar {
     font-weight: 600 !important;
   }
   
-  /* Ensure content doesn't overlap with fixed cart */
+  /* Mobile specific positioning */
+  .modern-product-detail .fixed-bottom-cart {
+    bottom: 64px !important; /* Above bottom navbar */
+  }
+  
+  /* Ensure content doesn't overlap with cart button and navbar */
   .modern-product-detail {
-    padding-bottom: 100px !important;
+    padding-bottom: 144px !important; /* 64px navbar + 80px cart button */
   }
   
   /* Override any bottom navigation that might interfere */
@@ -995,26 +1000,20 @@ body::-webkit-scrollbar {
   }
 }
 
-/* Hide bottom navigation only when viewing product details */
-body.hide-bottom-nav nav.fixed.bottom-0 {
-  display: none !important;
-}
-
-body.hide-bottom-nav nav[class*="fixed bottom-0"] {
-  display: none !important;
-}
-
-body.hide-bottom-nav .modern-product-detail .fixed-bottom-cart {
+/* Position cart button above bottom navigation */
+.modern-product-detail .fixed-bottom-cart {
   position: fixed !important;
-  bottom: 0 !important;
+  bottom: 64px !important; /* Height of bottom navbar */
   left: 0 !important;
   right: 0 !important;
-  z-index: 10000 !important;
-  display: block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
+  z-index: 999 !important;
   background: white !important;
   border-top: 1px solid #e5e7eb !important;
   padding: 1rem !important;
   box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Ensure content doesn't overlap with cart button and navbar */
+.modern-product-detail {
+  padding-bottom: 144px !important; /* 64px navbar + 80px cart button */
 }

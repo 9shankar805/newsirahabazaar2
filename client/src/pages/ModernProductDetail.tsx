@@ -37,13 +37,7 @@ export default function ModernProductDetail() {
   const { toast } = useToast();
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Add effect to hide bottom navigation on this page
-  useEffect(() => {
-    document.body.classList.add('hide-bottom-nav');
-    return () => {
-      document.body.classList.remove('hide-bottom-nav');
-    };
-  }, []);
+  // No need to hide bottom navigation - position cart button above it
 
   const { data: product, isLoading } = useQuery<Product>({
     queryKey: [`/api/products/${id}`],
@@ -382,8 +376,8 @@ export default function ModernProductDetail() {
         )}
       </div>
 
-      {/* Fixed Bottom Cart Button - Noon Style */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 p-4 z-[999] fixed-bottom-cart" style={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 999 }}>
+      {/* Fixed Bottom Cart Button - Above Bottom Navbar */}
+      <div className="fixed left-0 right-0 bg-white border-t border-gray-100 p-4 z-[999] fixed-bottom-cart" style={{ position: 'fixed', bottom: '64px', left: 0, right: 0, zIndex: 999 }}>
         <div className="flex items-center gap-3">
           <div className="flex-1">
             <p className="text-xs text-gray-500">Total</p>
