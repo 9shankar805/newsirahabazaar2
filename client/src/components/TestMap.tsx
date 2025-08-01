@@ -101,16 +101,51 @@ const mapLayers: Record<MapLayer, MapLayerConfig> = {
   }
 };
 
-// Component to handle map clicks
+// Component to handle map clicks and keyboard navigation
 function MapClickHandler({ onLocationSelect }: { onLocationSelect?: (lat: number, lng: number) => void }) {
-  useMapEvents({
+  const map = useMapEvents({
     click: (e) => {
       console.log('🎯 Map clicked:', e.latlng);
       if (onLocationSelect) {
         onLocationSelect(e.latlng.lat, e.latlng.lng);
       }
     },
+    keydown: (e) => {
+      const center = map.getCenter();
+      const zoom = map.getZoom();
+      const moveDistance = zoom > 15 ? 0.0001 : zoom > 12 ? 0.0005 : 0.001;
+      
+      let newLat = center.lat;
+      let newLng = center.lng;
+      
+      switch(e.originalEvent.key) {
+        case 'ArrowUp':
+          newLat += moveDistance;
+          break;
+        case 'ArrowDown':
+          newLat -= moveDistance;
+          break;
+        case 'ArrowLeft':
+          newLng -= moveDistance;
+          break;
+        case 'ArrowRight':
+          newLng += moveDistance;
+          break;
+        case 'Enter':
+        case ' ':
+          if (onLocationSelect) {
+            onLocationSelect(center.lat, center.lng);
+          }
+          return;
+        default:
+          return;
+      }
+      
+      e.originalEvent.preventDefault();
+      map.setView([newLat, newLng], zoom);
+    }
   });
+  
   return null;
 }
 
@@ -254,11 +289,24 @@ export function TestMap({ onLocationSelect, selectedLat, selectedLng }: TestMapP
           </div>
           <div className="text-xs text-gray-600 space-y-1">
             <div>• Click anywhere to select location</div>
+            <div>• Use ↑↓←→ arrow keys to navigate</div>
+            <div>• Press Enter/Space to select center</div>
             <div>• Scroll to zoom in/out</div>
-            <div>• Double-click to zoom to area</div>
             <div className="pt-1 text-blue-600 font-medium">
-              {clickedPosition ? '✓ Location selected!' : 'No location selected yet'}
+              {clickedPosition ? '✓ Location selected!' : 'Use arrows or click to pick location'}
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Center crosshair for arrow navigation */}
+      <div className="absolute inset-0 pointer-events-none z-[999] flex items-center justify-center">
+        <div className="relative">
+          <div className="w-8 h-8 border-2 border-red-500 rounded-full bg-white/80 backdrop-blur-sm shadow-lg flex items-center justify-center">
+            <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+          </div>
+          <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 bg-black/70 text-white text-xs px-2 py-1 rounded whitespace-nowrap">
+            Press Enter to select
           </div>
         </div>
       </div>
@@ -268,6 +316,95 @@ export function TestMap({ onLocationSelect, selectedLat, selectedLng }: TestMapP
 
       {/* Zoom Control */}
       <ZoomControl />
+
+      {/* Arrow Navigation Controls */}
+      <div className="absolute top-1/2 right-4 transform -translate-y-1/2 z-[1000] bg-white/95 backdrop-blur-sm rounded-lg p-3 shadow-lg border">
+        <div className="text-xs font-semibold text-gray-700 mb-2 text-center">Arrow Navigation</div>
+        <div className="grid grid-cols-3 gap-1">
+          <div></div>
+          <button
+            onClick={() => {
+              const map = document.querySelector('.leaflet-container') as any;
+              if (map && map._leaflet_map) {
+                const center = map._leaflet_map.getCenter();
+                const zoom = map._leaflet_map.getZoom();
+                const moveDistance = zoom > 15 ? 0.0001 : 0.0005;
+                map._leaflet_map.setView([center.lat + moveDistance, center.lng], zoom);
+              }
+            }}
+            className="w-8 h-8 bg-gray-100 hover:bg-gray-200 rounded transition-colors flex items-center justify-center text-gray-600"
+            title="Move North"
+          >
+            ↑
+          </button>
+          <div></div>
+          <button
+            onClick={() => {
+              const map = document.querySelector('.leaflet-container') as any;
+              if (map && map._leaflet_map) {
+                const center = map._leaflet_map.getCenter();
+                const zoom = map._leaflet_map.getZoom();
+                const moveDistance = zoom > 15 ? 0.0001 : 0.0005;
+                map._leaflet_map.setView([center.lat, center.lng - moveDistance], zoom);
+              }
+            }}
+            className="w-8 h-8 bg-gray-100 hover:bg-gray-200 rounded transition-colors flex items-center justify-center text-gray-600"
+            title="Move West"
+          >
+            ←
+          </button>
+          <button
+            onClick={() => {
+              const map = document.querySelector('.leaflet-container') as any;
+              if (map && map._leaflet_map) {
+                const center = map._leaflet_map.getCenter();
+                if (onLocationSelect) {
+                  onLocationSelect(center.lat, center.lng);
+                }
+              }
+            }}
+            className="w-8 h-8 bg-green-500 hover:bg-green-600 rounded transition-colors flex items-center justify-center text-white font-bold"
+            title="Select Center Location"
+          >
+            ✓
+          </button>
+          <button
+            onClick={() => {
+              const map = document.querySelector('.leaflet-container') as any;
+              if (map && map._leaflet_map) {
+                const center = map._leaflet_map.getCenter();
+                const zoom = map._leaflet_map.getZoom();
+                const moveDistance = zoom > 15 ? 0.0001 : 0.0005;
+                map._leaflet_map.setView([center.lat, center.lng + moveDistance], zoom);
+              }
+            }}
+            className="w-8 h-8 bg-gray-100 hover:bg-gray-200 rounded transition-colors flex items-center justify-center text-gray-600"
+            title="Move East"
+          >
+            →
+          </button>
+          <div></div>
+          <button
+            onClick={() => {
+              const map = document.querySelector('.leaflet-container') as any;
+              if (map && map._leaflet_map) {
+                const center = map._leaflet_map.getCenter();
+                const zoom = map._leaflet_map.getZoom();
+                const moveDistance = zoom > 15 ? 0.0001 : 0.0005;
+                map._leaflet_map.setView([center.lat - moveDistance, center.lng], zoom);
+              }
+            }}
+            className="w-8 h-8 bg-gray-100 hover:bg-gray-200 rounded transition-colors flex items-center justify-center text-gray-600"
+            title="Move South"
+          >
+            ↓
+          </button>
+          <div></div>
+        </div>
+        <div className="text-xs text-gray-500 mt-2 text-center">
+          Use arrows or<br/>keyboard keys
+        </div>
+      </div>
 
       {/* Coordinates display */}
       {clickedPosition && (
@@ -289,6 +426,16 @@ export function TestMap({ onLocationSelect, selectedLat, selectedLng }: TestMapP
         dragging={true}
         attributionControl={true}
         zoomControl={false} // We have custom zoom control
+        keyboard={true}
+        keyboardPanDelta={80}
+        ref={(mapInstance) => {
+          if (mapInstance) {
+            // Make map focusable for keyboard events
+            const container = mapInstance.getContainer();
+            container.tabIndex = 0;
+            container.focus();
+          }
+        }}
       >
         <TileLayer
           attribution={currentMapLayer.attribution}
