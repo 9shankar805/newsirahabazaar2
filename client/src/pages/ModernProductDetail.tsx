@@ -10,9 +10,7 @@ import {
   MapPin, 
   Store, 
   ArrowLeft,
-  Share2,
-  ChevronLeft,
-  ChevronRight
+  Share2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -30,13 +28,11 @@ export default function ModernProductDetail() {
   const { id } = useParams();
   const [, setLocation] = useLocation();
   const [quantity, setQuantity] = useState(1);
-  const [selectedImage, setSelectedImage] = useState(0);
   const [showFullDescription, setShowFullDescription] = useState(false);
   const { addToCart } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
   const { user } = useAuth();
   const { toast } = useToast();
-  const scrollRef = useRef<HTMLDivElement>(null);
   const [userLocation, setUserLocation] = useState<{lat: number, lon: number} | null>(null);
   const [storeDistance, setStoreDistance] = useState<string | null>(null);
 
@@ -143,22 +139,7 @@ export default function ModernProductDetail() {
     });
   };
 
-  const scrollToImage = (index: number) => {
-    if (scrollRef.current) {
-      const scrollLeft = index * scrollRef.current.offsetWidth;
-      scrollRef.current.scrollTo({ left: scrollLeft, behavior: 'smooth' });
-    }
-    setSelectedImage(index);
-  };
 
-  const handleScroll = () => {
-    if (scrollRef.current) {
-      const scrollLeft = scrollRef.current.scrollLeft;
-      const imageWidth = scrollRef.current.offsetWidth;
-      const newIndex = Math.round(scrollLeft / imageWidth);
-      setSelectedImage(newIndex);
-    }
-  };
 
   if (isLoading) {
     return (
@@ -231,77 +212,18 @@ export default function ModernProductDetail() {
         </div>
       </div>
 
-      {/* Image Carousel - Noon Style */}
+      {/* Single Product Image */}
       <div className="relative overflow-hidden">
-        <div 
-          ref={scrollRef}
-          className="flex overflow-x-auto snap-x snap-mandatory image-carousel scrollbar-hide"
-          onScroll={handleScroll}
-          style={{ 
-            scrollBehavior: 'smooth',
-            WebkitOverflowScrolling: 'touch',
-            msOverflowStyle: 'none',
-            scrollbarWidth: 'none'
+        <img
+          src={images[0] || getProductFallbackImage(product)}
+          alt={product.name}
+          className="w-full h-80 sm:h-96 object-cover bg-gray-50"
+          onError={(e) => {
+            const target = e.target as HTMLImageElement;
+            target.src = getProductFallbackImage(product);
           }}
-        >
-          {images.map((image, index) => (
-            <div key={index} className="w-full flex-shrink-0 snap-center image-slide">
-              <img
-                src={image}
-                alt={`${product.name} ${index + 1}`}
-                className="w-full h-80 sm:h-96 object-cover bg-gray-50"
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  if (!target.src.includes('unsplash')) {
-                    target.src = getProductFallbackImage(product);
-                  }
-                }}
-                loading="lazy"
-              />
-            </div>
-          ))}
-        </div>
-
-        {/* Image Navigation Arrows */}
-        {images.length > 1 && (
-          <>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 backdrop-blur-sm p-2 rounded-full shadow-lg"
-              onClick={() => scrollToImage(Math.max(0, selectedImage - 1))}
-              disabled={selectedImage === 0}
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 backdrop-blur-sm p-2 rounded-full shadow-lg"
-              onClick={() => scrollToImage(Math.min(images.length - 1, selectedImage + 1))}
-              disabled={selectedImage === images.length - 1}
-            >
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-          </>
-        )}
-
-        {/* Image Dots Indicator */}
-        {images.length > 1 && (
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-            {images.map((_, index) => (
-              <button
-                key={index}
-                className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                  selectedImage === index 
-                    ? 'bg-white scale-125' 
-                    : 'bg-white/50'
-                }`}
-                onClick={() => scrollToImage(index)}
-              />
-            ))}
-          </div>
-        )}
+          loading="lazy"
+        />
 
         {/* Discount Badge */}
         {discount > 0 && (
@@ -310,37 +232,6 @@ export default function ModernProductDetail() {
           </Badge>
         )}
       </div>
-
-      {/* Mobile-optimized thumbnail selection below main image */}
-      {images.length > 1 && (
-        <div className="px-4 py-3 bg-white">
-          <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-gray-300">
-            {images.map((image, index) => (
-              <button
-                key={index}
-                onClick={() => scrollToImage(index)}
-                className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-all duration-200 ${
-                  selectedImage === index 
-                    ? "border-orange-500 ring-2 ring-orange-200 scale-105" 
-                    : "border-gray-200 hover:border-gray-300"
-                }`}
-              >
-                <img
-                  src={image}
-                  alt={`${product.name} ${index + 1}`}
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    const target = e.target as HTMLImageElement;
-                    if (!target.src.includes('unsplash')) {
-                      target.src = getProductFallbackImage(product);
-                    }
-                  }}
-                />
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
 
       <div className="px-4 py-6 pb-24">
         {/* Product Details */}
