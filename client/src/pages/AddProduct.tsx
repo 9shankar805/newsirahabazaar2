@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -101,11 +101,14 @@ export default function AddProduct() {
   
   const defaultProductType = isRestaurant ? 'food' : 'retail';
 
+  // Get the first available category ID as default
+  const defaultCategoryId = categories.length > 0 ? categories[0].id : 1;
+
   const form = useForm<ProductForm>({
     resolver: zodResolver(productSchema),
     defaultValues: {
       name: "",
-      categoryId: 1,
+      categoryId: defaultCategoryId,
       description: "",
       price: "",
       originalPrice: "",
@@ -121,6 +124,13 @@ export default function AddProduct() {
       nutritionInfo: "",
     },
   });
+
+  // Update default category when categories load
+  useEffect(() => {
+    if (categories.length > 0 && defaultCategoryId !== 1) {
+      form.setValue("categoryId", categories[0].id);
+    }
+  }, [categories, defaultCategoryId, form]);
 
   const watchProductType = form.watch("productType");
 
@@ -342,7 +352,7 @@ export default function AddProduct() {
                       <FormLabel className="text-base font-medium">Category *</FormLabel>
                       <Select 
                         onValueChange={(value) => field.onChange(parseInt(value))}
-                        defaultValue={field.value?.toString()}
+                        value={field.value?.toString()}
                       >
                         <FormControl>
                           <SelectTrigger className="h-11">
