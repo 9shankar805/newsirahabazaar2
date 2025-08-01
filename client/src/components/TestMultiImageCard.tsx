@@ -162,14 +162,14 @@ export default function TestMultiImageCard() {
 
             {/* Pagination Dots - Larger and more visible on mobile */}
             {hasMultipleImages && (
-              <div className="absolute bottom-1.5 left-1/2 -translate-x-1/2 flex gap-0.5">
+              <div className="absolute bottom-1 left-1/2 -translate-x-1/2 flex gap-1 px-2 py-1 rounded-full bg-black/20 backdrop-blur-sm">
                 {images.map((_, index) => (
                   <button
                     key={index}
-                    className={`rounded-full transition-all duration-300 touch-manipulation ${
+                    className={`transition-all duration-300 touch-manipulation ${
                       currentImageIndex === index 
-                        ? 'w-1.5 h-0.5 bg-white/90 shadow-sm sm:w-6 sm:h-2' 
-                        : 'w-0.5 h-0.5 bg-white/50 hover:bg-white/70 active:scale-110 sm:w-2 sm:h-2'
+                        ? 'w-3 h-1 bg-white rounded-full shadow-sm sm:w-6 sm:h-2' 
+                        : 'w-1 h-1 bg-white/60 rounded-full hover:bg-white/80 sm:w-2 sm:h-2'
                     }`}
                     onClick={(e) => {
                       e.preventDefault();
