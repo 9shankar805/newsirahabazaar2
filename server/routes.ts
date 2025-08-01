@@ -193,6 +193,62 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin route to initialize essential categories
+  app.post("/api/admin/init-categories", async (req, res) => {
+    try {
+      console.log('📁 Initializing essential categories...');
+      
+      const defaultCategories = [
+        { name: "Electronics", icon: "smartphone", description: "Electronics and gadgets" },
+        { name: "Fashion", icon: "shirt", description: "Clothing and accessories" },
+        { name: "Food & Beverages", icon: "utensils", description: "Food delivery and dining" },
+        { name: "Health & Beauty", icon: "heart", description: "Health and beauty products" },
+        { name: "Sports & Fitness", icon: "dumbbell", description: "Sports equipment and fitness" },
+        { name: "Home & Garden", icon: "home", description: "Home improvement and gardening" },
+        { name: "Books & Education", icon: "book", description: "Books and educational materials" },
+        { name: "Automotive", icon: "car", description: "Auto parts and accessories" },
+        { name: "Baby & Kids", icon: "baby", description: "Baby and children products" },
+        { name: "Groceries", icon: "shopping-cart", description: "Daily grocery items" }
+      ];
+      
+      const createdCategories = [];
+      
+      for (const categoryData of defaultCategories) {
+        try {
+          const category = {
+            name: categoryData.name,
+            slug: categoryData.name.toLowerCase().replace(/\s+/g, '-').replace(/&/g, 'and'),
+            description: categoryData.description,
+            icon: categoryData.icon
+          };
+          
+          const created = await storage.createCategory(category);
+          createdCategories.push(created);
+          console.log(`✅ Created category: ${category.name}`);
+        } catch (e) {
+          console.log(`⚠️ Category ${categoryData.name}: ${e.message}`);
+        }
+      }
+      
+      console.log('✅ Categories initialization completed!');
+      
+      res.json({ 
+        success: true,
+        message: 'Essential categories initialized successfully',
+        categoriesCreated: createdCategories.length,
+        categories: createdCategories,
+        timestamp: new Date().toISOString()
+      });
+      
+    } catch (error) {
+      console.error('❌ Error initializing categories:', error);
+      res.status(500).json({ 
+        error: 'Failed to initialize categories',
+        message: error.message 
+      });
+    }
+  });
+
   // Authentication routes
   app.post("/api/auth/register", async (req, res) => {
     try {
