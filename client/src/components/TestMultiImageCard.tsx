@@ -248,12 +248,7 @@ export default function TestMultiImageCard() {
               </Button>
             </div>
 
-            {/* Mobile swipe instruction */}
-            <div className="mt-2 text-center">
-              <div className="text-xs text-muted-foreground md:hidden">
-                👆 Swipe or tap arrows to browse images
-              </div>
-            </div>
+
           </div>
         </div>
       </Link>
