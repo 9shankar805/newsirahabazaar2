@@ -3212,5 +3212,27 @@ async function createStorage(): Promise<IStorage> {
 // Export storage promise that resolves to the appropriate storage
 export const storagePromise = createStorage();
 
-// Use memory storage due to database quota issues
-export const storage = new MemoryStorage();
+// Create a single instance that will be resolved once
+let storageInstance: IStorage | null = null;
+
+// Function to get or create storage instance
+export const getStorage = async (): Promise<IStorage> => {
+  if (!storageInstance) {
+    storageInstance = await storagePromise;
+  }
+  return storageInstance;
+};
+
+// For backward compatibility - create a storage object that proxies to the database storage
+export const storage = new Proxy({} as IStorage, {
+  get(target, prop) {
+    return async (...args: any[]) => {
+      const actualStorage = await getStorage();
+      const method = (actualStorage as any)[prop];
+      if (typeof method === 'function') {
+        return method.apply(actualStorage, args);
+      }
+      return method;
+    };
+  }
+});
