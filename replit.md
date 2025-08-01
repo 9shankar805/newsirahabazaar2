@@ -16,6 +16,23 @@ A cutting-edge multi-vendor e-commerce platform "Siraha Bazaar" that revolutioni
 
 ## Recent Changes
 
+### Modern Noon-Style Product Detail Page (August 1, 2025)
+✓ **NEW:** Created ModernProductDetail.tsx with Noon-app inspired design
+✓ **NEW:** Implemented horizontal image carousel with smooth scrolling and snap behavior
+✓ **NEW:** Added floating image navigation arrows and dot indicators
+✓ **NEW:** Created fixed bottom "Add to Cart" button with modern gradient styling
+✓ **NEW:** Enhanced mobile-first responsive design with proper touch handling
+✓ **NEW:** Added modern CSS classes for image carousel and cart button animations
+✓ **ENHANCED:** Updated routing to use modern product detail for all product pages
+✓ **ENHANCED:** Mobile-optimized header with back button, share, and wishlist functionality
+✓ **ENHANCED:** Modern typography and spacing following modern e-commerce patterns
+
+### Seller Dashboard Floating Button Fix (August 1, 2025)
+✓ **FIXED:** Floating + button now properly opens on mobile with z-index 999
+✓ **ENHANCED:** Increased button size to 56px minimum for better mobile touch
+✓ **ENHANCED:** Added debug logging and explicit touch event handling
+✓ **ENHANCED:** Improved CSS with pointer events and mobile-specific optimizations
+
 ### PostgreSQL Database Setup & Long-term Storage (August 1, 2025)
 ✓ **NEW:** Configured robust PostgreSQL database connection with Neon database
 ✓ **NEW:** Updated DATABASE_URL to: postgresql://neondb_owner:npg_x70rUbTWcLXC@ep-summer-bread-a88huiee-pooler.eastus2.azure.neon.tech/neondb

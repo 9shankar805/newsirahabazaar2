@@ -900,3 +900,68 @@ body::-webkit-scrollbar {
     }
   }
 }
+
+/* Modern Product Detail - Noon Style */
+.modern-product-detail {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+
+.modern-product-detail .image-carousel {
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.modern-product-detail .image-carousel::-webkit-scrollbar {
+  display: none;
+}
+
+.modern-product-detail .image-slide {
+  scroll-snap-align: center;
+  scroll-snap-stop: always;
+}
+
+/* Custom line clamp for description */
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Modern bottom cart button */
+.modern-cart-button {
+  background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+  box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
+  transition: all 0.3s ease;
+}
+
+.modern-cart-button:hover {
+  background: linear-gradient(135deg, #e55a2b 0%, #e8851a 100%);
+  box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4);
+  transform: translateY(-2px);
+}
+
+.modern-cart-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(255, 107, 53, 0.3);
+}
+
+/* Mobile-first responsive design */
+@media (max-width: 640px) {
+  .modern-product-detail .image-carousel {
+    height: 320px;
+  }
+  
+  .modern-product-detail .price-section {
+    padding: 1rem;
+    background: linear-gradient(to bottom, #ffffff 0%, #fafafa 100%);
+  }
+  
+  .modern-product-detail .fixed-bottom-cart {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+  }
+}

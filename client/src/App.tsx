@@ -56,6 +56,7 @@ import SellerOrders from "@/pages/SellerOrders";
 import SellerStore from "@/pages/SellerStore";
 import AddProduct from "@/pages/AddProduct";
 import RestaurantDashboard from "@/pages/RestaurantDashboard";
+import ModernProductDetail from "@/pages/ModernProductDetail";
 import DashboardRouter from "@/components/DashboardRouter";
 import EnhancedDeliveryPartnerDashboard from "./pages/EnhancedDeliveryPartnerDashboard";
 import ModernDeliveryPartnerDashboard from "./pages/ModernDeliveryPartnerDashboard";
@@ -97,8 +98,9 @@ function AppRouter() {
         <Route path="/products" component={Products} />
         <Route path="/quick-bites" component={QuickBites} />
         <Route path="/food-delivery" component={FoodDelivery} />
-        <Route path="/products/:id" component={ProductDetail} />
-        <Route path="/food/:id" component={ProductDetail} />
+        <Route path="/products/:id" component={ModernProductDetail} />
+        <Route path="/food/:id" component={ModernProductDetail} />
+        <Route path="/product/:id" component={ModernProductDetail} />
         <Route path="/cart" component={Cart} />
         <Route path="/checkout" component={Checkout} />
         <Route path="/order-confirmation" component={OrderConfirmation} />
