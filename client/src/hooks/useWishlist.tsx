@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { useAuth } from "./useAuth";
-import { apiGet, apiPost, apiDelete } from "@/lib/api";
+import { apiGet, apiPost, apiDelete } from "@/lib/queryClient";
 import type { WishlistItem, Product } from "@shared/schema";
 
 interface WishlistItemWithProduct extends WishlistItem {

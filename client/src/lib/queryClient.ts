@@ -52,28 +52,58 @@ export const queryClient = new QueryClient({
       refetchOnWindowFocus: false,
       staleTime: 5 * 60 * 1000, // 5 minutes
       retry: 1,
-      onError: (error) => {
-        console.error('Query error caught:', error);
-      },
     },
     mutations: {
       retry: false,
-      onError: (error) => {
-        console.error('Mutation error caught:', error);
-      },
     },
   },
 });
 
 // Handle QueryClient errors globally
 queryClient.setMutationDefaults(['*'], {
-  onError: (error) => {
+  onError: (error: any) => {
     console.error('Global mutation error:', error);
   },
 });
 
-queryClient.setQueryDefaults(['*'], {
-  onError: (error) => {
-    console.error('Global query error:', error);
-  },
-});
+// Note: Query defaults error handling removed as it's not supported in current TanStack Query version
+
+// Helper functions for API requests
+export async function apiGet<T = any>(url: string): Promise<T> {
+  const response = await apiRequest(url);
+  return response.json();
+}
+
+export async function apiPost(url: string, data: any): Promise<any> {
+  const response = await apiRequest(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+  return response.json();
+}
+
+export async function apiPut(url: string, data: any): Promise<any> {
+  const response = await apiRequest(url, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+  return response.json();
+}
+
+export async function apiDelete(url: string): Promise<any> {
+  const response = await apiRequest(url, {
+    method: "DELETE",
+  });
+  return response.json();
+}
+
+export async function apiPatch(url: string, data: any): Promise<any> {
+  const response = await apiRequest(url, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+  return response.json();
+}

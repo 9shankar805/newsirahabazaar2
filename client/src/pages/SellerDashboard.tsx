@@ -64,7 +64,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
-import { apiPost, apiPut, apiDelete } from "@/lib/api";
+import { apiPost, apiPut, apiDelete } from "@/lib/queryClient";
 import { queryClient } from "@/lib/queryClient";
 import ImageUpload from "@/components/ImageUpload";
 import { UnifiedImageUpload } from "@/components/UnifiedImageUpload";

@@ -18,7 +18,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
-import { apiRequest, apiPost, apiPut, apiDelete } from "@/lib/api";
+import { apiRequest, apiPost, apiPut, apiDelete } from "@/lib/queryClient";
 
 const promotionSchema = z.object({
   storeId: z.number(),

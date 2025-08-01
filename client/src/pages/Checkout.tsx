@@ -15,7 +15,7 @@ import { Separator } from "@/components/ui/separator";
 import { useCart } from "@/hooks/useCart";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
-import { apiPost } from "@/lib/api";
+import { apiPost } from "@/lib/queryClient";
 import { DeliveryCalculator } from "@/components/DeliveryCalculator";
 import { calculateDistance, getCoordinatesFromAddress, geocodeAddressWithValidation, getCurrentUserLocation, formatDistance } from "@/lib/distance";
 import { useQuery } from "@tanstack/react-query";

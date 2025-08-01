@@ -29,7 +29,7 @@ import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/hooks/useAuth";
 import { useWishlist } from "@/hooks/useWishlist";
 import { useToast } from "@/hooks/use-toast";
-import { apiPut } from "@/lib/api";
+import { apiPut } from "@/lib/queryClient";
 import NotificationCenter from "@/components/NotificationCenter";
 import ReturnPolicy from "@/components/ReturnPolicy";
 import { DeliveryTrackingMap } from "@/components/tracking/DeliveryTrackingMap";
