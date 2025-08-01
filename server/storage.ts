@@ -4,7 +4,7 @@ import {
   promotions, advertisements, productReviews, reviewLikes, storeReviews, storeReviewLikes, settlements, storeAnalytics, inventoryLogs,
   paymentTransactions, coupons, banners, supportTickets, siteSettings, deliveryPartners, deliveries,
   vendorVerifications, fraudAlerts, commissions, productAttributes, adminLogs, deliveryZones, flashSales,
-  pushNotificationTokens, passwordResetTokens,
+  pushNotificationTokens, passwordResetTokens, deliveryLocationTracking,
   type User, type InsertUser, type AdminUser, type InsertAdminUser, type Store, type InsertStore, 
   type Category, type InsertCategory, type Product, type InsertProduct,
   type Order, type InsertOrder, type OrderItem, type InsertOrderItem,

@@ -4015,6 +4015,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/notifications/user/:userId", async (req, res) => {
     try {
       const userId = parseInt(req.params.userId);
+      
+      // Validate that user exists before fetching notifications
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+      
       const notifications = await storage.getNotificationsByUserId(userId);
       res.json(notifications);
     } catch (error) {
@@ -4558,6 +4565,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/notifications/user/:userId", async (req, res) => {
     try {
       const userId = parseInt(req.params.userId);
+      
+      // Validate that user exists before fetching notifications
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+      
       const notifications = await storage.getUserNotifications(userId);
       res.json(notifications);
     } catch (error) {
@@ -4602,6 +4616,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error cleaning up test notifications:", error);
       res.status(500).json({ error: "Failed to clean up test notifications" });
+    }
+  });
+
+  // Clean up invalid user data to prevent foreign key constraint violations
+  app.post("/api/admin/cleanup-invalid-users", async (req, res) => {
+    try {
+      const cleanupResults = [];
+
+      // Find and clean up website visits for non-existent users
+      try {
+        await db
+          .delete(websiteVisits)
+          .where(sql`"userId" IS NOT NULL AND "userId" NOT IN (SELECT id FROM users)`);
+        cleanupResults.push("Cleaned up invalid website visit records");
+      } catch (error) {
+        console.log("No invalid website visits to clean");
+      }
+
+      // Find and clean up notifications for non-existent users  
+      try {
+        await db
+          .delete(notifications)
+          .where(sql`"userId" IS NOT NULL AND "userId" NOT IN (SELECT id FROM users)`);
+        cleanupResults.push("Cleaned up invalid notification records");
+      } catch (error) {
+        console.log("No invalid notifications to clean");
+      }
+
+      res.json({ 
+        success: true, 
+        message: "Database cleanup completed successfully",
+        details: cleanupResults.length > 0 ? cleanupResults : ["No invalid user references found"]
+      });
+    } catch (error) {
+      console.error("Error cleaning up invalid user data:", error);
+      res.status(500).json({ error: "Failed to clean up invalid user data" });
     }
   });
 
@@ -7578,9 +7628,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const ipAddress = req.ip || req.connection.remoteAddress || null;
       const userAgent = req.get('User-Agent') || null;
       
+      // Only track for valid users or anonymous sessions
+      let validUserId = null;
+      if (userId) {
+        // Check if user exists before tracking
+        const user = await storage.getUser(parseInt(userId));
+        if (user) {
+          validUserId = parseInt(userId);
+        }
+      }
+      
       // Track website visit for analytics
       await db.insert(websiteVisits).values({
-        userId: userId || null,
+        userId: validUserId,
         page,
         ipAddress,
         userAgent,

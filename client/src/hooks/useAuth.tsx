@@ -25,15 +25,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setUser(responseData.user);
           localStorage.setItem("user", JSON.stringify(responseData.user));
         } else {
-          console.warn("No user data in refresh response");
+          console.warn("No user data in refresh response - clearing invalid session");
+          setUser(null);
+          localStorage.removeItem("user");
         }
+      } else if (response.status === 404) {
+        // User no longer exists in database - clear session
+        console.warn("User not found in database - clearing invalid session");
+        setUser(null);
+        localStorage.removeItem("user");
       } else {
         console.warn("Failed to refresh user data:", response.status);
-        // Don't clear user on failed refresh, just log the warning
       }
     } catch (error) {
       console.error("Failed to refresh user data:", error);
-      // Don't clear user on network errors, just log the error
     }
   };
 
@@ -43,21 +48,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (savedUser) {
       try {
         const userData = JSON.parse(savedUser);
-        setUser(userData);
         
-        // If user is a shopkeeper with pending status, check for updates periodically
-        if (userData.role === 'shopkeeper' && userData.status !== 'active') {
-          const interval = setInterval(async () => {
-            try {
-              await refreshUserData(userData.id);
-            } catch (error) {
-              // Silently fail to avoid disrupting user experience
-            }
-          }, 30000); // Check every 30 seconds
+        // Validate that user has required fields
+        if (userData && userData.id && userData.email) {
+          setUser(userData);
           
-          return () => clearInterval(interval);
+          // Validate user exists in database on startup
+          refreshUserData(userData.id);
+          
+          // If user is a shopkeeper with pending status, check for updates periodically
+          if (userData.role === 'shopkeeper' && userData.status !== 'active') {
+            const interval = setInterval(async () => {
+              try {
+                await refreshUserData(userData.id);
+              } catch (error) {
+                // Silently fail to avoid disrupting user experience
+              }
+            }, 30000); // Check every 30 seconds
+            
+            return () => clearInterval(interval);
+          }
+        } else {
+          console.warn("Invalid user data in localStorage - clearing");
+          localStorage.removeItem("user");
         }
       } catch (error) {
+        console.warn("Corrupted user data in localStorage - clearing");
         localStorage.removeItem("user");
       }
     }
