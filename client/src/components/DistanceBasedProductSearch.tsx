@@ -266,9 +266,25 @@ export default function DistanceBasedProductSearch({
       
       // Filter by category if provided (secondary filter)
       if (category && category.trim()) {
-        const categoryLower = category.toLowerCase();
-        if (!product.category?.toLowerCase().includes(categoryLower)) {
-          return false;
+        // Check if category is a number (categoryId) or name
+        const categoryParam = category.trim();
+        const categoryId = parseInt(categoryParam);
+        
+        if (!isNaN(categoryId)) {
+          // Category is an ID, compare with product.categoryId
+          if (product.categoryId !== categoryId) {
+            console.log(`❌ Product "${product.name}" filtered out - categoryId ${product.categoryId} !== ${categoryId}`);
+            return false;
+          }
+          console.log(`✅ Product "${product.name}" matches categoryId ${categoryId}`);
+        } else {
+          // Category is a name, compare with product.category
+          const categoryLower = categoryParam.toLowerCase();
+          if (!product.category?.toLowerCase().includes(categoryLower)) {
+            console.log(`❌ Product "${product.name}" filtered out - category "${product.category}" doesn't include "${categoryLower}"`);
+            return false;
+          }
+          console.log(`✅ Product "${product.name}" matches category name "${categoryLower}"`);
         }
       }
 
