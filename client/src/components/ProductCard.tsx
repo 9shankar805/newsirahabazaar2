@@ -28,9 +28,14 @@ export default function ProductCard({ product }: ProductCardProps) {
   // Image scrolling state
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isHovering, setIsHovering] = useState(false);
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const images = getProductImages(product);
   const hasMultipleImages = images.length > 1;
+
+  // Minimum swipe distance for mobile
+  const minSwipeDistance = 50;
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -70,13 +75,17 @@ export default function ProductCard({ product }: ProductCardProps) {
     ? Math.round(((Number(product.originalPrice) - Number(product.price)) / Number(product.originalPrice)) * 100)
     : 0;
 
-  // Auto-scroll functionality on hover
+  // Auto-scroll functionality on hover (desktop only)
   useEffect(() => {
     if (!hasMultipleImages || !isHovering) return;
     
+    // Only enable auto-scroll on desktop (hover support)
+    const isDesktop = window.matchMedia('(hover: hover)').matches;
+    if (!isDesktop) return;
+    
     const interval = setInterval(() => {
       setCurrentImageIndex((prev) => (prev + 1) % images.length);
-    }, 1500); // Change image every 1.5 seconds
+    }, 2000); // Slower on desktop for better UX
     
     return () => clearInterval(interval);
   }, [isHovering, hasMultipleImages, images.length]);
@@ -108,13 +117,46 @@ export default function ProductCard({ product }: ProductCardProps) {
     scrollToImage(newIndex);
   };
 
+  // Touch handlers for mobile swiping
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+
+    if (isLeftSwipe) {
+      // Swipe left - next image
+      const newIndex = currentImageIndex < images.length - 1 ? currentImageIndex + 1 : 0;
+      scrollToImage(newIndex);
+    }
+    
+    if (isRightSwipe) {
+      // Swipe right - previous image
+      const newIndex = currentImageIndex > 0 ? currentImageIndex - 1 : images.length - 1;
+      scrollToImage(newIndex);
+    }
+  };
+
   return (
     <Link href={`/products/${product.id}`}>
       <div className="product-card overflow-hidden group">
         <div 
-          className="relative overflow-hidden"
+          className="relative overflow-hidden touch-pan-y"
           onMouseEnter={() => setIsHovering(true)}
           onMouseLeave={() => setIsHovering(false)}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
         >
           {/* Image Container with Horizontal Scroll */}
           <div
@@ -139,38 +181,38 @@ export default function ProductCard({ product }: ProductCardProps) {
             ))}
           </div>
 
-          {/* Navigation Arrows - Only show on hover and when multiple images */}
-          {hasMultipleImages && isHovering && (
+          {/* Navigation Arrows - Always visible on mobile, show on hover for desktop */}
+          {hasMultipleImages && (
             <>
               <Button
                 variant="ghost"
                 size="sm"
-                className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white/90 backdrop-blur-sm p-1 h-6 w-6 rounded-full shadow-md transition-opacity"
+                className="absolute left-1 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/80 backdrop-blur-sm p-1 h-7 w-7 rounded-full shadow-lg transition-all md:opacity-0 md:group-hover:opacity-100 opacity-70 active:scale-95"
                 onClick={handlePrevImage}
               >
-                <ChevronLeft className="h-3 w-3" />
+                <ChevronLeft className="h-3 w-3 text-white" />
               </Button>
               <Button
                 variant="ghost"
                 size="sm"
-                className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white/90 backdrop-blur-sm p-1 h-6 w-6 rounded-full shadow-md transition-opacity"
+                className="absolute right-1 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/80 backdrop-blur-sm p-1 h-7 w-7 rounded-full shadow-lg transition-all md:opacity-0 md:group-hover:opacity-100 opacity-70 active:scale-95"
                 onClick={handleNextImage}
               >
-                <ChevronRight className="h-3 w-3" />
+                <ChevronRight className="h-3 w-3 text-white" />
               </Button>
             </>
           )}
 
-          {/* Pagination Dots - Only show when multiple images */}
+          {/* Pagination Dots - Larger and more visible on mobile */}
           {hasMultipleImages && (
-            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
+            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5">
               {images.map((_, index) => (
                 <button
                   key={index}
-                  className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${
+                  className={`rounded-full transition-all duration-300 touch-manipulation ${
                     currentImageIndex === index 
-                      ? 'bg-white scale-110 shadow-sm' 
-                      : 'bg-white/60 hover:bg-white/80'
+                      ? 'w-6 h-2 bg-white shadow-md' 
+                      : 'w-2 h-2 bg-white/70 hover:bg-white/90 active:scale-110'
                   }`}
                   onClick={(e) => {
                     e.preventDefault();
@@ -189,10 +231,19 @@ export default function ProductCard({ product }: ProductCardProps) {
             </Badge>
           )}
 
-          {/* Multiple Images Indicator */}
+          {/* Multiple Images Indicator - Better positioned for mobile */}
           {hasMultipleImages && (
-            <div className="absolute top-2 right-2 bg-black/50 text-white text-xs px-1.5 py-0.5 rounded-full">
+            <div className="absolute top-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded-full shadow-sm backdrop-blur-sm">
               {currentImageIndex + 1}/{images.length}
+            </div>
+          )}
+
+          {/* Swipe indicator for mobile */}
+          {hasMultipleImages && (
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none opacity-0 animate-pulse md:hidden">
+              <div className="bg-black/50 text-white text-xs px-2 py-1 rounded-full backdrop-blur-sm">
+                Swipe to browse
+              </div>
             </div>
           )}
         </div>

@@ -16,6 +16,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import ProductCard from "@/components/ProductCard";
 import StoreCard from "@/components/StoreCard";
+import TestMultiImageCard from "@/components/TestMultiImageCard";
 import { useAuth } from "@/hooks/useAuth";
 import { useAppMode } from "@/hooks/useAppMode";
 import type { Product, Store } from "@shared/schema";
@@ -1130,6 +1131,23 @@ export default function Homepage() {
               ))}
             </div>
           )}
+        </div>
+      </section>
+
+      {/* Mobile Image Scrolling Demo Section */}
+      <section className="py-8 bg-gradient-to-r from-blue-50 to-purple-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-6">
+            <h2 className="text-xl font-bold text-foreground mb-2">
+              Mobile Image Scrolling Demo
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              👆 Swipe horizontally on mobile to browse multiple product images
+            </p>
+          </div>
+          <div className="flex justify-center">
+            <TestMultiImageCard />
+          </div>
         </div>
       </section>
 

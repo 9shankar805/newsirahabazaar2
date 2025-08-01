@@ -1032,3 +1032,50 @@ body::-webkit-scrollbar {
   overflow-x: hidden !important;
   -webkit-overflow-scrolling: touch !important;
 }
+/* Mobile-optimized product card image scrolling */
+.product-card {
+  /* Improve touch target sizes on mobile */
+  -webkit-tap-highlight-color: transparent;
+}
+
+.product-card .touch-manipulation {
+  /* Better touch targets on mobile */
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Mobile swipe interactions */
+@media (max-width: 768px) {
+  .product-card {
+    /* Prevent unwanted scrolling during swipe */
+    overscroll-behavior: contain;
+  }
+  
+  .product-card .touch-pan-y {
+    /* Allow vertical scrolling but capture horizontal swipes */
+    touch-action: pan-y;
+  }
+  
+  /* Larger touch targets for mobile */
+  .product-card button {
+    min-height: 48px;
+    min-width: 48px;
+  }
+  
+  /* Improve visibility of navigation elements */
+  .product-card .absolute.opacity-70 {
+    opacity: 0.9;
+  }
+  
+  /* Better mobile pagination dots */
+  .product-card .rounded-full {
+    /* Ensure touch targets are large enough */
+    padding: 4px;
+  }
+  
+  /* Mobile image scrolling indicators */
+  .product-card .absolute.top-2.right-2 {
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(4px);
+  }
+}
