@@ -243,37 +243,52 @@ export default function ModernProductDetail() {
       {/* Header - Fixed position with proper z-index */}
       <div className="fixed top-0 left-0 right-0 z-[9999] bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm">
         <div className="flex items-center justify-between px-4 py-3 max-w-md mx-auto">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setLocation('/products')}
-            className="p-2 hover:bg-gray-100 rounded-full"
+          {/* Back Button */}
+          <button
+            onClick={() => {
+              console.log('Back button clicked');
+              setLocation('/products');
+            }}
+            className="p-3 hover:bg-gray-100 rounded-full transition-colors"
+            style={{ minWidth: '44px', minHeight: '44px' }}
           >
-            <ArrowLeft className="h-5 w-5 text-gray-700" />
-          </Button>
+            <ArrowLeft className="h-6 w-6 text-gray-700" />
+          </button>
+          
           <div className="flex items-center gap-2">
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className="p-2 hover:bg-gray-100 rounded-full"
-              onClick={handleShare}
+            {/* Share Button */}
+            <button 
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('Share button clicked - direct handler');
+                handleShare();
+              }}
+              className="p-3 hover:bg-gray-100 rounded-full transition-colors"
+              style={{ minWidth: '44px', minHeight: '44px' }}
             >
-              <Share2 className="h-5 w-5 text-gray-700" />
-            </Button>
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className="p-2 hover:bg-gray-100 rounded-full"
-              onClick={handleWishlistToggle}
+              <Share2 className="h-6 w-6 text-gray-700" />
+            </button>
+            
+            {/* Wishlist Button */}
+            <button 
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('Wishlist button clicked');
+                handleWishlistToggle();
+              }}
+              className="p-3 hover:bg-gray-100 rounded-full transition-colors"
+              style={{ minWidth: '44px', minHeight: '44px' }}
             >
               <Heart 
-                className={`h-5 w-5 ${
+                className={`h-6 w-6 ${
                   isWishlisted 
                     ? "fill-red-500 text-red-500" 
                     : "text-gray-700"
                 }`}
               />
-            </Button>
+            </button>
           </div>
         </div>
       </div>
