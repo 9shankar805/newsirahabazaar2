@@ -700,7 +700,16 @@ export class DatabaseStorage implements IStorage {
         .where(eq(products.categoryId, categoryId))
         .groupBy(products.id);
 
-      console.log(`[STORAGE] Found ${productsWithRatings.length} products for category ${categoryId}`);
+      console.log(`[STORAGE] Database query returned ${productsWithRatings.length} products for category ${categoryId}`);
+      
+      // Debug: Log first few products to verify filtering
+      if (productsWithRatings.length > 0) {
+        console.log(`[STORAGE] Sample products:`, productsWithRatings.slice(0, 3).map(p => ({
+          id: p.id,
+          name: p.name,
+          categoryId: p.categoryId
+        })));
+      }
       
       return productsWithRatings.map(product => {
         const avgRating = product.avgRating ? Number(product.avgRating) : 0;
