@@ -106,7 +106,7 @@ export default function ModernProductDetail() {
 
   const handleAddToCart = async () => {
     if (!product) return;
-    
+
     try {
       await addToCart(product.id, quantity);
       toast({
@@ -124,7 +124,7 @@ export default function ModernProductDetail() {
 
   const handleWishlistToggle = async () => {
     if (!product) return;
-    
+
     if (!user) {
       toast({
         title: "Login required",
@@ -136,7 +136,7 @@ export default function ModernProductDetail() {
 
     const wasInWishlist = isInWishlist(product.id);
     await toggleWishlist(product.id);
-    
+
     toast({
       title: wasInWishlist ? "Removed from wishlist" : "Added to wishlist",
       description: `${product.name} has been ${wasInWishlist ? "removed from" : "added to"} your wishlist.`,
@@ -311,14 +311,46 @@ export default function ModernProductDetail() {
         )}
       </div>
 
-      {/* Product Details */}
+      {/* Mobile-optimized thumbnail selection below main image */}
+      {images.length > 1 && (
+        <div className="px-4 py-3 bg-white">
+          <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-gray-300">
+            {images.map((image, index) => (
+              <button
+                key={index}
+                onClick={() => scrollToImage(index)}
+                className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-all duration-200 ${
+                  selectedImage === index 
+                    ? "border-orange-500 ring-2 ring-orange-200 scale-105" 
+                    : "border-gray-200 hover:border-gray-300"
+                }`}
+              >
+                <img
+                  src={image}
+                  alt={`${product.name} ${index + 1}`}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    if (!target.src.includes('unsplash')) {
+                      target.src = getProductFallbackImage(product);
+                    }
+                  }}
+                />
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="px-4 py-6 pb-24">
+        {/* Product Details */}
+        <div className="px-4 py-6 pb-24">
         {/* Product Name & Rating */}
         <div className="mb-4">
           <h1 className="text-xl font-bold text-gray-900 leading-tight mb-2">
             {product.name}
           </h1>
-          
+
           {product.rating && parseFloat(product.rating) > 0 && (
             <div className="flex items-center gap-2 mb-2">
               <div className="flex items-center gap-1">
@@ -369,7 +401,7 @@ export default function ModernProductDetail() {
                     </div>
                   )}
                 </div>
-                
+
                 {/* Distance and Store Info */}
                 <div className="flex items-center gap-4 mb-3">
                   {storeDistance && (
@@ -462,7 +494,7 @@ export default function ModernProductDetail() {
                 <span className="text-sm text-gray-600">{product.preparationTime}</span>
               </div>
             )}
-            
+
             {product.spiceLevel && (
               <div className="flex items-center gap-2">
                 <span className="text-sm font-medium text-gray-900">Spice Level:</span>

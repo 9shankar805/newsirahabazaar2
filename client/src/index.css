@@ -1044,6 +1044,40 @@ body::-webkit-scrollbar {
   min-width: 44px;
 }
 
+/* Scrollbar styles for thumbnail selection */
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e0 transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  height: 4px;
+  width: 4px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background-color: #cbd5e0;
+  border-radius: 2px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background-color: #a0aec0;
+}
+
+/* Hide scrollbar but keep functionality */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
 /* Mobile swipe interactions */
 @media (max-width: 768px) {
   .product-card {
@@ -1077,5 +1111,11 @@ body::-webkit-scrollbar {
   .product-card .absolute.top-2.right-2 {
     background: rgba(0, 0, 0, 0.8);
     backdrop-filter: blur(4px);
+  }
+  
+  /* Thumbnail selection spacing for mobile */
+  .product-detail-thumbnails {
+    gap: 0.75rem;
+    padding-bottom: 0.5rem;
   }
 }

@@ -140,7 +140,7 @@ export default function ProductDetail() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-8">
             {/* Product Images */}
             <div>
-              <div className="mb-4">
+              <div className="mb-3">
                 <img
                   src={images[selectedImage]}
                   alt={product.name}
@@ -154,19 +154,45 @@ export default function ProductDetail() {
                   loading="lazy"
                 />
               </div>
+              
+              {/* Mobile-optimized thumbnail selection */}
               {images.length > 1 && (
-                <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
-                  {images.map((image, index) => (
-                    <img
-                      key={index}
-                      src={image}
-                      alt={`${product.name} ${index + 1}`}
-                      className={`w-full h-20 object-cover rounded cursor-pointer border-2 ${
-                        selectedImage === index ? "border-primary" : "border-border"
-                      }`}
-                      onClick={() => setSelectedImage(index)}
-                    />
-                  ))}
+                <div className="mb-4">
+                  {/* Mobile view - horizontal scroll */}
+                  <div className="md:hidden">
+                    <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-gray-300">
+                      {images.map((image, index) => (
+                        <img
+                          key={index}
+                          src={image}
+                          alt={`${product.name} ${index + 1}`}
+                          className={`flex-shrink-0 w-16 h-16 object-cover rounded-lg cursor-pointer border-2 transition-all duration-200 ${
+                            selectedImage === index 
+                              ? "border-primary ring-2 ring-primary/20 scale-105" 
+                              : "border-gray-200 hover:border-gray-300"
+                          }`}
+                          onClick={() => setSelectedImage(index)}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                  
+                  {/* Desktop view - grid layout */}
+                  <div className="hidden md:grid grid-cols-4 gap-2">
+                    {images.map((image, index) => (
+                      <img
+                        key={index}
+                        src={image}
+                        alt={`${product.name} ${index + 1}`}
+                        className={`w-full h-20 object-cover rounded cursor-pointer border-2 transition-all duration-200 ${
+                          selectedImage === index 
+                            ? "border-primary ring-2 ring-primary/20" 
+                            : "border-border hover:border-gray-300"
+                        }`}
+                        onClick={() => setSelectedImage(index)}
+                      />
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
