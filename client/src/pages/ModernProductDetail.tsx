@@ -37,6 +37,14 @@ export default function ModernProductDetail() {
   const { toast } = useToast();
   const scrollRef = useRef<HTMLDivElement>(null);
 
+  // Add effect to hide bottom navigation on this page
+  useEffect(() => {
+    document.body.classList.add('hide-bottom-nav');
+    return () => {
+      document.body.classList.remove('hide-bottom-nav');
+    };
+  }, []);
+
   const { data: product, isLoading } = useQuery<Product>({
     queryKey: [`/api/products/${id}`],
     enabled: !!id,
@@ -135,7 +143,7 @@ export default function ModernProductDetail() {
   const isWishlisted = isInWishlist(product.id);
 
   return (
-    <div className="min-h-screen bg-white modern-product-detail">
+    <div className="min-h-screen bg-white modern-product-detail" style={{ paddingBottom: '100px' }}>
       {/* Header */}
       <div className="sticky top-0 z-50 bg-white border-b border-gray-100">
         <div className="flex items-center justify-between px-4 py-3">
@@ -375,7 +383,7 @@ export default function ModernProductDetail() {
       </div>
 
       {/* Fixed Bottom Cart Button - Noon Style */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 p-4 z-50 fixed-bottom-cart">
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 p-4 z-[999] fixed-bottom-cart" style={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 999 }}>
         <div className="flex items-center gap-3">
           <div className="flex-1">
             <p className="text-xs text-gray-500">Total</p>
@@ -384,9 +392,18 @@ export default function ModernProductDetail() {
             </p>
           </div>
           <Button
-            onClick={handleAddToCart}
+            onClick={(e) => {
+              console.log('Add to Cart button clicked on mobile');
+              handleAddToCart();
+            }}
             className="flex-1 modern-cart-button text-white h-12 text-base font-semibold rounded-lg"
             size="lg"
+            style={{ 
+              minHeight: '48px',
+              fontSize: '16px',
+              touchAction: 'manipulation',
+              WebkitTouchCallout: 'none'
+            }}
           >
             <ShoppingCart className="h-5 w-5 mr-2" />
             Add to Cart
