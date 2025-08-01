@@ -369,7 +369,9 @@ export class DatabaseStorage implements IStorage {
   }
 
   async deleteUserAccount(userId: number): Promise<void> {
-    console.log(`🗑️  Starting comprehensive account deletion for user ID: ${userId}`);
+    console.log(`🗑️ CRITICAL: Starting comprehensive account deletion for user ID: ${userId}`);
+    console.log(`🚨 STACK TRACE:`);
+    console.trace('Account deletion called from:');
     
     try {
       // Delete user account and all associated data in the correct order to respect foreign key constraints

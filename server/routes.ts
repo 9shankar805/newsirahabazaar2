@@ -349,11 +349,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Delete user account endpoint
+  // Delete user account endpoint with safety checks
   app.delete("/api/auth/delete-account", async (req, res) => {
     try {
       const { userId } = req.query;
-      const { reason } = req.body;
+      const { reason, confirmPassword, confirmText } = req.body;
       
       if (!userId) {
         return res.status(400).json({ error: "User ID required" });
@@ -364,18 +364,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Invalid user ID" });
       }
 
+      // SAFETY CHECK: Require confirmation text
+      if (confirmText !== "DELETE MY ACCOUNT") {
+        return res.status(400).json({ error: "Confirmation text required: 'DELETE MY ACCOUNT'" });
+      }
+
       // Check if user exists
       const user = await storage.getUser(parsedUserId);
       if (!user) {
         return res.status(404).json({ error: "User not found" });
       }
 
-      // Log the deletion reason if provided
-      if (reason) {
-        console.log(`User ${user.email} (ID: ${parsedUserId}) deleted account. Reason: ${reason}`);
-      } else {
-        console.log(`User ${user.email} (ID: ${parsedUserId}) deleted account. No reason provided.`);
+      // SAFETY CHECK: Additional verification for important users (admins, store owners)
+      if (user.role === 'admin' || user.role === 'shopkeeper') {
+        const userStores = await storage.getStoresByOwnerId(parsedUserId);
+        if (userStores.length > 0) {
+          console.log(`⚠️ WARNING: Preventing deletion of store owner with ${userStores.length} active stores`);
+          return res.status(403).json({ 
+            error: "Cannot delete account with active stores. Please contact support.",
+            storeCount: userStores.length
+          });
+        }
       }
+
+      // Log the deletion reason
+      console.log(`🗑️ ACCOUNT DELETION REQUEST: User ${user.email} (ID: ${parsedUserId})`);
+      console.log(`📝 Reason: ${reason || 'No reason provided'}`);
+      console.log(`👤 User Role: ${user.role}`);
 
       // Delete user account and all associated data
       await storage.deleteUserAccount(parsedUserId);
@@ -4642,40 +4657,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Clean up invalid user data to prevent foreign key constraint violations
+  // DISABLED: Clean up invalid user data - This was causing users to be automatically deleted
   app.post("/api/admin/cleanup-invalid-users", async (req, res) => {
-    try {
-      const cleanupResults = [];
-
-      // Find and clean up website visits for non-existent users
-      try {
-        await db
-          .delete(websiteVisits)
-          .where(sql`"userId" IS NOT NULL AND "userId" NOT IN (SELECT id FROM users)`);
-        cleanupResults.push("Cleaned up invalid website visit records");
-      } catch (error) {
-        console.log("No invalid website visits to clean");
-      }
-
-      // Find and clean up notifications for non-existent users  
-      try {
-        await db
-          .delete(notifications)
-          .where(sql`"userId" IS NOT NULL AND "userId" NOT IN (SELECT id FROM users)`);
-        cleanupResults.push("Cleaned up invalid notification records");
-      } catch (error) {
-        console.log("No invalid notifications to clean");
-      }
-
-      res.json({ 
-        success: true, 
-        message: "Database cleanup completed successfully",
-        details: cleanupResults.length > 0 ? cleanupResults : ["No invalid user references found"]
-      });
-    } catch (error) {
-      console.error("Error cleaning up invalid user data:", error);
-      res.status(500).json({ error: "Failed to clean up invalid user data" });
-    }
+    // SAFETY: This endpoint has been disabled to prevent automatic user deletion
+    // The cleanup logic was too aggressive and was removing valid user data
+    res.json({ 
+      success: false, 
+      message: "User cleanup endpoint disabled for safety",
+      details: ["This endpoint was causing automatic user deletion and has been disabled"]
+    });
   });
 
   // Get order tracking information
