@@ -140,34 +140,62 @@ export default function ModernProductDetail() {
   };
 
   const handleShare = async () => {
-    if (!product) return;
+    console.log('Share button clicked');
+    if (!product) {
+      console.log('No product found');
+      return;
+    }
 
-    const shareData = {
-      title: product.name,
-      text: `Check out ${product.name} on Siraha Bazaar - ₹${Number(product.price).toLocaleString()}`,
-      url: window.location.href,
-    };
+    const shareUrl = window.location.href;
+    const shareText = `Check out ${product.name} on Siraha Bazaar - ₹${Number(product.price).toLocaleString()}`;
+    
+    console.log('Share URL:', shareUrl);
+    console.log('Share text:', shareText);
 
     try {
-      if (navigator.share && navigator.canShare(shareData)) {
+      // Check if Web Share API is available
+      if (navigator.share) {
+        console.log('Using Web Share API');
+        const shareData = {
+          title: product.name,
+          text: shareText,
+          url: shareUrl,
+        };
+        
         await navigator.share(shareData);
         toast({
-          title: "Shared successfully",
+          title: "✅ Shared successfully",
           description: "Product has been shared.",
         });
-      } else {
-        // Fallback to copying to clipboard
-        await navigator.clipboard.writeText(window.location.href);
+      } else if (navigator.clipboard) {
+        // Fallback to clipboard
+        console.log('Using clipboard fallback');
+        await navigator.clipboard.writeText(shareUrl);
         toast({
-          title: "Link copied",
+          title: "📋 Link copied",
+          description: "Product link copied to clipboard.",
+        });
+      } else {
+        // Final fallback - show the URL
+        console.log('Using final fallback');
+        const textArea = document.createElement('textarea');
+        textArea.value = shareUrl;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        
+        toast({
+          title: "📋 Link copied",
           description: "Product link copied to clipboard.",
         });
       }
     } catch (error) {
-      // Fallback for browsers that don't support clipboard API
+      console.error('Share error:', error);
       toast({
-        title: "Share link",
-        description: window.location.href,
+        title: "🔗 Share link",
+        description: shareUrl,
+        duration: 5000,
       });
     }
   };
