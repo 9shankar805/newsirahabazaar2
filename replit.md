@@ -16,8 +16,16 @@ A cutting-edge multi-vendor e-commerce platform "Siraha Bazaar" that revolutioni
 
 ## Recent Changes
 
+### User Data Protection & Categories Fix (August 1, 2025)
+✓ **PROTECTED:** User accounts now preserved during data cleanup operations
+✓ **FIXED:** Categories loading issue in add product form and homepage
+✓ **ENHANCED:** Database migration creates 10 essential categories automatically
+✓ **UPDATED:** Data cleanup endpoint excludes users and categories tables
+✓ **ENSURED:** Categories persist across application restarts
+✓ **CATEGORIES:** Electronics, Fashion, Food & Beverages, Health & Beauty, Sports & Fitness, Home & Garden, Books & Education, Automotive, Baby & Kids, Groceries
+
 ### Complete Website Data Cleanup (August 1, 2025)
-✓ **CLEARED:** All website data including users, stores, products, orders, and deliveries
+✓ **CLEARED:** All website data including stores, products, orders, and deliveries
 ✓ **DISABLED:** Automatic demo data initialization in MemoryStorage constructor
 ✓ **VERIFIED:** Database is completely empty with 0 products and 0 stores
 ✓ **ENHANCED:** Delivery partner dashboard with comprehensive contact details and GPS navigation

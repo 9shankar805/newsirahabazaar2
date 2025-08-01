@@ -75,24 +75,22 @@ export async function runSimpleMigrations() {
         `
       },
 
-      // Create default categories for restaurants and retail stores
+      // Create default categories for general e-commerce
       {
         name: "Insert default categories",
         query: sql`
           INSERT INTO categories (name, slug, description, icon, created_at, updated_at)
           VALUES 
-            ('Appetizers', 'appetizers', 'Starters and small dishes', '🥗', NOW(), NOW()),
-            ('Main Courses', 'main-courses', 'Primary dishes and entrees', '🍛', NOW(), NOW()),
-            ('Beverages', 'beverages', 'Drinks and refreshments', '🥤', NOW(), NOW()),
-            ('Desserts', 'desserts', 'Sweet dishes and treats', '🍰', NOW(), NOW()),
-            ('Rice & Biryani', 'rice-biryani', 'Rice dishes and biryani varieties', '🍚', NOW(), NOW()),
-            ('Snacks', 'snacks', 'Light snacks and finger foods', '🍿', NOW(), NOW()),
-            ('Groceries', 'groceries', 'Food and household essentials', '🛒', NOW(), NOW()),
-            ('Electronics', 'electronics', 'Electronic devices and accessories', '📱', NOW(), NOW()),
-            ('Clothing', 'clothing', 'Apparel and fashion items', '👕', NOW(), NOW()),
-            ('Home & Kitchen', 'home-kitchen', 'Household and kitchen items', '🏠', NOW(), NOW()),
-            ('Health & Beauty', 'health-beauty', 'Personal care and beauty products', '💄', NOW(), NOW()),
-            ('Sports & Outdoors', 'sports-outdoors', 'Sports equipment and outdoor gear', '⚽', NOW(), NOW())
+            ('Electronics', 'electronics', 'Electronics and gadgets', 'smartphone', NOW(), NOW()),
+            ('Fashion', 'fashion', 'Clothing and accessories', 'shirt', NOW(), NOW()),
+            ('Food & Beverages', 'food-and-beverages', 'Food delivery and dining', 'utensils', NOW(), NOW()),
+            ('Health & Beauty', 'health-and-beauty', 'Health and beauty products', 'heart', NOW(), NOW()),
+            ('Sports & Fitness', 'sports-and-fitness', 'Sports equipment and fitness', 'dumbbell', NOW(), NOW()),
+            ('Home & Garden', 'home-and-garden', 'Home improvement and gardening', 'home', NOW(), NOW()),
+            ('Books & Education', 'books-and-education', 'Books and educational materials', 'book', NOW(), NOW()),
+            ('Automotive', 'automotive', 'Auto parts and accessories', 'car', NOW(), NOW()),
+            ('Baby & Kids', 'baby-and-kids', 'Baby and children products', 'baby', NOW(), NOW()),
+            ('Groceries', 'groceries', 'Daily grocery items', 'shopping-cart', NOW(), NOW())
           ON CONFLICT (slug) DO NOTHING
         `
       }

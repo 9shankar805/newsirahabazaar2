@@ -141,6 +141,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log('🗑️ Starting complete website data cleanup...');
       
       // Clear all data in proper order to avoid foreign key constraints
+      // NOTE: Preserve categories and users to maintain website functionality
       const tables = [
         'order_items',
         'orders', 
@@ -154,8 +155,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         'delivery_partners',
         'notifications',
         'user_sessions',
-        'password_reset_tokens',
-        'users'
+        'password_reset_tokens'
+        // 'users' - REMOVED: Preserve user accounts
+        // 'categories' - REMOVED: Preserve essential categories
       ];
       
       let totalDeleted = 0;
