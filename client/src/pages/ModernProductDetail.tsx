@@ -238,6 +238,10 @@ export default function ModernProductDetail() {
     .filter((relatedProduct: Product) => relatedProduct.id !== product?.id)
     .slice(0, 8); // Limit to 8 related products
 
+  // Debug icon rendering
+  console.log('Rendering ModernProductDetail, icons should be visible');
+  console.log('ArrowLeft, Share2, Heart icons from lucide-react');
+
   return (
     <div className="min-h-screen bg-white modern-product-detail" style={{ paddingTop: '60px', paddingBottom: '144px', overflowX: 'hidden' }}>
       {/* Header - Fixed position with proper z-index */}
@@ -249,10 +253,12 @@ export default function ModernProductDetail() {
               console.log('Back button clicked');
               setLocation('/products');
             }}
-            className="p-3 hover:bg-gray-100 rounded-full transition-colors"
+            className="flex items-center justify-center p-3 hover:bg-gray-100 rounded-full transition-colors border border-gray-200"
             style={{ minWidth: '44px', minHeight: '44px' }}
+            title="Go Back"
           >
-            <ArrowLeft className="h-6 w-6 text-gray-700" />
+            <ArrowLeft className="h-6 w-6 text-gray-700" strokeWidth={2} />
+            <span className="sr-only">Back</span>
           </button>
           
           <div className="flex items-center gap-2">
@@ -264,10 +270,12 @@ export default function ModernProductDetail() {
                 console.log('Share button clicked - direct handler');
                 handleShare();
               }}
-              className="p-3 hover:bg-gray-100 rounded-full transition-colors"
+              className="flex items-center justify-center p-3 hover:bg-gray-100 rounded-full transition-colors border border-gray-200"
               style={{ minWidth: '44px', minHeight: '44px' }}
+              title="Share Product"
             >
-              <Share2 className="h-6 w-6 text-gray-700" />
+              <Share2 className="h-6 w-6 text-gray-700" strokeWidth={2} />
+              <span className="sr-only">Share</span>
             </button>
             
             {/* Wishlist Button */}
@@ -278,16 +286,19 @@ export default function ModernProductDetail() {
                 console.log('Wishlist button clicked');
                 handleWishlistToggle();
               }}
-              className="p-3 hover:bg-gray-100 rounded-full transition-colors"
+              className="flex items-center justify-center p-3 hover:bg-gray-100 rounded-full transition-colors border border-gray-200"
               style={{ minWidth: '44px', minHeight: '44px' }}
+              title={isWishlisted ? "Remove from Wishlist" : "Add to Wishlist"}
             >
               <Heart 
                 className={`h-6 w-6 ${
                   isWishlisted 
                     ? "fill-red-500 text-red-500" 
                     : "text-gray-700"
-                }`}
+                } `}
+                strokeWidth={2}
               />
+              <span className="sr-only">{isWishlisted ? "Remove from Wishlist" : "Add to Wishlist"}</span>
             </button>
           </div>
         </div>
