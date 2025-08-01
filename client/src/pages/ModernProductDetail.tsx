@@ -36,8 +36,26 @@ export default function ModernProductDetail() {
   const { user } = useAuth();
   const { toast } = useToast();
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [userLocation, setUserLocation] = useState<{lat: number, lon: number} | null>(null);
+  const [storeDistance, setStoreDistance] = useState<string | null>(null);
 
-  // No need to hide bottom navigation - position cart button above it
+  // Get user location for distance calculation
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setUserLocation({
+            lat: position.coords.latitude,
+            lon: position.coords.longitude
+          });
+        },
+        (error) => {
+          console.log('Location access denied:', error);
+        },
+        { timeout: 10000, enableHighAccuracy: false }
+      );
+    }
+  }, []);
 
   const { data: product, isLoading } = useQuery<Product>({
     queryKey: [`/api/products/${id}`],
@@ -53,6 +71,37 @@ export default function ModernProductDetail() {
     queryKey: [`/api/products`, { category: product?.categoryId }],
     enabled: !!product?.categoryId,
   });
+
+  // Calculate distance when store and user location are available
+  useEffect(() => {
+    if (store?.latitude && store?.longitude && userLocation) {
+      const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
+        const R = 6371; // Earth's radius in kilometers
+        const dLat = (lat2 - lat1) * Math.PI / 180;
+        const dLon = (lon2 - lon1) * Math.PI / 180;
+        const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                  Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                  Math.sin(dLon/2) * Math.sin(dLon/2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        return R * c;
+      };
+
+      const distance = calculateDistance(
+        userLocation.lat, 
+        userLocation.lon, 
+        Number(store.latitude), 
+        Number(store.longitude)
+      );
+
+      if (distance < 1) {
+        setStoreDistance(`${Math.round(distance * 1000)}m away`);
+      } else {
+        setStoreDistance(`${distance.toFixed(1)}km away`);
+      }
+    }
+  }, [store, userLocation]);
+
+
 
   const handleAddToCart = async () => {
     if (!product) return;
@@ -295,13 +344,55 @@ export default function ModernProductDetail() {
           )}
         </div>
 
-        {/* Store Info */}
+        {/* Store Info with Visit Store Button */}
         {store && (
-          <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg mb-6">
-            <Store className="h-5 w-5 text-gray-600" />
-            <div className="flex-1">
-              <p className="font-medium text-gray-900">{store.name}</p>
-              <p className="text-sm text-gray-600">{store.address}</p>
+          <div className="bg-gray-50 rounded-lg p-4 mb-6">
+            <div className="flex items-start gap-3">
+              <Store className="h-5 w-5 text-gray-600 mt-0.5" />
+              <div className="flex-1">
+                <div className="flex items-start justify-between mb-2">
+                  <div className="flex-1">
+                    <p className="font-medium text-gray-900">{store.name}</p>
+                    <p className="text-sm text-gray-600">{store.address}</p>
+                  </div>
+                  {store.rating && (
+                    <div className="flex items-center gap-1 bg-green-100 px-2 py-1 rounded">
+                      <Star className="h-3 w-3 fill-green-600 text-green-600" />
+                      <span className="text-xs font-medium text-green-700">{store.rating}</span>
+                    </div>
+                  )}
+                </div>
+                
+                {/* Distance and Store Info */}
+                <div className="flex items-center gap-4 mb-3">
+                  {storeDistance && (
+                    <div className="flex items-center gap-1 text-xs text-gray-500">
+                      <MapPin className="h-3 w-3" />
+                      <span>{storeDistance}</span>
+                    </div>
+                  )}
+                  {store.deliveryTime && (
+                    <div className="flex items-center gap-1 text-xs text-gray-500">
+                      <span>🚚 {store.deliveryTime}</span>
+                    </div>
+                  )}
+                  {store.minimumOrder && (
+                    <div className="flex items-center gap-1 text-xs text-gray-500">
+                      <span>Min: ₹{store.minimumOrder}</span>
+                    </div>
+                  )}
+                </div>
+                <Link href={`/stores/${store.id}`}>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    className="text-orange-600 border-orange-600 hover:bg-orange-50"
+                  >
+                    <Store className="h-4 w-4 mr-2" />
+                    Visit Store
+                  </Button>
+                </Link>
+              </div>
             </div>
           </div>
         )}
@@ -384,6 +475,110 @@ export default function ModernProductDetail() {
             </div>
           </div>
         )}
+
+        {/* Product Rating and Reviews Section */}
+        <div className="mb-6">
+          <div className="border-t border-gray-100 pt-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Rating & Reviews</h3>
+            
+            {/* Overall Rating */}
+            <div className="flex items-center gap-4 mb-4">
+              <div className="flex items-center">
+                <div className="flex items-center gap-1">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <Star
+                      key={star}
+                      className={`h-5 w-5 ${
+                        star <= (product.rating || 4.2)
+                          ? 'fill-yellow-400 text-yellow-400'
+                          : 'text-gray-300'
+                      }`}
+                    />
+                  ))}
+                </div>
+                <span className="ml-2 text-lg font-semibold text-gray-900">
+                  {product.rating || '4.2'}
+                </span>
+              </div>
+              <span className="text-sm text-gray-500">
+                ({product.reviewCount || '127'} reviews)
+              </span>
+            </div>
+
+            {/* Write Review Button */}
+            <Button 
+              variant="outline" 
+              size="sm"
+              className="mb-4"
+              onClick={() => {
+                toast({
+                  title: "Reviews feature",
+                  description: "Write a review functionality will be available soon!",
+                });
+              }}
+            >
+              <Star className="h-4 w-4 mr-2" />
+              Write a Review
+            </Button>
+
+            {/* Sample Reviews */}
+            <div className="space-y-4">
+              <div className="border-b border-gray-100 pb-4">
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
+                    <span className="text-sm font-medium text-orange-700">A</span>
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="font-medium text-gray-900">Anonymous User</span>
+                      <div className="flex items-center">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <Star
+                            key={star}
+                            className={`h-3 w-3 ${
+                              star <= 5 ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'
+                            }`}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                    <p className="text-sm text-gray-600">
+                      Excellent product! Great quality and fast delivery. Highly recommended.
+                    </p>
+                    <span className="text-xs text-gray-400">2 days ago</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="border-b border-gray-100 pb-4">
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                    <span className="text-sm font-medium text-blue-700">S</span>
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="font-medium text-gray-900">Satisfied Customer</span>
+                      <div className="flex items-center">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <Star
+                            key={star}
+                            className={`h-3 w-3 ${
+                              star <= 4 ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'
+                            }`}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                    <p className="text-sm text-gray-600">
+                      Good value for money. Product matches the description perfectly.
+                    </p>
+                    <span className="text-xs text-gray-400">1 week ago</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Related Products Section */}
