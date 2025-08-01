@@ -24,7 +24,7 @@ export default function DeleteAccount() {
   const [reason, setReason] = useState("");
 
   const deleteAccountMutation = useMutation({
-    mutationFn: async (data: { reason?: string }) => {
+    mutationFn: async (data: { reason?: string; confirmText: string }) => {
       return apiRequest(`/api/auth/delete-account?userId=${user?.id}`, {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
@@ -61,13 +61,14 @@ export default function DeleteAccount() {
     );
   }
 
-  const isConfirmationValid = confirmText === "DELETE" && confirmChecked;
+  const isConfirmationValid = confirmText === "DELETE MY ACCOUNT" && confirmChecked;
 
   const handleDeleteAccount = () => {
     if (!isConfirmationValid) return;
     
     deleteAccountMutation.mutate({
       reason: reason.trim() || undefined,
+      confirmText: confirmText,
     });
   };
 
@@ -160,11 +161,11 @@ export default function DeleteAccount() {
 
               <div>
                 <Label htmlFor="confirm-text" className="text-sm">
-                  Type "DELETE" to confirm account deletion
+                  Type "DELETE MY ACCOUNT" to confirm account deletion
                 </Label>
                 <Input
                   id="confirm-text"
-                  placeholder="Type DELETE here"
+                  placeholder="Type DELETE MY ACCOUNT here"
                   value={confirmText}
                   onChange={(e) => setConfirmText(e.target.value)}
                   className="mt-1"
