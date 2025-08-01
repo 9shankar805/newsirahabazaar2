@@ -49,6 +49,11 @@ export default function ModernProductDetail() {
     enabled: !!product?.storeId,
   });
 
+  const { data: allRelatedProducts = [] } = useQuery<Product[]>({
+    queryKey: [`/api/products`, { category: product?.categoryId }],
+    enabled: !!product?.categoryId,
+  });
+
   const handleAddToCart = async () => {
     if (!product) return;
     
@@ -135,6 +140,11 @@ export default function ModernProductDetail() {
 
   const images = getProductImages(product);
   const isWishlisted = isInWishlist(product.id);
+
+  // Filter related products (excluding current product)
+  const relatedProducts = allRelatedProducts
+    .filter((relatedProduct: Product) => relatedProduct.id !== product?.id)
+    .slice(0, 8); // Limit to 8 related products
 
   return (
     <div className="min-h-screen bg-white modern-product-detail" style={{ paddingBottom: '100px' }}>
@@ -375,6 +385,47 @@ export default function ModernProductDetail() {
           </div>
         )}
       </div>
+
+      {/* Related Products Section */}
+      {relatedProducts.length > 0 && (
+        <div className="px-4 pb-6 mb-20">
+          <div className="border-t border-gray-100 pt-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">You might also like</h3>
+            <div className="grid grid-cols-2 gap-4">
+              {relatedProducts.map((relatedProduct) => (
+                <Link
+                  key={relatedProduct.id}
+                  href={`/products/${relatedProduct.id}`}
+                  className="group bg-white rounded-lg border border-gray-100 overflow-hidden hover:shadow-md transition-shadow"
+                >
+                  <div className="aspect-square overflow-hidden bg-gray-50">
+                    <img
+                      src={getProductImages(relatedProduct)[0]}
+                      alt={relatedProduct.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                  </div>
+                  <div className="p-3">
+                    <h4 className="font-medium text-gray-900 text-sm line-clamp-2 mb-1">
+                      {relatedProduct.name}
+                    </h4>
+                    <div className="flex items-center gap-2">
+                      <span className="text-orange-600 font-bold text-sm">
+                        ₹{Number(relatedProduct.price).toLocaleString()}
+                      </span>
+                      {relatedProduct.originalPrice && (
+                        <span className="text-gray-400 line-through text-xs">
+                          ₹{Number(relatedProduct.originalPrice).toLocaleString()}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Fixed Bottom Cart Button - Above Bottom Navbar */}
       <div className="fixed left-0 right-0 bg-white border-t border-gray-100 p-4 z-[999] fixed-bottom-cart" style={{ position: 'fixed', bottom: '64px', left: 0, right: 0, zIndex: 999 }}>
