@@ -990,6 +990,19 @@ body::-webkit-scrollbar {
   /* Ensure content doesn't overlap with cart button and navbar */
   .modern-product-detail {
     padding-bottom: 144px !important; /* 64px navbar + 80px cart button */
+    overflow-x: hidden !important;
+    position: relative !important;
+  }
+  
+  /* Fix scroll overflow issues */
+  .modern-product-detail .image-carousel {
+    position: relative !important;
+    overflow: hidden !important;
+  }
+  
+  /* Prevent horizontal scroll on mobile */
+  body {
+    overflow-x: hidden !important;
   }
   
   /* Override any bottom navigation that might interfere */
@@ -1016,4 +1029,6 @@ body::-webkit-scrollbar {
 /* Ensure content doesn't overlap with cart button and navbar */
 .modern-product-detail {
   padding-bottom: 144px !important; /* 64px navbar + 80px cart button */
+  overflow-x: hidden !important;
+  -webkit-overflow-scrolling: touch !important;
 }

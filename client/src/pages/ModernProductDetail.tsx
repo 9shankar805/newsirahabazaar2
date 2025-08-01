@@ -198,7 +198,7 @@ export default function ModernProductDetail() {
     .slice(0, 8); // Limit to 8 related products
 
   return (
-    <div className="min-h-screen bg-white modern-product-detail" style={{ paddingBottom: '100px' }}>
+    <div className="min-h-screen bg-white modern-product-detail" style={{ paddingBottom: '144px', overflowX: 'hidden' }}>
       {/* Header */}
       <div className="sticky top-0 z-50 bg-white border-b border-gray-100">
         <div className="flex items-center justify-between px-4 py-3">
@@ -233,11 +233,17 @@ export default function ModernProductDetail() {
       </div>
 
       {/* Image Carousel - Noon Style */}
-      <div className="relative">
+      <div className="relative overflow-hidden">
         <div 
           ref={scrollRef}
-          className="flex overflow-x-auto snap-x snap-mandatory image-carousel"
+          className="flex overflow-x-auto snap-x snap-mandatory image-carousel scrollbar-hide"
           onScroll={handleScroll}
+          style={{ 
+            scrollBehavior: 'smooth',
+            WebkitOverflowScrolling: 'touch',
+            msOverflowStyle: 'none',
+            scrollbarWidth: 'none'
+          }}
         >
           {images.map((image, index) => (
             <div key={index} className="w-full flex-shrink-0 snap-center image-slide">
