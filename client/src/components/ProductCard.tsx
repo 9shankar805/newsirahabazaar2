@@ -1,5 +1,6 @@
+import { useState, useRef, useEffect } from "react";
 import { Link } from "wouter";
-import { Star, ShoppingCart, Heart, MapPin, Clock } from "lucide-react";
+import { Star, ShoppingCart, Heart, MapPin, Clock, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -8,7 +9,7 @@ import { useWishlist } from "@/hooks/useWishlist";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import type { Product } from "@shared/schema";
-import { getProductImage, getProductFallbackImage } from "@/utils/imageUtils";
+import { getProductImages, getProductFallbackImage } from "@/utils/imageUtils";
 
 interface ProductCardProps {
   product: Product & {
@@ -23,6 +24,13 @@ export default function ProductCard({ product }: ProductCardProps) {
   const { toggleWishlist, isInWishlist } = useWishlist();
   const { user } = useAuth();
   const { toast } = useToast();
+  
+  // Image scrolling state
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isHovering, setIsHovering] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const images = getProductImages(product);
+  const hasMultipleImages = images.length > 1;
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -62,26 +70,130 @@ export default function ProductCard({ product }: ProductCardProps) {
     ? Math.round(((Number(product.originalPrice) - Number(product.price)) / Number(product.originalPrice)) * 100)
     : 0;
 
+  // Auto-scroll functionality on hover
+  useEffect(() => {
+    if (!hasMultipleImages || !isHovering) return;
+    
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prev) => (prev + 1) % images.length);
+    }, 1500); // Change image every 1.5 seconds
+    
+    return () => clearInterval(interval);
+  }, [isHovering, hasMultipleImages, images.length]);
+
+  // Scroll to specific image
+  const scrollToImage = (index: number) => {
+    setCurrentImageIndex(index);
+    if (scrollRef.current) {
+      const scrollLeft = index * scrollRef.current.offsetWidth;
+      scrollRef.current.scrollTo({
+        left: scrollLeft,
+        behavior: 'smooth'
+      });
+    }
+  };
+
+  // Handle manual navigation
+  const handlePrevImage = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const newIndex = currentImageIndex > 0 ? currentImageIndex - 1 : images.length - 1;
+    scrollToImage(newIndex);
+  };
+
+  const handleNextImage = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const newIndex = currentImageIndex < images.length - 1 ? currentImageIndex + 1 : 0;
+    scrollToImage(newIndex);
+  };
+
   return (
     <Link href={`/products/${product.id}`}>
-      <div className="product-card overflow-hidden">
-        <div className="relative">
-          <img
-            src={getProductImage(product)}
-            alt={product.name}
-            className="w-full h-40 sm:h-48 md:h-56 lg:h-60 object-cover"
-            onError={(e) => {
-              const target = e.target as HTMLImageElement;
-              if (!target.src.includes('unsplash')) {
-                target.src = getProductFallbackImage(product);
-              }
-            }}
-            loading="lazy"
-          />
+      <div className="product-card overflow-hidden group">
+        <div 
+          className="relative overflow-hidden"
+          onMouseEnter={() => setIsHovering(true)}
+          onMouseLeave={() => setIsHovering(false)}
+        >
+          {/* Image Container with Horizontal Scroll */}
+          <div
+            ref={scrollRef}
+            className="flex transition-transform duration-500 ease-in-out"
+            style={{ transform: `translateX(-${currentImageIndex * 100}%)` }}
+          >
+            {images.map((image, index) => (
+              <img
+                key={index}
+                src={image}
+                alt={`${product.name} ${index + 1}`}
+                className="w-full h-40 sm:h-48 md:h-56 lg:h-60 object-cover flex-shrink-0"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  if (!target.src.includes('unsplash')) {
+                    target.src = getProductFallbackImage(product);
+                  }
+                }}
+                loading="lazy"
+              />
+            ))}
+          </div>
+
+          {/* Navigation Arrows - Only show on hover and when multiple images */}
+          {hasMultipleImages && isHovering && (
+            <>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white/90 backdrop-blur-sm p-1 h-6 w-6 rounded-full shadow-md transition-opacity"
+                onClick={handlePrevImage}
+              >
+                <ChevronLeft className="h-3 w-3" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white/90 backdrop-blur-sm p-1 h-6 w-6 rounded-full shadow-md transition-opacity"
+                onClick={handleNextImage}
+              >
+                <ChevronRight className="h-3 w-3" />
+              </Button>
+            </>
+          )}
+
+          {/* Pagination Dots - Only show when multiple images */}
+          {hasMultipleImages && (
+            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
+              {images.map((_, index) => (
+                <button
+                  key={index}
+                  className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${
+                    currentImageIndex === index 
+                      ? 'bg-white scale-110 shadow-sm' 
+                      : 'bg-white/60 hover:bg-white/80'
+                  }`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    scrollToImage(index);
+                  }}
+                />
+              ))}
+            </div>
+          )}
+
+          {/* Discount Badge */}
           {discount > 0 && (
-            <Badge className="absolute top-2 left-2 bg-red-500 text-white">
+            <Badge className="absolute top-2 left-2 bg-red-500 text-white z-10">
               {discount}% OFF
             </Badge>
+          )}
+
+          {/* Multiple Images Indicator */}
+          {hasMultipleImages && (
+            <div className="absolute top-2 right-2 bg-black/50 text-white text-xs px-1.5 py-0.5 rounded-full">
+              {currentImageIndex + 1}/{images.length}
+            </div>
           )}
         </div>
         
