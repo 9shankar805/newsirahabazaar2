@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Link } from "wouter";
-import { Star, ShoppingCart, Heart, MapPin, Clock, ChevronLeft, ChevronRight } from "lucide-react";
+import { Star, ShoppingCart, Heart, MapPin, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -102,20 +102,7 @@ export default function ProductCard({ product }: ProductCardProps) {
     }
   };
 
-  // Handle manual navigation
-  const handlePrevImage = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    const newIndex = currentImageIndex > 0 ? currentImageIndex - 1 : images.length - 1;
-    scrollToImage(newIndex);
-  };
-
-  const handleNextImage = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    const newIndex = currentImageIndex < images.length - 1 ? currentImageIndex + 1 : 0;
-    scrollToImage(newIndex);
-  };
+  
 
   // Touch handlers for mobile swiping
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -181,27 +168,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             ))}
           </div>
 
-          {/* Navigation Arrows - Always visible on mobile, show on hover for desktop */}
-          {hasMultipleImages && (
-            <>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="absolute left-1 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/80 backdrop-blur-sm p-1 h-7 w-7 rounded-full shadow-lg transition-all md:opacity-0 md:group-hover:opacity-100 opacity-70 active:scale-95"
-                onClick={handlePrevImage}
-              >
-                <ChevronLeft className="h-3 w-3 text-white" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="absolute right-1 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/80 backdrop-blur-sm p-1 h-7 w-7 rounded-full shadow-lg transition-all md:opacity-0 md:group-hover:opacity-100 opacity-70 active:scale-95"
-                onClick={handleNextImage}
-              >
-                <ChevronRight className="h-3 w-3 text-white" />
-              </Button>
-            </>
-          )}
+          
 
           {/* Pagination Dots - Larger and more visible on mobile */}
           {hasMultipleImages && (
@@ -238,14 +205,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             </div>
           )}
 
-          {/* Swipe indicator for mobile */}
-          {hasMultipleImages && (
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none opacity-0 animate-pulse md:hidden">
-              <div className="bg-black/50 text-white text-xs px-2 py-1 rounded-full backdrop-blur-sm">
-                Swipe to browse
-              </div>
-            </div>
-          )}
+          
         </div>
         
         <div className="p-2">
