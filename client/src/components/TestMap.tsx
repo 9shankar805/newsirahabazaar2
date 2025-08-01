@@ -162,7 +162,7 @@ function MapCenterController({ lat, lng }: { lat?: number; lng?: number }) {
   return null;
 }
 
-// Layer control component
+// Layer control component (outside MapContainer)
 function LayerControl({ currentLayer, onLayerChange }: { currentLayer: MapLayer; onLayerChange: (layer: MapLayer) => void }) {
   return (
     <div className="absolute top-4 right-4 z-[1000] bg-white/95 backdrop-blur-sm rounded-lg p-2 shadow-lg border">
@@ -187,58 +187,7 @@ function LayerControl({ currentLayer, onLayerChange }: { currentLayer: MapLayer;
   );
 }
 
-// Zoom control component
-function ZoomControl() {
-  const map = useMap();
-  const [currentZoom, setCurrentZoom] = useState(15);
 
-  useEffect(() => {
-    const updateZoom = () => setCurrentZoom(map.getZoom());
-    map.on('zoomend', updateZoom);
-    return () => { map.off('zoomend', updateZoom); };
-  }, [map]);
-
-  const zoomTo = (level: number) => {
-    map.setZoom(level, { animate: true });
-  };
-
-  return (
-    <div className="absolute bottom-4 right-4 z-[1000] bg-white/95 backdrop-blur-sm rounded-lg p-3 shadow-lg border">
-      <div className="text-xs font-semibold text-gray-700 mb-2">Quick Zoom</div>
-      <div className="space-y-2">
-        <div className="text-xs text-center text-gray-600">
-          Current: Level {currentZoom}
-        </div>
-        <div className="grid grid-cols-2 gap-1">
-          <button
-            onClick={() => zoomTo(13)}
-            className="px-2 py-1 text-xs bg-gray-100 hover:bg-gray-200 rounded transition-colors"
-          >
-            City (13)
-          </button>
-          <button
-            onClick={() => zoomTo(15)}
-            className="px-2 py-1 text-xs bg-gray-100 hover:bg-gray-200 rounded transition-colors"
-          >
-            Area (15)
-          </button>
-          <button
-            onClick={() => zoomTo(17)}
-            className="px-2 py-1 text-xs bg-blue-100 hover:bg-blue-200 rounded transition-colors text-blue-700"
-          >
-            Street (17)
-          </button>
-          <button
-            onClick={() => zoomTo(19)}
-            className="px-2 py-1 text-xs bg-green-100 hover:bg-green-200 rounded transition-colors text-green-700"
-          >
-            Building (19)
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 export function TestMap({ onLocationSelect, selectedLat, selectedLng }: TestMapProps) {
   const [clickedPosition, setClickedPosition] = useState<[number, number] | null>(null);
@@ -366,11 +315,61 @@ export function TestMap({ onLocationSelect, selectedLat, selectedLng }: TestMapP
         </div>
       </div>
 
-      {/* Layer Control */}
+      {/* Layer Control - Outside MapContainer */}
       <LayerControl currentLayer={currentLayer} onLayerChange={setCurrentLayer} />
 
-      {/* Zoom Control */}
-      <ZoomControl />
+      {/* Zoom Control - Outside MapContainer */}
+      <div className="absolute bottom-4 right-4 z-[1000] bg-white/95 backdrop-blur-sm rounded-lg p-3 shadow-lg border">
+        <div className="text-xs font-semibold text-gray-700 mb-2">Quick Zoom</div>
+        <div className="space-y-2">
+          <div className="grid grid-cols-2 gap-1">
+            <button
+              onClick={() => {
+                const mapContainer = document.querySelector('.leaflet-container') as any;
+                if (mapContainer && mapContainer._leaflet_map) {
+                  mapContainer._leaflet_map.setZoom(13, { animate: true });
+                }
+              }}
+              className="px-2 py-1 text-xs bg-gray-100 hover:bg-gray-200 rounded transition-colors"
+            >
+              City (13)
+            </button>
+            <button
+              onClick={() => {
+                const mapContainer = document.querySelector('.leaflet-container') as any;
+                if (mapContainer && mapContainer._leaflet_map) {
+                  mapContainer._leaflet_map.setZoom(15, { animate: true });
+                }
+              }}
+              className="px-2 py-1 text-xs bg-gray-100 hover:bg-gray-200 rounded transition-colors"
+            >
+              Area (15)
+            </button>
+            <button
+              onClick={() => {
+                const mapContainer = document.querySelector('.leaflet-container') as any;
+                if (mapContainer && mapContainer._leaflet_map) {
+                  mapContainer._leaflet_map.setZoom(17, { animate: true });
+                }
+              }}
+              className="px-2 py-1 text-xs bg-blue-100 hover:bg-blue-200 rounded transition-colors text-blue-700"
+            >
+              Street (17)
+            </button>
+            <button
+              onClick={() => {
+                const mapContainer = document.querySelector('.leaflet-container') as any;
+                if (mapContainer && mapContainer._leaflet_map) {
+                  mapContainer._leaflet_map.setZoom(19, { animate: true });
+                }
+              }}
+              className="px-2 py-1 text-xs bg-green-100 hover:bg-green-200 rounded transition-colors text-green-700"
+            >
+              Building (19)
+            </button>
+          </div>
+        </div>
+      </div>
 
       {/* Mobile-Optimized Arrow Navigation */}
       <div className="absolute bottom-20 right-4 z-[1000] bg-white/95 backdrop-blur-sm rounded-lg p-4 shadow-lg border">
@@ -537,6 +536,8 @@ export function TestMap({ onLocationSelect, selectedLat, selectedLng }: TestMapP
         
         {/* Center controller */}
         <MapCenterController lat={selectedLat} lng={selectedLng} />
+        
+
       </MapContainer>
     </div>
   );
