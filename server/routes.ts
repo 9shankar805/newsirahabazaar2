@@ -7631,22 +7631,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Only track for valid users or anonymous sessions
       let validUserId = null;
       if (userId) {
-        // Check if user exists before tracking
-        const user = await storage.getUser(parseInt(userId));
-        if (user) {
-          validUserId = parseInt(userId);
+        try {
+          // Check if user exists before tracking
+          const user = await storage.getUser(parseInt(userId));
+          if (user) {
+            validUserId = parseInt(userId);
+          } else {
+            console.log(`User ${userId} not found, tracking as anonymous`);
+          }
+        } catch (error) {
+          console.log(`Error validating user ${userId}, tracking as anonymous:`, error.message);
         }
       }
       
-      // Track website visit for analytics
-      await db.insert(websiteVisits).values({
-        userId: validUserId,
-        page,
-        ipAddress,
-        userAgent,
-        sessionId: req.session?.id || null,
-        referrer: req.get('Referer') || null
-      });
+      // Track website visit for analytics only if we have a valid user or tracking anonymously
+      try {
+        await db.insert(websiteVisits).values({
+          userId: validUserId, // This will be null for invalid users
+          page,
+          ipAddress,
+          userAgent,
+          sessionId: req.session?.id || null,
+          referrer: req.get('Referer') || null
+        });
+      } catch (dbError) {
+        console.error("Database error in website visits tracking:", dbError.message);
+        // Continue without throwing error to not break the user experience
+      }
 
       res.json({ success: true });
     } catch (error) {

@@ -46,7 +46,18 @@ export function LocationPicker({
   const [isSearching, setIsSearching] = useState(false);
   const [locationAccuracy, setLocationAccuracy] = useState<number | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
   const { toast } = useToast();
+
+  // Detect mobile device
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768 || 'ontouchstart' in window);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // Set initial state
   useEffect(() => {
@@ -325,14 +336,14 @@ export function LocationPicker({
         </CardContent>
       </Card>
 
-      {/* Action Buttons */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+      {/* Action Buttons - Mobile Responsive */}
+      <div className={`grid gap-3 ${isMobile ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-2'}`}>
         <Button
           type="button"
           variant="outline"
           onClick={getCurrentLocation}
           disabled={isLoading}
-          className="h-11 flex items-center gap-2"
+          className={`flex items-center gap-2 ${isMobile ? 'h-12 text-sm' : 'h-11'} touch-manipulation`}
         >
           {isLoading ? (
             <Loader2 className="h-4 w-4 animate-spin" />
@@ -346,10 +357,10 @@ export function LocationPicker({
           type="button"
           variant={showMap ? "secondary" : "outline"}
           onClick={() => setShowMap(!showMap)}
-          className="h-11 flex items-center gap-2"
+          className={`flex items-center gap-2 ${isMobile ? 'h-12 text-sm' : 'h-11'} touch-manipulation`}
         >
           {showMap ? <Layers className="h-4 w-4" /> : <Map className="h-4 w-4" />}
-          {showMap ? "Hide Interactive Map" : "Open Interactive Map"}
+          {showMap ? "Hide Interactive Map" : (isMobile ? "📱 Mobile Map" : "Open Interactive Map")}
         </Button>
       </div>
 
@@ -381,12 +392,22 @@ export function LocationPicker({
                 <div className="text-xs space-y-1">
                   <div className="flex items-center gap-2 text-blue-700">
                     <Target className="h-3 w-3" />
-                    <span className="font-medium">Pro Tips for Siraha & Nepal:</span>
+                    <span className="font-medium">{isMobile ? "Mobile Map Tips:" : "Pro Tips for Siraha & Nepal:"}</span>
                   </div>
                   <div className="text-blue-600 space-y-1 ml-5">
-                    <div>• Zoom to level 16-18 for building-level precision</div>
-                    <div>• Use satellite view for better landmark identification</div>
-                    <div>• Double-click to zoom in quickly to an area</div>
+                    {isMobile ? (
+                      <>
+                        <div>• Use arrow buttons to navigate precisely</div>
+                        <div>• Tap 📍 button to select location</div>
+                        <div>• Pinch to zoom for building-level accuracy</div>
+                      </>
+                    ) : (
+                      <>
+                        <div>• Zoom to level 16-18 for building-level precision</div>
+                        <div>• Use satellite view for better landmark identification</div>
+                        <div>• Double-click to zoom in quickly to an area</div>
+                      </>
+                    )}
                   </div>
                 </div>
               </div>
@@ -405,7 +426,7 @@ export function LocationPicker({
                   </div>
                 </div>
               )}
-              <div className="w-full h-[700px] rounded-lg overflow-hidden border">
+              <div className={`w-full rounded-lg overflow-hidden border ${isMobile ? 'h-[500px]' : 'h-[700px]'}`}>
                 <TestMap 
                   onLocationSelect={handleMapClick}
                   selectedLat={latitude ? parseFloat(latitude) : undefined}

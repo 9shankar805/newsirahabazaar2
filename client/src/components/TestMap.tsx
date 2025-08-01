@@ -162,8 +162,54 @@ function MapCenterController({ lat, lng }: { lat?: number; lng?: number }) {
   return null;
 }
 
-// Layer control component (outside MapContainer)
-function LayerControl({ currentLayer, onLayerChange }: { currentLayer: MapLayer; onLayerChange: (layer: MapLayer) => void }) {
+// Layer control component (outside MapContainer) - Mobile Responsive
+function LayerControl({ currentLayer, onLayerChange, isMobile }: { 
+  currentLayer: MapLayer; 
+  onLayerChange: (layer: MapLayer) => void;
+  isMobile: boolean;
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  if (isMobile) {
+    return (
+      <div className="absolute top-4 right-4 z-[1000]">
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="bg-white/95 backdrop-blur-sm rounded-lg p-3 shadow-lg border touch-manipulation"
+          style={{ minHeight: '48px', minWidth: '48px' }}
+        >
+          <span className="text-lg">{mapLayers[currentLayer].icon}</span>
+        </button>
+        
+        {isOpen && (
+          <div className="absolute top-full right-0 mt-2 bg-white/95 backdrop-blur-sm rounded-lg p-2 shadow-lg border">
+            <div className="text-xs font-semibold text-gray-700 mb-2 px-1">Map Style</div>
+            <div className="space-y-1">
+              {Object.entries(mapLayers).map(([key, layer]) => (
+                <button
+                  key={key}
+                  onClick={() => {
+                    onLayerChange(key as MapLayer);
+                    setIsOpen(false);
+                  }}
+                  className={`w-full flex items-center gap-2 px-3 py-3 rounded text-sm transition-all touch-manipulation ${
+                    currentLayer === key
+                      ? 'bg-blue-500 text-white shadow-md'
+                      : 'hover:bg-gray-100 text-gray-700'
+                  }`}
+                  style={{ minHeight: '44px' }}
+                >
+                  <span className="text-base">{layer.icon}</span>
+                  <span className="font-medium">{layer.name}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
   return (
     <div className="absolute top-4 right-4 z-[1000] bg-white/95 backdrop-blur-sm rounded-lg p-2 shadow-lg border">
       <div className="text-xs font-semibold text-gray-700 mb-2 px-1">Map Style</div>
@@ -193,7 +239,19 @@ export function TestMap({ onLocationSelect, selectedLat, selectedLng }: TestMapP
   const [clickedPosition, setClickedPosition] = useState<[number, number] | null>(null);
   const [currentLayer, setCurrentLayer] = useState<MapLayer>('osm');
   const [isLoading, setIsLoading] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [touchCount, setTouchCount] = useState(0);
   const defaultPosition: [number, number] = [26.6615, 86.2348]; // Siraha, Nepal
+
+  // Detect mobile device
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768 || 'ontouchstart' in window);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // Update clicked position when external coordinates change
   useEffect(() => {
@@ -206,14 +264,19 @@ export function TestMap({ onLocationSelect, selectedLat, selectedLng }: TestMapP
     setIsLoading(true);
     setClickedPosition([lat, lng]);
     
+    // Add haptic feedback for mobile
+    if (isMobile && 'vibrate' in navigator) {
+      navigator.vibrate(50);
+    }
+    
     // Add a small delay to show loading state
     setTimeout(() => {
       if (onLocationSelect) {
         onLocationSelect(lat, lng);
       }
       setIsLoading(false);
-    }, 300);
-  }, [onLocationSelect]);
+    }, 200);
+  }, [onLocationSelect, isMobile]);
 
   // Mobile arrow navigation with coordinates
   const moveMapWithArrows = useCallback((direction: 'up' | 'down' | 'left' | 'right') => {
@@ -278,30 +341,31 @@ export function TestMap({ onLocationSelect, selectedLat, selectedLng }: TestMapP
         </div>
       )}
 
-      {/* Mobile Instructions overlay */}
-      <div className="absolute top-4 left-4 z-[1000] max-w-sm">
-        <div className="bg-white/95 backdrop-blur-sm rounded-lg p-3 shadow-lg border">
-          <div className="flex items-center gap-2 mb-2">
-            <span className="text-lg">📱</span>
-            <span className="text-sm font-semibold text-gray-800">Mobile Location Picker</span>
-          </div>
-          <div className="text-xs text-gray-600 space-y-1">
-            <div>• Use arrow buttons to navigate precisely</div>
-            <div>• Tap 📍 button to select current location</div>
-            <div>• Pinch to zoom in/out for accuracy</div>
-            <div>• Coordinates are auto-saved when moving</div>
-            <div className="pt-2 text-center">
-              <div className={`px-2 py-1 rounded-full text-xs font-medium ${
-                clickedPosition 
-                  ? 'bg-green-100 text-green-700' 
-                  : 'bg-blue-100 text-blue-700'
-              }`}>
-                {clickedPosition ? '✅ Location Captured!' : '🎯 Navigate with arrows'}
+      {/* Mobile Instructions overlay - Only show on mobile */}
+      {isMobile && (
+        <div className="absolute top-4 left-4 z-[1000] max-w-xs">
+          <div className="bg-white/95 backdrop-blur-sm rounded-lg p-3 shadow-lg border">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-lg">📱</span>
+              <span className="text-sm font-semibold text-gray-800">Location Picker</span>
+            </div>
+            <div className="text-xs text-gray-600 space-y-1">
+              <div>• Use arrows below to navigate</div>
+              <div>• Tap center button to select</div>
+              <div>• Pinch to zoom for precision</div>
+              <div className="pt-2 text-center">
+                <div className={`px-2 py-1 rounded-full text-xs font-medium ${
+                  clickedPosition 
+                    ? 'bg-green-100 text-green-700' 
+                    : 'bg-blue-100 text-blue-700'
+                }`}>
+                  {clickedPosition ? '✅ Location Set!' : '🎯 Move to location'}
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Center crosshair for arrow navigation */}
       <div className="absolute inset-0 pointer-events-none z-[999] flex items-center justify-center">
@@ -316,63 +380,66 @@ export function TestMap({ onLocationSelect, selectedLat, selectedLng }: TestMapP
       </div>
 
       {/* Layer Control - Outside MapContainer */}
-      <LayerControl currentLayer={currentLayer} onLayerChange={setCurrentLayer} />
+      <LayerControl currentLayer={currentLayer} onLayerChange={setCurrentLayer} isMobile={isMobile} />
 
-      {/* Zoom Control - Outside MapContainer */}
-      <div className="absolute bottom-4 right-4 z-[1000] bg-white/95 backdrop-blur-sm rounded-lg p-3 shadow-lg border">
-        <div className="text-xs font-semibold text-gray-700 mb-2">Quick Zoom</div>
-        <div className="space-y-2">
-          <div className="grid grid-cols-2 gap-1">
-            <button
-              onClick={() => {
-                const mapContainer = document.querySelector('.leaflet-container') as any;
-                if (mapContainer && mapContainer._leaflet_map) {
-                  mapContainer._leaflet_map.setZoom(13, { animate: true });
-                }
-              }}
-              className="px-2 py-1 text-xs bg-gray-100 hover:bg-gray-200 rounded transition-colors"
-            >
-              City (13)
-            </button>
-            <button
-              onClick={() => {
-                const mapContainer = document.querySelector('.leaflet-container') as any;
-                if (mapContainer && mapContainer._leaflet_map) {
-                  mapContainer._leaflet_map.setZoom(15, { animate: true });
-                }
-              }}
-              className="px-2 py-1 text-xs bg-gray-100 hover:bg-gray-200 rounded transition-colors"
-            >
-              Area (15)
-            </button>
-            <button
-              onClick={() => {
-                const mapContainer = document.querySelector('.leaflet-container') as any;
-                if (mapContainer && mapContainer._leaflet_map) {
-                  mapContainer._leaflet_map.setZoom(17, { animate: true });
-                }
-              }}
-              className="px-2 py-1 text-xs bg-blue-100 hover:bg-blue-200 rounded transition-colors text-blue-700"
-            >
-              Street (17)
-            </button>
-            <button
-              onClick={() => {
-                const mapContainer = document.querySelector('.leaflet-container') as any;
-                if (mapContainer && mapContainer._leaflet_map) {
-                  mapContainer._leaflet_map.setZoom(19, { animate: true });
-                }
-              }}
-              className="px-2 py-1 text-xs bg-green-100 hover:bg-green-200 rounded transition-colors text-green-700"
-            >
-              Building (19)
-            </button>
+      {/* Zoom Control - Hide on mobile */}
+      {!isMobile && (
+        <div className="absolute bottom-4 right-4 z-[1000] bg-white/95 backdrop-blur-sm rounded-lg p-3 shadow-lg border">
+          <div className="text-xs font-semibold text-gray-700 mb-2">Quick Zoom</div>
+          <div className="space-y-2">
+            <div className="grid grid-cols-2 gap-1">
+              <button
+                onClick={() => {
+                  const mapContainer = document.querySelector('.leaflet-container') as any;
+                  if (mapContainer && mapContainer._leaflet_map) {
+                    mapContainer._leaflet_map.setZoom(13, { animate: true });
+                  }
+                }}
+                className="px-2 py-1 text-xs bg-gray-100 hover:bg-gray-200 rounded transition-colors"
+              >
+                City (13)
+              </button>
+              <button
+                onClick={() => {
+                  const mapContainer = document.querySelector('.leaflet-container') as any;
+                  if (mapContainer && mapContainer._leaflet_map) {
+                    mapContainer._leaflet_map.setZoom(15, { animate: true });
+                  }
+                }}
+                className="px-2 py-1 text-xs bg-gray-100 hover:bg-gray-200 rounded transition-colors"
+              >
+                Area (15)
+              </button>
+              <button
+                onClick={() => {
+                  const mapContainer = document.querySelector('.leaflet-container') as any;
+                  if (mapContainer && mapContainer._leaflet_map) {
+                    mapContainer._leaflet_map.setZoom(17, { animate: true });
+                  }
+                }}
+                className="px-2 py-1 text-xs bg-blue-100 hover:bg-blue-200 rounded transition-colors text-blue-700"
+              >
+                Street (17)
+              </button>
+              <button
+                onClick={() => {
+                  const mapContainer = document.querySelector('.leaflet-container') as any;
+                  if (mapContainer && mapContainer._leaflet_map) {
+                    mapContainer._leaflet_map.setZoom(19, { animate: true });
+                  }
+                }}
+                className="px-2 py-1 text-xs bg-green-100 hover:bg-green-200 rounded transition-colors text-green-700"
+              >
+                Building (19)
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
-      {/* Mobile-Optimized Arrow Navigation */}
-      <div className="absolute bottom-20 right-4 z-[1000] bg-white/95 backdrop-blur-sm rounded-lg p-4 shadow-lg border">
+      {/* Mobile-Optimized Arrow Navigation - Only show on mobile */}
+      {isMobile && (
+        <div className="absolute bottom-20 right-4 z-[1000] bg-white/95 backdrop-blur-sm rounded-lg p-4 shadow-lg border">
         <div className="text-xs font-semibold text-gray-700 mb-3 text-center">
           📱 Mobile Navigation
         </div>
@@ -422,9 +489,10 @@ export function TestMap({ onLocationSelect, selectedLat, selectedLng }: TestMapP
           📍 to select location<br/>
           <span className="text-green-600 font-medium">Coordinates auto-saved</span>
         </div>
-      </div>
+        </div>
+      )}
 
-      {/* Live Coordinates Display for Mobile */}
+      {/* Live Coordinates Display */}
       <div className="absolute bottom-4 left-4 z-[1000] bg-white/95 backdrop-blur-sm rounded-lg p-3 shadow-lg border max-w-[200px]">
         <div className="flex items-center gap-2 mb-2">
           <span className="text-xs font-semibold text-gray-700">Live Coordinates</span>
@@ -464,18 +532,27 @@ export function TestMap({ onLocationSelect, selectedLat, selectedLng }: TestMapP
       
       <MapContainer
         center={clickedPosition || defaultPosition}
-        zoom={15}
-        style={{ height: '100%', width: '100%', cursor: 'crosshair' }}
+        zoom={isMobile ? 16 : 15} // Slightly higher zoom for mobile
+        style={{ 
+          height: '100%', 
+          width: '100%', 
+          cursor: isMobile ? 'pointer' : 'crosshair',
+          touchAction: isMobile ? 'pan-x pan-y' : 'auto'
+        }}
         scrollWheelZoom={true}
         doubleClickZoom={true}
         dragging={true}
-        attributionControl={true}
+        attributionControl={!isMobile} // Hide attribution on mobile for more space
         zoomControl={false} // We have custom zoom control
-        keyboard={true}
+        keyboard={!isMobile} // Disable keyboard on mobile
         keyboardPanDelta={80}
+        tap={isMobile}
+        tapTolerance={15}
+        touchZoom={isMobile}
+        bounceAtZoomLimits={false}
         ref={(mapInstance) => {
-          if (mapInstance) {
-            // Make map focusable for keyboard events
+          if (mapInstance && !isMobile) {
+            // Make map focusable for keyboard events (desktop only)
             const container = mapInstance.getContainer();
             container.tabIndex = 0;
             container.focus();
