@@ -344,7 +344,6 @@ export default function ModernProductDetail() {
 
       <div className="px-4 py-6 pb-24">
         {/* Product Details */}
-        <div className="px-4 py-6 pb-24">
         {/* Product Name & Rating */}
         <div className="mb-4">
           <h1 className="text-xl font-bold text-gray-900 leading-tight mb-2">
