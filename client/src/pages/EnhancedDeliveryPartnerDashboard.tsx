@@ -1214,7 +1214,7 @@ export default function EnhancedDeliveryPartnerDashboard() {
                     <CardContent className="p-3 xs:p-4 sm:p-6">
                       <div className="flex items-start justify-between gap-2 xs:gap-3 sm:gap-4">
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-2">
+                          <div className="flex items-center gap-2 mb-3">
                             <h3 className="text-sm xs:text-base font-semibold">Order #{delivery.orderId}</h3>
                             <Badge variant="default" className="text-[8px] xs:text-[9px] sm:text-xs bg-green-500">
                               {delivery.status === 'en_route_pickup' ? 'Going to Pickup' :
@@ -1224,18 +1224,84 @@ export default function EnhancedDeliveryPartnerDashboard() {
                             </Badge>
                           </div>
                           
-                          <div className="space-y-1 xs:space-y-2 text-xs xs:text-sm">
-                            <div className="flex items-center gap-1 xs:gap-2">
-                              <User className="h-3 w-3 xs:h-4 xs:w-4 text-gray-500 flex-shrink-0" />
-                              <span className="font-medium truncate">{delivery.customerName}</span>
+                          {/* Pickup Details (Store/Shopkeeper) */}
+                          <div className="bg-blue-50 rounded-lg p-2 mb-3">
+                            <h4 className="text-xs font-semibold text-blue-800 mb-1">📦 PICKUP FROM</h4>
+                            <div className="space-y-1 text-xs">
+                              <div className="flex items-center gap-2">
+                                <span className="font-medium text-blue-700">{delivery.pickupStoreName || delivery.storeName || 'Store'}</span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <Phone className="h-3 w-3 text-blue-600" />
+                                <a href={`tel:${delivery.pickupStorePhone || delivery.storePhone || '+977-9800000000'}`} 
+                                   className="text-blue-600 hover:underline font-medium">
+                                  {delivery.pickupStorePhone || delivery.storePhone || '+977-9800000000'}
+                                </a>
+                              </div>
+                              <div className="flex items-start gap-2">
+                                <MapPin className="h-3 w-3 text-blue-600 mt-0.5 flex-shrink-0" />
+                                <span className="text-blue-700 text-xs leading-tight">
+                                  {delivery.pickupAddress || delivery.storeAddress || 'Store Address'}
+                                </span>
+                              </div>
+                              {(delivery.pickupLatitude && delivery.pickupLongitude) || (delivery.storeLatitude && delivery.storeLongitude) ? (
+                                <div className="text-xs text-blue-600">
+                                  📍 GPS: {delivery.pickupLatitude || delivery.storeLatitude}, {delivery.pickupLongitude || delivery.storeLongitude}
+                                </div>
+                              ) : null}
                             </div>
-                            <div className="flex items-center gap-1 xs:gap-2">
-                              <MapPin className="h-3 w-3 xs:h-4 xs:w-4 text-gray-500 flex-shrink-0" />
-                              <span className="text-gray-600 truncate">{delivery.deliveryAddress}</span>
+                          </div>
+
+                          {/* Delivery Details (Customer) */}
+                          <div className="bg-green-50 rounded-lg p-2 mb-3">
+                            <h4 className="text-xs font-semibold text-green-800 mb-1">🚚 DELIVER TO</h4>
+                            <div className="space-y-1 text-xs">
+                              <div className="flex items-center gap-2">
+                                <User className="h-3 w-3 text-green-600" />
+                                <span className="font-medium text-green-700">{delivery.customerName || 'Customer'}</span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <Phone className="h-3 w-3 text-green-600" />
+                                <a href={`tel:${delivery.customerPhone || '+977-9800000001'}`} 
+                                   className="text-green-600 hover:underline font-medium">
+                                  {delivery.customerPhone || '+977-9800000001'}
+                                </a>
+                              </div>
+                              <div className="flex items-start gap-2">
+                                <MapPin className="h-3 w-3 text-green-600 mt-0.5 flex-shrink-0" />
+                                <span className="text-green-700 text-xs leading-tight">
+                                  {delivery.deliveryAddress || 'Customer Address'}
+                                </span>
+                              </div>
+                              {delivery.deliveryLatitude && delivery.deliveryLongitude ? (
+                                <div className="text-xs text-green-600">
+                                  📍 GPS: {delivery.deliveryLatitude}, {delivery.deliveryLongitude}
+                                </div>
+                              ) : null}
+                              {delivery.customerInstructions && (
+                                <div className="text-xs text-green-700 bg-green-100 p-1 rounded">
+                                  💬 "{delivery.customerInstructions}"
+                                </div>
+                              )}
                             </div>
-                            <div className="flex items-center gap-1 xs:gap-2">
-                              <Timer className="h-3 w-3 xs:h-4 xs:w-4 text-blue-600 flex-shrink-0" />
-                              <span className="text-blue-600">ETA: {delivery.estimatedTime || 15} mins</span>
+                          </div>
+
+                          {/* Order & Payment Details */}
+                          <div className="bg-gray-50 rounded-lg p-2 mb-2">
+                            <div className="grid grid-cols-2 gap-2 text-xs">
+                              <div className="flex items-center gap-1">
+                                <DollarSign className="h-3 w-3 text-green-600" />
+                                <span className="font-semibold text-green-600">₹{delivery.deliveryFee || '50'}</span>
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <Timer className="h-3 w-3 text-blue-600" />
+                                <span className="text-blue-600">ETA: {delivery.estimatedTime || 15}m</span>
+                              </div>
+                              {delivery.paymentMethod && (
+                                <div className="col-span-2 text-xs text-gray-600">
+                                  💳 {delivery.paymentMethod} {delivery.codAmount ? `(COD: ₹${delivery.codAmount})` : ''}
+                                </div>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -1271,23 +1337,53 @@ export default function EnhancedDeliveryPartnerDashboard() {
                               Mark Delivered
                             </Button>
                           )}
+                          {/* Quick Call Buttons */}
+                          <div className="grid grid-cols-2 gap-1 mb-2">
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              className="text-[8px] xs:text-[9px] sm:text-[10px] px-1 xs:px-2 py-0.5 h-auto bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100"
+                              onClick={() => {
+                                const phone = delivery.pickupStorePhone || delivery.storePhone || '+977-9800000000';
+                                window.location.href = `tel:${phone}`;
+                              }}
+                            >
+                              <Phone className="h-2 w-2 xs:h-3 xs:w-3 mr-0.5" />
+                              Store
+                            </Button>
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              className="text-[8px] xs:text-[9px] sm:text-[10px] px-1 xs:px-2 py-0.5 h-auto bg-green-50 border-green-200 text-green-700 hover:bg-green-100"
+                              onClick={() => {
+                                const phone = delivery.customerPhone || '+977-9800000001';
+                                window.location.href = `tel:${phone}`;
+                              }}
+                            >
+                              <Phone className="h-2 w-2 xs:h-3 xs:w-3 mr-0.5" />
+                              Customer
+                            </Button>
+                          </div>
+
                           {/* Navigation Buttons for Active Deliveries */}
-                          <div className="grid grid-cols-2 gap-1">
+                          <div className="grid grid-cols-2 gap-1 mb-2">
                             <Button 
                               variant="outline" 
                               size="sm" 
                               className="text-[8px] xs:text-[9px] sm:text-[10px] px-1 xs:px-2 py-0.5 h-auto"
                               onClick={() => {
-                                if (delivery.storeLatitude && delivery.storeLongitude) {
-                                  window.open(`https://www.google.com/maps/dir/?api=1&destination=${delivery.storeLatitude},${delivery.storeLongitude}`);
-                                } else if (delivery.pickupAddress) {
-                                  const address = encodeURIComponent(delivery.pickupAddress);
+                                const lat = delivery.pickupLatitude || delivery.storeLatitude;
+                                const lng = delivery.pickupLongitude || delivery.storeLongitude;
+                                if (lat && lng) {
+                                  window.open(`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`);
+                                } else if (delivery.pickupAddress || delivery.storeAddress) {
+                                  const address = encodeURIComponent(delivery.pickupAddress || delivery.storeAddress);
                                   window.open(`https://www.google.com/maps/search/${address}`, '_blank');
                                 }
                               }}
                             >
                               <Navigation className="h-2 w-2 xs:h-3 xs:w-3 mr-0.5" />
-                              Store
+                              GPS Store
                             </Button>
                             <Button 
                               variant="outline" 
@@ -1303,15 +1399,18 @@ export default function EnhancedDeliveryPartnerDashboard() {
                               }}
                             >
                               <Navigation className="h-2 w-2 xs:h-3 xs:w-3 mr-0.5" />
-                              Customer
+                              GPS Customer
                             </Button>
                           </div>
+                          
                           <Button 
                             variant="outline" 
                             size="sm" 
-                            className="text-[9px] xs:text-[10px] sm:text-xs px-2 xs:px-3 py-1 h-auto"
+                            className="text-[9px] xs:text-[10px] sm:text-xs px-2 xs:px-3 py-1 h-auto w-full bg-purple-50 border-purple-200 text-purple-700 hover:bg-purple-100"
+                            onClick={() => setSelectedDelivery(delivery)}
                           >
-                            Track Live
+                            <Eye className="h-3 w-3 mr-1" />
+                            View Details
                           </Button>
                         </div>
                       </div>
@@ -1831,6 +1930,209 @@ export default function EnhancedDeliveryPartnerDashboard() {
                   disabled={acceptDelivery.isPending}
                 >
                   {acceptDelivery.isPending ? 'Accepting...' : 'Accept This Order'}
+                </Button>
+                <Button variant="outline" onClick={() => setSelectedDelivery(null)}>
+                  Close
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Enhanced Order Details Modal */}
+      {selectedDelivery && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <CardHeader className="bg-gradient-to-r from-blue-50 to-green-50">
+              <div className="flex justify-between items-start">
+                <div>
+                  <CardTitle className="text-xl">Order #{selectedDelivery.orderId}</CardTitle>
+                  <Badge className="mt-2 bg-green-500">
+                    {selectedDelivery.status === 'en_route_pickup' ? 'Going to Pickup' :
+                     selectedDelivery.status === 'picked_up' ? 'Picked Up' :
+                     selectedDelivery.status === 'en_route_delivery' ? 'Delivering' :
+                     'In Progress'}
+                  </Badge>
+                </div>
+                <Button variant="ghost" size="sm" onClick={() => setSelectedDelivery(null)}>✕</Button>
+              </div>
+            </CardHeader>
+            <CardContent className="p-6 space-y-6">
+              
+              {/* Pickup Information */}
+              <div className="bg-blue-50 rounded-lg p-4">
+                <h4 className="font-semibold text-blue-800 mb-3 flex items-center gap-2">
+                  📦 PICKUP DETAILS
+                </h4>
+                <div className="space-y-2 text-sm">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <p className="font-medium text-blue-700">{selectedDelivery.pickupStoreName || 'Store Name'}</p>
+                      <p className="text-blue-600">{selectedDelivery.pickupAddress || 'Store Address'}</p>
+                      <p className="text-xs text-blue-500">
+                        📍 GPS: {selectedDelivery.pickupLatitude || 'N/A'}, {selectedDelivery.pickupLongitude || 'N/A'}
+                      </p>
+                    </div>
+                    <div>
+                      <a href={`tel:${selectedDelivery.pickupStorePhone || '+977-9800000000'}`} 
+                         className="flex items-center gap-2 text-blue-600 hover:text-blue-800 font-medium">
+                        <Phone className="h-4 w-4" />
+                        {selectedDelivery.pickupStorePhone || '+977-9800000000'}
+                      </a>
+                      <Button 
+                        size="sm" 
+                        className="mt-2 w-full bg-blue-600 hover:bg-blue-700"
+                        onClick={() => {
+                          const lat = selectedDelivery.pickupLatitude;
+                          const lng = selectedDelivery.pickupLongitude;
+                          if (lat && lng) {
+                            window.open(`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`);
+                          }
+                        }}
+                      >
+                        <Navigation className="h-3 w-3 mr-1" />
+                        Navigate to Store
+                      </Button>
+                    </div>
+                  </div>
+                  {selectedDelivery.storeInstructions && (
+                    <div className="bg-blue-100 p-2 rounded text-blue-800">
+                      <strong>Store Instructions:</strong> {selectedDelivery.storeInstructions}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Customer Information */}
+              <div className="bg-green-50 rounded-lg p-4">
+                <h4 className="font-semibold text-green-800 mb-3 flex items-center gap-2">
+                  🚚 DELIVERY DETAILS
+                </h4>
+                <div className="space-y-2 text-sm">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <p className="font-medium text-green-700">{selectedDelivery.customerName || 'Customer Name'}</p>
+                      <p className="text-green-600">{selectedDelivery.deliveryAddress || 'Customer Address'}</p>
+                      <p className="text-xs text-green-500">
+                        📍 GPS: {selectedDelivery.deliveryLatitude || 'N/A'}, {selectedDelivery.deliveryLongitude || 'N/A'}
+                      </p>
+                    </div>
+                    <div>
+                      <a href={`tel:${selectedDelivery.customerPhone || '+977-9800000001'}`} 
+                         className="flex items-center gap-2 text-green-600 hover:text-green-800 font-medium">
+                        <Phone className="h-4 w-4" />
+                        {selectedDelivery.customerPhone || '+977-9800000001'}
+                      </a>
+                      <Button 
+                        size="sm" 
+                        className="mt-2 w-full bg-green-600 hover:bg-green-700"
+                        onClick={() => {
+                          const lat = selectedDelivery.deliveryLatitude;
+                          const lng = selectedDelivery.deliveryLongitude;
+                          if (lat && lng) {
+                            window.open(`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`);
+                          }
+                        }}
+                      >
+                        <Navigation className="h-3 w-3 mr-1" />
+                        Navigate to Customer
+                      </Button>
+                    </div>
+                  </div>
+                  {selectedDelivery.customerInstructions && (
+                    <div className="bg-green-100 p-2 rounded text-green-800">
+                      <strong>Customer Instructions:</strong> {selectedDelivery.customerInstructions}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Order Items */}
+              {selectedDelivery.orderItems && selectedDelivery.orderItems.length > 0 && (
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <h4 className="font-semibold text-gray-800 mb-3">📦 ORDER ITEMS</h4>
+                  <div className="space-y-2">
+                    {selectedDelivery.orderItems.map((item, index) => (
+                      <div key={index} className="flex items-center gap-3 bg-white p-2 rounded">
+                        <img 
+                          src={getDeliveryItemImage(item.image, item.name)}
+                          alt={item.name}
+                          className="w-10 h-10 object-cover rounded"
+                        />
+                        <div className="flex-1">
+                          <p className="font-medium text-sm">{item.name}</p>
+                          <p className="text-xs text-gray-600">Qty: {item.quantity} × ₹{item.price}</p>
+                        </div>
+                        <p className="font-semibold text-sm">₹{item.quantity * item.price}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Payment & Earnings */}
+              <div className="bg-yellow-50 rounded-lg p-4">
+                <h4 className="font-semibold text-yellow-800 mb-3">💰 PAYMENT & EARNINGS</h4>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                  <div>
+                    <p className="text-yellow-600">Delivery Fee</p>
+                    <p className="font-bold text-yellow-800">₹{selectedDelivery.deliveryFee || '50'}</p>
+                  </div>
+                  <div>
+                    <p className="text-yellow-600">Order Value</p>
+                    <p className="font-bold text-yellow-800">₹{selectedDelivery.orderValue || '500'}</p>
+                  </div>
+                  <div>
+                    <p className="text-yellow-600">Payment Method</p>
+                    <p className="font-bold text-yellow-800">{selectedDelivery.paymentMethod || 'Online'}</p>
+                  </div>
+                  {selectedDelivery.codAmount && (
+                    <div>
+                      <p className="text-yellow-600">COD Amount</p>
+                      <p className="font-bold text-red-600">₹{selectedDelivery.codAmount}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Time & Distance */}
+              <div className="bg-purple-50 rounded-lg p-4">
+                <h4 className="font-semibold text-purple-800 mb-3">⏱️ TIME & DISTANCE</h4>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
+                  <div>
+                    <p className="text-purple-600">Estimated Time</p>
+                    <p className="font-bold text-purple-800">{selectedDelivery.estimatedTime || 15} mins</p>
+                  </div>
+                  <div>
+                    <p className="text-purple-600">Distance</p>
+                    <p className="font-bold text-purple-800">{selectedDelivery.estimatedDistance || 2.5} km</p>
+                  </div>
+                  <div>
+                    <p className="text-purple-600">Assigned At</p>
+                    <p className="font-bold text-purple-800">{selectedDelivery.assignedAt || 'Just now'}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex gap-2">
+                <Button 
+                  className="flex-1"
+                  onClick={() => {
+                    // Update delivery status based on current status
+                    const nextStatus = selectedDelivery.status === 'en_route_pickup' ? 'picked_up' :
+                                     selectedDelivery.status === 'picked_up' ? 'en_route_delivery' :
+                                     selectedDelivery.status === 'en_route_delivery' ? 'delivered' : 'delivered';
+                    updateDeliveryStatus.mutate({ deliveryId: selectedDelivery.id, status: nextStatus });
+                    setSelectedDelivery(null);
+                  }}
+                  disabled={updateDeliveryStatus.isPending}
+                >
+                  {updateDeliveryStatus.isPending ? 'Updating...' : 
+                   selectedDelivery.status === 'en_route_pickup' ? 'Mark Picked Up' :
+                   selectedDelivery.status === 'picked_up' ? 'Start Delivery' :
+                   selectedDelivery.status === 'en_route_delivery' ? 'Mark Delivered' : 'Complete'}
                 </Button>
                 <Button variant="outline" onClick={() => setSelectedDelivery(null)}>
                   Close
