@@ -2767,22 +2767,30 @@ export default function ShopkeeperDashboard() {
           </TabsContent>
         </Tabs>
 
-        {/* Floating Add Product Button */}
+        {/* Mobile-Optimized Floating Add Product Button */}
         {currentStore && (
           <Dialog open={showAddProductModal} onOpenChange={setShowAddProductModal}>
             <DialogTrigger asChild>
               <Button
                 size="lg"
-                className="fixed bottom-20 right-6 h-14 w-14 rounded-full shadow-lg bg-orange-500 hover:bg-orange-600 text-white z-50"
-                onClick={() => {
+                className="floating-button-mobile-optimized fixed bottom-20 right-4 sm:right-6 h-12 w-12 sm:h-14 sm:w-14 rounded-full shadow-2xl bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white z-40 transition-all duration-300 ease-in-out hover:scale-110 active:scale-95 border-2 border-white/20"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
                   setEditingProduct(null);
                   form.reset();
                 }}
+                style={{
+                  touchAction: 'manipulation',
+                  WebkitTouchCallout: 'none',
+                  WebkitUserSelect: 'none',
+                  userSelect: 'none'
+                }}
               >
-                <Plus className="h-6 w-6" />
+                <Plus className="h-5 w-5 sm:h-6 sm:w-6" />
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+            <DialogContent className="max-w-4xl max-h-[95vh] overflow-y-auto mx-4 sm:mx-auto rounded-lg">
               <DialogHeader>
                 <DialogTitle className="flex items-center gap-2">
                   <Plus className="h-5 w-5" />
