@@ -172,14 +172,14 @@ export default function ProductCard({ product }: ProductCardProps) {
 
           {/* Pagination Dots - Larger and more visible on mobile */}
           {hasMultipleImages && (
-            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5">
+            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
               {images.map((_, index) => (
                 <button
                   key={index}
                   className={`rounded-full transition-all duration-300 touch-manipulation ${
                     currentImageIndex === index 
-                      ? 'w-6 h-2 bg-white shadow-md' 
-                      : 'w-2 h-2 bg-white/70 hover:bg-white/90 active:scale-110'
+                      ? 'w-4 h-1.5 bg-white shadow-md sm:w-6 sm:h-2' 
+                      : 'w-1.5 h-1.5 bg-white/70 hover:bg-white/90 active:scale-110 sm:w-2 sm:h-2'
                   }`}
                   onClick={(e) => {
                     e.preventDefault();
