@@ -260,48 +260,49 @@ export default function ModernProductDetail() {
             <ArrowLeft className="h-6 w-6 text-gray-700" strokeWidth={2} />
             <span className="sr-only">Back</span>
           </button>
-          
-          <div className="flex items-center gap-2">
-            {/* Share Button */}
-            <button 
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                console.log('Share button clicked - direct handler');
-                handleShare();
-              }}
-              className="flex items-center justify-center p-3 hover:bg-gray-100 rounded-full transition-colors border border-gray-200"
-              style={{ minWidth: '44px', minHeight: '44px' }}
-              title="Share Product"
-            >
-              <Share2 className="h-6 w-6 text-gray-700" strokeWidth={2} />
-              <span className="sr-only">Share</span>
-            </button>
-            
-            {/* Wishlist Button */}
-            <button 
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                console.log('Wishlist button clicked');
-                handleWishlistToggle();
-              }}
-              className="flex items-center justify-center p-3 hover:bg-gray-100 rounded-full transition-colors border border-gray-200"
-              style={{ minWidth: '44px', minHeight: '44px' }}
-              title={isWishlisted ? "Remove from Wishlist" : "Add to Wishlist"}
-            >
-              <Heart 
-                className={`h-6 w-6 ${
-                  isWishlisted 
-                    ? "fill-red-500 text-red-500" 
-                    : "text-gray-700"
-                } `}
-                strokeWidth={2}
-              />
-              <span className="sr-only">{isWishlisted ? "Remove from Wishlist" : "Add to Wishlist"}</span>
-            </button>
-          </div>
         </div>
+      </div>
+
+      {/* Share and Wishlist Icons - Above Product Image */}
+      <div className="flex justify-end items-center gap-2 px-4 pt-4 pb-2">
+        {/* Share Button */}
+        <button 
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Share button clicked - direct handler');
+            handleShare();
+          }}
+          className="flex items-center justify-center p-3 hover:bg-gray-100 rounded-full transition-colors border border-gray-200 bg-white shadow-sm"
+          style={{ minWidth: '44px', minHeight: '44px' }}
+          title="Share Product"
+        >
+          <Share2 className="h-6 w-6 text-gray-700" strokeWidth={2} />
+          <span className="sr-only">Share</span>
+        </button>
+        
+        {/* Wishlist Button */}
+        <button 
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Wishlist button clicked');
+            handleWishlistToggle();
+          }}
+          className="flex items-center justify-center p-3 hover:bg-gray-100 rounded-full transition-colors border border-gray-200 bg-white shadow-sm"
+          style={{ minWidth: '44px', minHeight: '44px' }}
+          title={isWishlisted ? "Remove from Wishlist" : "Add to Wishlist"}
+        >
+          <Heart 
+            className={`h-6 w-6 ${
+              isWishlisted 
+                ? "fill-red-500 text-red-500" 
+                : "text-gray-700"
+            } `}
+            strokeWidth={2}
+          />
+          <span className="sr-only">{isWishlisted ? "Remove from Wishlist" : "Add to Wishlist"}</span>
+        </button>
       </div>
 
       {/* Single Product Image */}
