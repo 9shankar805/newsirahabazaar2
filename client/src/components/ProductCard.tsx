@@ -69,7 +69,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           <img
             src={getProductImage(product)}
             alt={product.name}
-            className="w-full h-24 sm:h-32 md:h-40 object-cover"
+            className="w-full h-32 sm:h-40 md:h-48 lg:h-52 object-cover"
             onError={(e) => {
               const target = e.target as HTMLImageElement;
               if (!target.src.includes('unsplash')) {

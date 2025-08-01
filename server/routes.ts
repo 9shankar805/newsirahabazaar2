@@ -2298,15 +2298,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const review = await storage.createStoreReview(validatedData);
       console.log(`✅ Created store review: Store ${validatedData.storeId}, Rating ${validatedData.rating}`);
+      console.log(`Review object returned:`, review);
 
       // Force store rating update
       await storage.updateStoreRating(validatedData.storeId);
       console.log(`✅ Updated store ${validatedData.storeId} rating after review creation`);
 
-      // Get user details for response
-      const user = await storage.getUser(review.customerId);
+      // Get user details for response (using validatedData as fallback)
+      const userId = validatedData.customerId;
+      const user = await storage.getUser(userId);
+      
+      // Create response with guaranteed data
       const reviewWithUser = {
-        ...review,
+        id: review?.id,
+        storeId: validatedData.storeId,
+        customerId: validatedData.customerId,
+        rating: validatedData.rating,
+        title: validatedData.title,
+        comment: validatedData.comment,
+        isVerifiedPurchase: validatedData.isVerifiedPurchase,
+        isApproved: validatedData.isApproved,
+        helpfulCount: 0,
+        createdAt: review?.createdAt || new Date().toISOString(),
         customer: user ? {
           id: user.id,
           username: user.username,

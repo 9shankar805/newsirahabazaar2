@@ -1600,13 +1600,19 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createStoreReview(review: InsertStoreReview): Promise<StoreReview> {
-    console.log("Storage layer - creating store review with data:", review);
-    const [newReview] = await db.insert(storeReviews).values(review).returning();
-    
-    // Update store rating after creating a review
-    await this.updateStoreRating(review.storeId);
-    
-    return newReview;
+    try {
+      console.log("Storage layer - creating store review with data:", review);
+      const [newReview] = await db.insert(storeReviews).values(review).returning();
+      console.log("Storage layer - new review created:", newReview);
+      
+      // Update store rating after creating a review
+      await this.updateStoreRating(review.storeId);
+      
+      return newReview;
+    } catch (error) {
+      console.error("Error in createStoreReview:", error);
+      throw error;
+    }
   }
 
   async updateStoreReview(id: number, updates: Partial<InsertStoreReview>): Promise<StoreReview | undefined> {
