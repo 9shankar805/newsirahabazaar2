@@ -24,7 +24,7 @@ export default function ProductCard({ product }: ProductCardProps) {
   const { toggleWishlist, isInWishlist } = useWishlist();
   const { user } = useAuth();
   const { toast } = useToast();
-  
+
   // Image scrolling state
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isHovering, setIsHovering] = useState(false);
@@ -40,7 +40,7 @@ export default function ProductCard({ product }: ProductCardProps) {
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     // Allow adding to cart even without login
     addToCart(product.id, 1);
     toast({
@@ -52,7 +52,7 @@ export default function ProductCard({ product }: ProductCardProps) {
   const handleWishlistToggle = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     if (!user) {
       toast({
         title: "Login required",
@@ -64,7 +64,7 @@ export default function ProductCard({ product }: ProductCardProps) {
 
     const wasInWishlist = isInWishlist(product.id);
     await toggleWishlist(product.id);
-    
+
     toast({
       title: wasInWishlist ? "Removed from wishlist" : "Added to wishlist",
       description: `${product.name} has been ${wasInWishlist ? "removed from" : "added to"} your wishlist.`,
@@ -78,15 +78,15 @@ export default function ProductCard({ product }: ProductCardProps) {
   // Auto-scroll functionality on hover (desktop only)
   useEffect(() => {
     if (!hasMultipleImages || !isHovering) return;
-    
+
     // Only enable auto-scroll on desktop (hover support)
     const isDesktop = window.matchMedia('(hover: hover)').matches;
     if (!isDesktop) return;
-    
+
     const interval = setInterval(() => {
       setCurrentImageIndex((prev) => (prev + 1) % images.length);
     }, 2000); // Slower on desktop for better UX
-    
+
     return () => clearInterval(interval);
   }, [isHovering, hasMultipleImages, images.length]);
 
@@ -102,7 +102,7 @@ export default function ProductCard({ product }: ProductCardProps) {
     }
   };
 
-  
+
 
   // Touch handlers for mobile swiping
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -116,7 +116,7 @@ export default function ProductCard({ product }: ProductCardProps) {
 
   const handleTouchEnd = () => {
     if (!touchStart || !touchEnd) return;
-    
+
     const distance = touchStart - touchEnd;
     const isLeftSwipe = distance > minSwipeDistance;
     const isRightSwipe = distance < -minSwipeDistance;
@@ -126,7 +126,7 @@ export default function ProductCard({ product }: ProductCardProps) {
       const newIndex = currentImageIndex < images.length - 1 ? currentImageIndex + 1 : 0;
       scrollToImage(newIndex);
     }
-    
+
     if (isRightSwipe) {
       // Swipe right - previous image
       const newIndex = currentImageIndex > 0 ? currentImageIndex - 1 : images.length - 1;
@@ -168,7 +168,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             ))}
           </div>
 
-          
+
 
           {/* Pagination Dots - Larger and more visible on mobile */}
           {hasMultipleImages && (
@@ -178,8 +178,8 @@ export default function ProductCard({ product }: ProductCardProps) {
                   key={index}
                   className={`transition-all duration-300 touch-manipulation ${
                     currentImageIndex === index 
-                      ? 'w-3 h-1 bg-white rounded-full shadow-sm sm:w-6 sm:h-2' 
-                      : 'w-1 h-1 bg-white/60 rounded-full hover:bg-white/80 sm:w-2 sm:h-2'
+                      ? 'w-2 h-0.5 bg-white rounded-full shadow-sm sm:w-6 sm:h-2' 
+                      : 'w-0.5 h-0.5 bg-white/60 rounded-full hover:bg-white/80 sm:w-2 sm:h-2'
                   }`}
                   onClick={(e) => {
                     e.preventDefault();
@@ -205,14 +205,14 @@ export default function ProductCard({ product }: ProductCardProps) {
             </div>
           )}
 
-          
+
         </div>
-        
+
         <div className="p-2">
           <h3 className="font-medium text-foreground text-[10px] mb-1 line-clamp-2">
             {product.name}
           </h3>
-          
+
           {/* Restaurant name and distance info for food items */}
           {product.storeName && (
             <div className="text-[9px] text-muted-foreground mb-1 flex items-center justify-between">
@@ -225,7 +225,7 @@ export default function ProductCard({ product }: ProductCardProps) {
               )}
             </div>
           )}
-          
+
           {/* Delivery time for food items */}
           {product.deliveryTime && (
             <div className="text-[8px] text-muted-foreground mb-1 flex items-center gap-1">
@@ -233,7 +233,7 @@ export default function ProductCard({ product }: ProductCardProps) {
               <span>{product.deliveryTime}</span>
             </div>
           )}
-          
+
           {/* Rating display */}
           {product.rating && parseFloat(product.rating) > 0 && (
             <div className="flex items-center gap-1 mb-1">
@@ -243,7 +243,7 @@ export default function ProductCard({ product }: ProductCardProps) {
               </span>
             </div>
           )}
-          
+
           <div className="flex items-center space-x-1 mb-2">
             <span className="text-xs font-bold text-foreground">
               ₹{Number(product.price).toLocaleString()}
@@ -254,7 +254,7 @@ export default function ProductCard({ product }: ProductCardProps) {
               </span>
             )}
           </div>
-          
+
           <div className="flex gap-2">
             <Button
               onClick={handleAddToCart}
