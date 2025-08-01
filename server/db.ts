@@ -6,8 +6,8 @@ import dotenv from "dotenv";
 // Load environment variables
 dotenv.config();
 
-// PostgreSQL database URL - using the provided Neon database
-const DATABASE_URL = process.env.DATABASE_URL || 
+// PostgreSQL database URL - prioritize DigitalOcean, fallback to development
+const DATABASE_URL = process.env.DIGITALOCEAN_DATABASE_URL || process.env.DATABASE_URL || 
   "postgresql://neondb_owner:npg_x70rUbTWcLXC@ep-summer-bread-a88huiee-pooler.eastus2.azure.neon.tech/neondb?sslmode=require&channel_binding=require";
 
 // Check if we're in development and handle SSL accordingly
