@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import {
+import { 
   Package,
   ShoppingCart,
   DollarSign,
@@ -31,7 +31,11 @@ import {
   X,
   Upload,
   Camera,
+  Calculator as CalculatorIcon,
 } from "lucide-react";
+import { Calculator } from "@/components/Calculator";
+import type { CalculatorProduct } from "@/types/calculator";
+// Using the existing Product interface from the file
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -64,14 +68,14 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
-import { apiPost, apiPut, apiDelete } from "@/lib/queryClient";
+import { apiGet, apiPost, apiPut, apiDelete } from "@/lib/queryClient";
 import { queryClient } from "@/lib/queryClient";
 import ImageUpload from "@/components/ImageUpload";
 import { UnifiedImageUpload } from "@/components/UnifiedImageUpload";
 import { LocationPicker } from "@/components/LocationPicker";
 import type {
   Product,
-  Order,
+  Order as BaseOrder,
   OrderItem as BaseOrderItem,
   Store as StoreType,
   Category,
@@ -82,12 +86,27 @@ interface OrderItem extends BaseOrderItem {
   product?: {
     id: number;
     name: string;
+    price: number | string;
     imageUrl?: string;
     images?: string[];
     description?: string;
     category?: string;
   };
 }
+
+interface DeliveryPartner {
+  id: number;
+  name: string;
+  phone: string;
+  email?: string;
+}
+
+interface Order extends BaseOrder {
+  deliveryPartner?: DeliveryPartner;
+  items?: OrderItem[];
+  [key: string]: any; // For any additional properties
+}
+
 import { LeafletDeliveryMap } from "@/components/tracking/LeafletDeliveryMap";
 import { LocationTracker } from "@/components/LocationTracker";
 import { DeliveryTrackingMap } from "@/components/tracking/DeliveryTrackingMap";
@@ -157,8 +176,10 @@ export default function ShopkeeperDashboard() {
   const [newIngredient, setNewIngredient] = useState("");
   const [newAllergen, setNewAllergen] = useState("");
   const [isEditStoreOpen, setIsEditStoreOpen] = useState(false);
-  const { user } = useAuth();
+  const [isCalculatorOpen, setIsCalculatorOpen] = useState(false);
+  const [calculatorProducts, setCalculatorProducts] = useState<CalculatorProduct[]>([]);
   const { toast } = useToast();
+  const { user } = useAuth();
 
   // Helper functions for ingredients and allergens
   const handleAddIngredient = () => {
@@ -197,42 +218,102 @@ export default function ShopkeeperDashboard() {
 
   // Queries
   const { data: stores = [] } = useQuery<StoreType[]>({
-    queryKey: [`/api/stores/owner`, user?.id],
+    queryKey: ['stores', user?.id],
     queryFn: async () => {
       if (!user?.id) return [];
       const response = await fetch(`/api/stores/owner/${user.id}`);
       if (!response.ok) throw new Error("Failed to fetch stores");
-      return response.json();
+      const data = await response.json();
+      return Array.isArray(data) ? data : [];
     },
     enabled: !!user,
   });
 
   const currentStore = stores[0]; // Assuming one store per shopkeeper
 
+  // Fetch products with React Query for the calculator
+  const { data: productsData, isLoading: isLoadingProducts } = useQuery<Product[]>({
+    // Note: It's better to type the query itself.
+    queryKey: ['all-products-for-calculator', currentStore?.id],
+    queryFn: async () => {
+      if (!currentStore?.id) return [];
+      try {
+        console.log(`Fetching products for calculator from /api/products/store/${currentStore.id}`);
+        const data = await apiGet(`/api/products/store/${currentStore.id}`);
+        console.log('Calculator products API response:', data);
+        // The store products endpoint returns the array directly
+        return Array.isArray(data) ? data : [];
+      } catch (error) {
+        console.error('Error fetching products for calculator:', error);
+        toast({
+          title: 'Error Loading Products',
+          description: 'Could not fetch products for the calculator. Please try again.',
+          variant: 'destructive',
+        });
+        return [];
+      }
+    },
+    enabled: !!currentStore?.id, // Only run query if currentStore is available
+  });
+
+  useEffect(() => {
+    if (productsData) {
+      console.log('productsData in SellerDashboard changed:', {
+        sample: productsData.slice(0, 3)
+      });
+    }
+  }, [productsData]);
+
+  useEffect(() => {
+    if (productsData && productsData.length > 0) {
+      console.log('Formatting products for calculator:', productsData);
+      try {
+        const formattedProducts = productsData.map((product) => ({
+          id: product.id,
+          name: product.name || 'Unnamed Product',
+          price: typeof product.price === 'string' ? parseFloat(product.price) : product.price || 0,
+          description: product.description || '',
+          stock: product.stock || 0,
+          taxRate: (product as any).taxRate || 0, // Handle missing taxRate
+          imageUrl: product.imageUrl || (product.images && product.images[0]) || '',
+        }));
+        console.log('Formatted products for calculator:', formattedProducts);
+        setCalculatorProducts(formattedProducts);
+      } catch (error) {
+        console.error('Error formatting products for calculator:', error);
+      }
+    } else {
+      console.log('No products data available for calculator');
+      setCalculatorProducts([]);
+    }
+  }, [productsData]);
+
   // Enhanced restaurant detection
   const isRestaurant = currentStore?.storeType === 'restaurant' || 
     (currentStore?.name && currentStore.name.toLowerCase().includes('restaurant'));
 
   const { data: products = [] } = useQuery<Product[]>({
-    queryKey: [`/api/products/store/${currentStore?.id}`],
+    queryKey: ['store-products', currentStore?.id],
     queryFn: async () => {
       if (!currentStore?.id) return [];
       const response = await fetch(`/api/products/store/${currentStore.id}`);
       if (!response.ok) throw new Error("Failed to fetch store products");
-      return response.json();
+      const data = await response.json();
+      return Array.isArray(data) ? data : [];
     },
-    enabled: !!currentStore,
+    enabled: !!currentStore?.id,
   });
 
   const { data: orders = [] } = useQuery<(Order & { items: OrderItem[] })[]>({
-    queryKey: [`/api/orders/store/${currentStore?.id}`],
+    queryKey: ['store-orders', currentStore?.id],
     queryFn: async () => {
       if (!currentStore?.id) return [];
       const response = await fetch(`/api/orders/store/${currentStore.id}`);
       if (!response.ok) throw new Error("Failed to fetch store orders");
-      return response.json();
+      const data = await response.json();
+      return Array.isArray(data) ? data : [];
     },
-    enabled: !!currentStore,
+    enabled: !!currentStore?.id,
     refetchInterval: 30000, // Refetch every 30 seconds
     refetchOnWindowFocus: true,
   });
@@ -715,6 +796,21 @@ export default function ShopkeeperDashboard() {
                 : "Manage your store"}
             </p>
           </div>
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={() => setIsCalculatorOpen(true)}
+            title="Calculator"
+          >
+            <CalculatorIcon className="h-5 w-5" />
+          </Button>
+          {isCalculatorOpen && (
+            <Calculator 
+              isOpen={isCalculatorOpen} 
+              onClose={() => setIsCalculatorOpen(false)}
+              products={calculatorProducts}
+            />
+          )}
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
@@ -1137,8 +1233,8 @@ export default function ShopkeeperDashboard() {
                     <div>
                       <p className="text-sm font-medium">Inventory Management</p>
                       <p className="text-sm text-muted-foreground">
-                        {products.filter(p => p.stock < 10).length > 0 
-                          ? `${products.filter(p => p.stock < 10).length} products are running low on stock. Consider restocking soon.`
+                        {products.filter(p => (p.stock ?? 0) < 10).length > 0 
+                          ? `${products.filter(p => (p.stock ?? 0) < 10).length} products are running low on stock. Consider restocking soon.`
                           : "Your inventory levels look healthy across all products."
                         }
                       </p>
@@ -2245,8 +2341,8 @@ export default function ShopkeeperDashboard() {
                     </div>
                     <div className="space-y-2">
                       <label className="text-sm font-medium">Status</label>
-                      <Badge variant={currentStore.isApproved ? "default" : "secondary"}>
-                        {currentStore.isApproved ? "Approved" : "Pending Approval"}
+                      <Badge variant={currentStore.isActive ? "default" : "secondary"}>
+                        {currentStore.isActive ? "Approved" : "Pending Approval"}
                       </Badge>
                     </div>
                   </div>

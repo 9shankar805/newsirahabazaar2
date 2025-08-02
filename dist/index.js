@@ -29,7 +29,7 @@ __export(schema_exports, {
   commissions: () => commissions,
   coupons: () => coupons,
   deliveries: () => deliveries,
-  deliveryLocationTracking: () => deliveryLocationTracking2,
+  deliveryLocationTracking: () => deliveryLocationTracking,
   deliveryPartners: () => deliveryPartners,
   deliveryRoutes: () => deliveryRoutes,
   deliveryStatusHistory: () => deliveryStatusHistory,
@@ -116,7 +116,7 @@ __export(schema_exports, {
 import { pgTable, text, serial, integer, decimal, boolean, timestamp, unique } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
-var users, adminUsers, passwordResetTokens, stores, categories, products, orders, orderItems, cartItems, wishlistItems, admins, deliveryPartners, deliveries, deliveryZones, websiteVisits, notifications, orderTracking, deliveryLocationTracking2, deliveryRoutes, pushNotificationTokens, webSocketSessions, deliveryStatusHistory, returnPolicies, returns, promotions, advertisements, productReviews, reviewLikes, storeReviews, storeReviewLikes, settlements, storeAnalytics, inventoryLogs, coupons, productAttributes, fraudAlerts, adminRoles, adminRoleAssignments, vendorVerifications, commissions, flashSales, productTags, productTagRelations, paymentTransactions, adminLogs, supportTickets, banners, siteSettings, insertUserSchema, insertCouponSchema, insertFlashSaleSchema, insertProductTagSchema, insertPaymentTransactionSchema, insertAdminLogSchema, insertSupportTicketSchema, insertBannerSchema, insertSiteSettingSchema, insertDeliveryLocationTrackingSchema, insertDeliveryRouteSchema, insertPushNotificationTokenSchema, insertWebSocketSessionSchema, insertDeliveryStatusHistorySchema, insertProductAttributeSchema, insertFraudAlertSchema, insertAdminRoleSchema, insertAdminRoleAssignmentSchema, insertVendorVerificationSchema, insertCommissionSchema, insertDeliveryPartnerSchema, insertDeliverySchema, insertStoreSchema, insertCategorySchema, insertProductSchema, insertOrderSchema, insertOrderItemSchema, insertCartItemSchema, insertWishlistItemSchema, insertAdminSchema, insertWebsiteVisitSchema, insertNotificationSchema, insertOrderTrackingSchema, insertReturnPolicySchema, insertReturnSchema, insertPromotionSchema, insertAdvertisementSchema, insertDeliveryZoneSchema, insertProductReviewSchema, insertStoreReviewSchema, insertStoreReviewLikeSchema, insertSettlementSchema, insertStoreAnalyticsSchema, insertInventoryLogSchema, insertReviewLikeSchema, insertAdminUserSchema, insertPasswordResetTokenSchema;
+var users, adminUsers, passwordResetTokens, stores, categories, products, orders, orderItems, cartItems, wishlistItems, admins, deliveryPartners, deliveries, deliveryZones, websiteVisits, notifications, orderTracking, deliveryLocationTracking, deliveryRoutes, pushNotificationTokens, webSocketSessions, deliveryStatusHistory, returnPolicies, returns, promotions, advertisements, productReviews, reviewLikes, storeReviews, storeReviewLikes, settlements, storeAnalytics, inventoryLogs, coupons, productAttributes, fraudAlerts, adminRoles, adminRoleAssignments, vendorVerifications, commissions, flashSales, productTags, productTagRelations, paymentTransactions, adminLogs, supportTickets, banners, siteSettings, insertUserSchema, insertCouponSchema, insertFlashSaleSchema, insertProductTagSchema, insertPaymentTransactionSchema, insertAdminLogSchema, insertSupportTicketSchema, insertBannerSchema, insertSiteSettingSchema, insertDeliveryLocationTrackingSchema, insertDeliveryRouteSchema, insertPushNotificationTokenSchema, insertWebSocketSessionSchema, insertDeliveryStatusHistorySchema, insertProductAttributeSchema, insertFraudAlertSchema, insertAdminRoleSchema, insertAdminRoleAssignmentSchema, insertVendorVerificationSchema, insertCommissionSchema, insertDeliveryPartnerSchema, insertDeliverySchema, insertStoreSchema, insertCategorySchema, insertProductSchema, insertOrderSchema, insertOrderItemSchema, insertCartItemSchema, insertWishlistItemSchema, insertAdminSchema, insertWebsiteVisitSchema, insertNotificationSchema, insertOrderTrackingSchema, insertReturnPolicySchema, insertReturnSchema, insertPromotionSchema, insertAdvertisementSchema, insertDeliveryZoneSchema, insertProductReviewSchema, insertStoreReviewSchema, insertStoreReviewLikeSchema, insertSettlementSchema, insertStoreAnalyticsSchema, insertInventoryLogSchema, insertReviewLikeSchema, insertAdminUserSchema, insertPasswordResetTokenSchema;
 var init_schema = __esm({
   "shared/schema.ts"() {
     "use strict";
@@ -425,7 +425,7 @@ var init_schema = __esm({
       location: text("location"),
       updatedAt: timestamp("updated_at").defaultNow().notNull()
     });
-    deliveryLocationTracking2 = pgTable("delivery_location_tracking", {
+    deliveryLocationTracking = pgTable("delivery_location_tracking", {
       id: serial("id").primaryKey(),
       deliveryId: integer("delivery_id").references(() => deliveries.id).notNull(),
       deliveryPartnerId: integer("delivery_partner_id").references(() => deliveryPartners.id).notNull(),
@@ -842,7 +842,7 @@ var init_schema = __esm({
       id: true,
       updatedAt: true
     });
-    insertDeliveryLocationTrackingSchema = createInsertSchema(deliveryLocationTracking2).omit({
+    insertDeliveryLocationTrackingSchema = createInsertSchema(deliveryLocationTracking).omit({
       id: true,
       timestamp: true
     });
@@ -1070,7 +1070,7 @@ var init_db = __esm({
     "use strict";
     init_schema();
     dotenv.config();
-    DATABASE_URL = process.env.DATABASE_URL || "postgresql://neondb_owner:npg_B14cMjkFUhuw@ep-wispy-paper-a1eejnp5-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require";
+    DATABASE_URL = process.env.DIGITALOCEAN_DATABASE_URL || process.env.DATABASE_URL || "postgresql://neondb_owner:npg_x70rUbTWcLXC@ep-summer-bread-a88huiee-pooler.eastus2.azure.neon.tech/neondb?sslmode=require&channel_binding=require";
     isDevelopment = process.env.NODE_ENV === "development";
     isDigitalOcean = DATABASE_URL.includes("ondigitalocean.com");
     finalDatabaseUrl = DATABASE_URL.includes("sslmode=") ? DATABASE_URL : `${DATABASE_URL}${DATABASE_URL.includes("?") ? "&" : "?"}sslmode=require`;
@@ -1080,40 +1080,48 @@ var init_db = __esm({
     }
     pool = new Pool({
       connectionString: finalDatabaseUrl,
-      // Optimized for Neon database
-      max: 5,
-      // Neon supports more connections
-      min: 1,
-      idleTimeoutMillis: 3e4,
-      connectionTimeoutMillis: 15e3,
-      // Application name for monitoring
-      application_name: "siraha_bazaar",
-      statement_timeout: 45e3,
-      query_timeout: 4e4,
-      // SSL configuration - handles DigitalOcean, Neon, and development
+      // Conservative settings for DigitalOcean managed databases
+      max: isDigitalOcean ? 2 : 5,
+      // Very conservative for managed databases
+      min: 0,
+      // Allow pool to scale down completely
+      idleTimeoutMillis: isDigitalOcean ? 12e4 : 3e4,
+      // 2 minutes for DigitalOcean
+      connectionTimeoutMillis: isDigitalOcean ? 6e4 : 15e3,
+      // 1 minute timeout
+      acquireTimeoutMillis: isDigitalOcean ? 6e4 : 3e4,
+      // Wait longer for connection
+      // Application identification
+      application_name: "siraha_bazaar_app",
+      // Query timeouts - very generous for managed databases
+      statement_timeout: isDigitalOcean ? 12e4 : 45e3,
+      // 2 minutes
+      query_timeout: isDigitalOcean ? 11e4 : 4e4,
+      // SSL configuration optimized for DigitalOcean
       ssl: isDigitalOcean ? {
         rejectUnauthorized: false,
-        // DigitalOcean requires this for managed databases
         checkServerIdentity: () => void 0,
-        // Bypass hostname verification
-        secureProtocol: "TLSv1_2_method"
-        // Force TLS 1.2
+        secureProtocol: "TLSv1_2_method",
+        servername: void 0,
+        // Additional SSL options for managed databases
+        requestCert: false,
+        agent: false
       } : isDevelopment ? {
         rejectUnauthorized: false,
         checkServerIdentity: () => void 0
       } : {
-        rejectUnauthorized: true,
-        ca: void 0
-        // Use system CA bundle for other providers
+        rejectUnauthorized: true
       },
-      // Optimized reconnection settings for Neon
+      // Connection health and stability
       keepAlive: true,
-      keepAliveInitialDelayMillis: 3e3,
-      // Stability options for production
+      keepAliveInitialDelayMillis: isDigitalOcean ? 1e4 : 3e3,
+      // 10 seconds for managed
+      // Connection lifecycle for managed databases
       allowExitOnIdle: false,
-      // Keep connections alive for Neon
-      maxUses: 5e3
-      // Higher for Neon
+      maxUses: isDigitalOcean ? 500 : 5e3,
+      // Rotate connections more frequently
+      // Retry configuration
+      connectionTimeoutMillis: isDigitalOcean ? 6e4 : 15e3
     });
     pool.on("error", (err, client) => {
       console.error("Database connection error:", err.message);
@@ -1191,7 +1199,6 @@ var init_memory_storage = __esm({
       wishlistItems = [];
       nextId = 1;
       constructor() {
-        this.initializeDefaultData();
       }
       initializeDefaultData() {
         const categories2 = [
@@ -1809,15 +1816,33 @@ var init_memory_storage = __esm({
         this.products.splice(productIndex, 1);
         return true;
       }
-      // Placeholder implementations for other required methods
+      // User approval operations
       async getPendingUsers() {
-        return [];
+        return this.users.filter((user) => user.status === "pending");
       }
-      async approveUser() {
-        return void 0;
+      async approveUser(userId, adminId) {
+        const userIndex = this.users.findIndex((user) => user.id === userId);
+        if (userIndex === -1) return void 0;
+        this.users[userIndex] = {
+          ...this.users[userIndex],
+          status: "active",
+          approvalDate: /* @__PURE__ */ new Date(),
+          approvedBy: adminId,
+          updatedAt: /* @__PURE__ */ new Date()
+        };
+        return this.users[userIndex];
       }
-      async rejectUser() {
-        return void 0;
+      async rejectUser(userId, adminId) {
+        const userIndex = this.users.findIndex((user) => user.id === userId);
+        if (userIndex === -1) return void 0;
+        this.users[userIndex] = {
+          ...this.users[userIndex],
+          status: "rejected",
+          approvalDate: /* @__PURE__ */ new Date(),
+          approvedBy: adminId,
+          updatedAt: /* @__PURE__ */ new Date()
+        };
+        return this.users[userIndex];
       }
       async getAllUsersWithStatus() {
         return this.users;
@@ -2404,7 +2429,7 @@ async function createStorage() {
     return new MemoryStorage();
   }
 }
-var DatabaseStorage, storagePromise, storage;
+var DatabaseStorage, storagePromise, storageInstance, getStorage, storage;
 var init_storage = __esm({
   "server/storage.ts"() {
     "use strict";
@@ -2447,35 +2472,89 @@ var init_storage = __esm({
         return updatedUser;
       }
       async deleteUserAccount(userId) {
-        await db.delete(cartItems).where(eq(cartItems.userId, userId));
-        await db.delete(wishlistItems).where(eq(wishlistItems.userId, userId));
-        await db.delete(notifications).where(eq(notifications.userId, userId));
-        await db.delete(pushNotificationTokens).where(eq(pushNotificationTokens.userId, userId));
-        const userStores = await db.select().from(stores).where(eq(stores.ownerId, userId));
-        for (const store of userStores) {
-          const storeProducts = await db.select().from(products).where(eq(products.storeId, store.id));
-          for (const product of storeProducts) {
-            await db.delete(productReviews).where(eq(productReviews.productId, product.id));
-            await db.delete(productAttributes).where(eq(productAttributes.productId, product.id));
+        console.log(`\u{1F5D1}\uFE0F CRITICAL: Starting comprehensive account deletion for user ID: ${userId}`);
+        console.log(`\u{1F6A8} STACK TRACE:`);
+        console.trace("Account deletion called from:");
+        try {
+          const deletedCartItems = await db.delete(cartItems).where(eq(cartItems.userId, userId));
+          console.log(`\u2705 Deleted cart items for user ${userId}`);
+          await db.delete(wishlistItems).where(eq(wishlistItems.userId, userId));
+          console.log(`\u2705 Deleted wishlist items for user ${userId}`);
+          await db.delete(notifications).where(eq(notifications.userId, userId));
+          console.log(`\u2705 Deleted notifications for user ${userId}`);
+          await db.delete(pushNotificationTokens).where(eq(pushNotificationTokens.userId, userId));
+          console.log(`\u2705 Deleted push notification tokens for user ${userId}`);
+          await db.delete(passwordResetTokens).where(eq(passwordResetTokens.userId, userId));
+          console.log(`\u2705 Deleted password reset tokens for user ${userId}`);
+          const userStores = await db.select().from(stores).where(eq(stores.ownerId, userId));
+          console.log(`\u{1F4E6} Found ${userStores.length} stores owned by user ${userId}`);
+          for (const store of userStores) {
+            console.log(`\u{1F3EA} Processing store: ${store.name} (ID: ${store.id})`);
+            const storeProducts = await db.select().from(products).where(eq(products.storeId, store.id));
+            console.log(`\u{1F4E6} Found ${storeProducts.length} products in store ${store.id}`);
+            await db.delete(storeReviews).where(eq(storeReviews.storeId, store.id));
+            await db.delete(storeReviewLikes).where(eq(storeReviewLikes.storeId, store.id));
+            await db.delete(storeAnalytics).where(eq(storeAnalytics.storeId, store.id));
+            await db.delete(inventoryLogs).where(eq(inventoryLogs.storeId, store.id));
+            await db.delete(settlements).where(eq(settlements.storeId, store.id));
+            console.log(`\u2705 Deleted store-specific data for store ${store.id}`);
+            for (const product of storeProducts) {
+              const productReviewsToDelete = await db.select().from(productReviews).where(eq(productReviews.productId, product.id));
+              for (const review of productReviewsToDelete) {
+                await db.delete(reviewLikes).where(eq(reviewLikes.reviewId, review.id));
+              }
+              await db.delete(productReviews).where(eq(productReviews.productId, product.id));
+              await db.delete(productAttributes).where(eq(productAttributes.productId, product.id));
+              await db.delete(orderItems).where(eq(orderItems.productId, product.id));
+              console.log(`\u2705 Deleted data for product: ${product.name} (ID: ${product.id})`);
+            }
+            await db.delete(products).where(eq(products.storeId, store.id));
+            console.log(`\u2705 Deleted all products for store ${store.id}`);
           }
-          await db.delete(products).where(eq(products.storeId, store.id));
-          await db.delete(storeAnalytics).where(eq(storeAnalytics.storeId, store.id));
+          await db.delete(stores).where(eq(stores.ownerId, userId));
+          console.log(`\u2705 Deleted all stores owned by user ${userId}`);
+          await db.delete(promotions).where(eq(promotions.storeId, sql`(SELECT id FROM stores WHERE owner_id = ${userId})`));
+          await db.delete(advertisements).where(eq(advertisements.userId, userId));
+          await db.delete(coupons).where(eq(coupons.storeId, sql`(SELECT id FROM stores WHERE owner_id = ${userId})`));
+          await db.delete(banners).where(eq(banners.storeId, sql`(SELECT id FROM stores WHERE owner_id = ${userId})`));
+          await db.delete(flashSales).where(eq(flashSales.storeId, sql`(SELECT id FROM stores WHERE owner_id = ${userId})`));
+          console.log(`\u2705 Deleted marketing content for user ${userId}`);
+          const deliveryPartner = await db.select().from(deliveryPartners).where(eq(deliveryPartners.userId, userId)).limit(1);
+          if (deliveryPartner.length > 0) {
+            const partnerId = deliveryPartner[0].id;
+            console.log(`\u{1F69A} Processing delivery partner data for partner ID: ${partnerId}`);
+            await db.delete(deliveryLocationTracking).where(eq(deliveryLocationTracking.deliveryPartnerId, partnerId));
+            await db.update(deliveries).set({ deliveryPartnerId: null }).where(eq(deliveries.deliveryPartnerId, partnerId));
+            await db.delete(deliveryPartners).where(eq(deliveryPartners.userId, userId));
+            console.log(`\u2705 Processed delivery partner data for user ${userId}`);
+          }
+          await db.delete(supportTickets).where(eq(supportTickets.userId, userId));
+          console.log(`\u2705 Deleted support tickets for user ${userId}`);
+          await db.delete(fraudAlerts).where(eq(fraudAlerts.userId, userId));
+          console.log(`\u2705 Deleted fraud alerts for user ${userId}`);
+          await db.delete(vendorVerifications).where(eq(vendorVerifications.userId, userId));
+          console.log(`\u2705 Deleted vendor verifications for user ${userId}`);
+          const userOrders = await db.select().from(orders).where(eq(orders.customerId, userId));
+          if (userOrders.length > 0) {
+            await db.update(orders).set({
+              customerName: "Deleted User",
+              email: "deleted@user.com",
+              phone: "DELETED",
+              address: "User Account Deleted"
+            }).where(eq(orders.customerId, userId));
+            console.log(`\u2705 Anonymized ${userOrders.length} orders for user ${userId}`);
+          }
+          await db.delete(websiteVisits).where(eq(websiteVisits.userId, userId));
+          console.log(`\u2705 Deleted website visits for user ${userId}`);
+          await db.delete(commissions).where(eq(commissions.userId, userId));
+          console.log(`\u2705 Deleted commission records for user ${userId}`);
+          await db.delete(users).where(eq(users.id, userId));
+          console.log(`\u2705 Successfully deleted user account ${userId}`);
+          console.log(`\u{1F389} Account deletion completed successfully for user ID: ${userId}`);
+        } catch (error) {
+          console.error(`\u274C Error during account deletion for user ${userId}:`, error);
+          throw new Error(`Failed to delete user account: ${error instanceof Error ? error.message : "Unknown error"}`);
         }
-        await db.delete(stores).where(eq(stores.ownerId, userId));
-        const deliveryPartner = await db.select().from(deliveryPartners).where(eq(deliveryPartners.userId, userId)).limit(1);
-        if (deliveryPartner.length > 0) {
-          const partnerId = deliveryPartner[0].id;
-          await db.delete(deliveryLocationTracking).where(eq(deliveryLocationTracking.deliveryPartnerId, partnerId));
-          await db.update(deliveries).set({ deliveryPartnerId: null }).where(eq(deliveries.deliveryPartnerId, partnerId));
-          await db.delete(deliveryPartners).where(eq(deliveryPartners.userId, userId));
-        }
-        await db.update(orders).set({
-          customerName: "Deleted User",
-          email: null,
-          phone: "Deleted"
-        }).where(eq(orders.customerId, userId));
-        await db.delete(websiteVisits).where(eq(websiteVisits.userId, userId));
-        await db.delete(users).where(eq(users.id, userId));
       }
       // Admin user operations
       async getAdminUser(id) {
@@ -2654,20 +2733,34 @@ var init_storage = __esm({
         });
       }
       async getProductsByCategory(categoryId) {
-        const productsWithRatings = await db.select({
-          ...products,
-          avgRating: sql`COALESCE(AVG(${productReviews.rating}), 0)`.as("avgRating"),
-          reviewCount: sql`COUNT(${productReviews.id})`.as("reviewCount")
-        }).from(products).leftJoin(productReviews, eq(products.id, productReviews.productId)).where(eq(products.categoryId, categoryId)).groupBy(products.id);
-        return productsWithRatings.map((product) => {
-          const avgRating = product.avgRating ? Number(product.avgRating) : 0;
-          const reviewCount = product.reviewCount ? Number(product.reviewCount) : 0;
-          return {
-            ...product,
-            rating: avgRating > 0 ? avgRating.toFixed(1) : "0.0",
-            totalReviews: reviewCount
-          };
-        });
+        try {
+          console.log(`[STORAGE] Filtering products by categoryId: ${categoryId}`);
+          const productsWithRatings = await db.select({
+            ...products,
+            avgRating: sql`COALESCE(AVG(${productReviews.rating}), 0)`.as("avgRating"),
+            reviewCount: sql`COUNT(${productReviews.id})`.as("reviewCount")
+          }).from(products).leftJoin(productReviews, eq(products.id, productReviews.productId)).where(eq(products.categoryId, categoryId)).groupBy(products.id);
+          console.log(`[STORAGE] Database query returned ${productsWithRatings.length} products for category ${categoryId}`);
+          if (productsWithRatings.length > 0) {
+            console.log(`[STORAGE] Sample products:`, productsWithRatings.slice(0, 3).map((p) => ({
+              id: p.id,
+              name: p.name,
+              categoryId: p.categoryId
+            })));
+          }
+          return productsWithRatings.map((product) => {
+            const avgRating = product.avgRating ? Number(product.avgRating) : 0;
+            const reviewCount = product.reviewCount ? Number(product.reviewCount) : 0;
+            return {
+              ...product,
+              rating: avgRating > 0 ? avgRating.toFixed(1) : "0.0",
+              totalReviews: reviewCount
+            };
+          });
+        } catch (error) {
+          console.error(`[STORAGE] Error in getProductsByCategory:`, error);
+          throw error;
+        }
       }
       async searchProducts(query2) {
         const productsWithRatings = await db.select({
@@ -3009,6 +3102,119 @@ var init_storage = __esm({
           throw error;
         }
       }
+      // Modern food delivery app: Get restaurants within 10km radius (default)
+      async getFoodStoresWithinRadius(userLat, userLon, radiusKm = 10) {
+        try {
+          console.log(`[DEBUG] getFoodStoresWithinRadius called with userLat: ${userLat}, userLon: ${userLon}, radius: ${radiusKm}km`);
+          const foodStores = await this.getAllStores();
+          const restaurantStores = foodStores.filter(
+            (store) => store.storeType === "restaurant" || store.name.toLowerCase().includes("restaurant") || store.name.toLowerCase().includes("pizza") || store.name.toLowerCase().includes("burger") || store.name.toLowerCase().includes("food")
+          );
+          console.log(`[DEBUG] Found ${restaurantStores.length} food stores from ${foodStores.length} total stores`);
+          const storesWithDistance = restaurantStores.map((store) => {
+            const storeLat = parseFloat(store.latitude || "0");
+            const storeLon = parseFloat(store.longitude || "0");
+            if (!store.latitude || !store.longitude || storeLat === 0 || storeLon === 0) {
+              console.log(`[DEBUG] Skipping food store ${store.name} - missing coordinates`);
+              return null;
+            }
+            const distance = this.calculateDistance(userLat, userLon, storeLat, storeLon);
+            if (distance > radiusKm) {
+              console.log(`[DEBUG] Filtering out ${store.name} - ${distance}km exceeds ${radiusKm}km radius`);
+              return null;
+            }
+            console.log(`[DEBUG] Food store ${store.name} within radius: ${distance}km`);
+            return {
+              ...store,
+              distance: Math.round(distance * 100) / 100
+              // Round to 2 decimal places
+            };
+          }).filter((store) => store !== null);
+          console.log(`[DEBUG] Returning ${storesWithDistance.length} food stores within ${radiusKm}km radius`);
+          return storesWithDistance.sort((a, b) => a.distance - b.distance);
+        } catch (error) {
+          console.error("Error getting food stores within radius:", error);
+          throw error;
+        }
+      }
+      // Modern food delivery app: Get food items from restaurants within 10km radius
+      async getFoodItemsWithinRadius(userLat, userLon, radiusKm = 10) {
+        try {
+          console.log(`[DEBUG] getFoodItemsWithinRadius called with userLat: ${userLat}, userLon: ${userLon}, radius: ${radiusKm}km`);
+          const allProducts = await this.getAllProducts();
+          const allStores = await this.getAllStores();
+          const foodProducts = allProducts.filter(
+            (product) => product.productType === "food" || product.name.toLowerCase().includes("pizza") || product.name.toLowerCase().includes("burger") || product.name.toLowerCase().includes("sandwich") || product.name.toLowerCase().includes("chicken") || product.name.toLowerCase().includes("pasta") || product.name.toLowerCase().includes("rice") || product.name.toLowerCase().includes("noodles")
+          );
+          const foodItemsWithStores = foodProducts.map((product) => {
+            const store = allStores.find((s) => s.id === product.storeId);
+            if (!store) return null;
+            return {
+              ...product,
+              storeName: store.name,
+              storeAddress: store.address,
+              storeLatitude: store.latitude,
+              storeLongitude: store.longitude,
+              deliveryTime: store.deliveryTime,
+              storeType: store.storeType,
+              cuisineType: store.cuisineType,
+              isDeliveryAvailable: store.isActive
+            };
+          }).filter((item) => item !== null);
+          console.log(`[DEBUG] Found ${foodItemsWithStores.length} food items from restaurants`);
+          const itemsWithDistance = foodItemsWithStores.map((item) => {
+            const storeLat = parseFloat(item.storeLatitude || "0");
+            const storeLon = parseFloat(item.storeLongitude || "0");
+            if (!item.storeLatitude || !item.storeLongitude || storeLat === 0 || storeLon === 0) {
+              console.log(`[DEBUG] Skipping food item ${item.name} from ${item.storeName} - missing store coordinates`);
+              return null;
+            }
+            const distance = this.calculateDistance(userLat, userLon, storeLat, storeLon);
+            if (distance > radiusKm) {
+              return null;
+            }
+            return {
+              id: item.id,
+              name: item.name,
+              slug: item.slug,
+              description: item.description,
+              price: item.price,
+              originalPrice: item.originalPrice,
+              categoryId: item.categoryId,
+              storeId: item.storeId,
+              stock: item.stock,
+              imageUrl: item.imageUrl,
+              images: item.images,
+              rating: item.rating,
+              totalReviews: item.totalReviews,
+              isActive: item.isActive,
+              isFastSell: item.isFastSell,
+              isOnOffer: item.isOnOffer,
+              offerPercentage: item.offerPercentage,
+              offerEndDate: item.offerEndDate,
+              productType: item.productType,
+              preparationTime: item.preparationTime,
+              ingredients: item.ingredients,
+              allergens: item.allergens,
+              spiceLevel: item.spiceLevel,
+              isVegetarian: item.isVegetarian,
+              isVegan: item.isVegan,
+              nutritionInfo: item.nutritionInfo,
+              createdAt: item.createdAt,
+              // Additional fields for food delivery
+              distance: Math.round(distance * 100) / 100,
+              storeName: item.storeName,
+              storeAddress: item.storeAddress,
+              deliveryTime: item.deliveryTime
+            };
+          }).filter((item) => item !== null);
+          console.log(`[DEBUG] Returning ${itemsWithDistance.length} food items within ${radiusKm}km radius`);
+          return itemsWithDistance.sort((a, b) => a.distance - b.distance);
+        } catch (error) {
+          console.error("Error getting food items within radius:", error);
+          throw error;
+        }
+      }
       // Seller hub analytics
       async getSellerDashboardStats(storeId) {
         try {
@@ -3214,10 +3420,16 @@ var init_storage = __esm({
         }
       }
       async createStoreReview(review) {
-        console.log("Storage layer - creating store review with data:", review);
-        const [newReview] = await db.insert(storeReviews).values(review).returning();
-        await this.updateStoreRating(review.storeId);
-        return newReview;
+        try {
+          console.log("Storage layer - creating store review with data:", review);
+          const [newReview] = await db.insert(storeReviews).values(review).returning();
+          console.log("Storage layer - new review created:", newReview);
+          await this.updateStoreRating(review.storeId);
+          return newReview;
+        } catch (error) {
+          console.error("Error in createStoreReview:", error);
+          throw error;
+        }
       }
       async updateStoreReview(id, updates) {
         try {
@@ -4366,7 +4578,25 @@ var init_storage = __esm({
       }
     };
     storagePromise = createStorage();
-    storage = new DatabaseStorage();
+    storageInstance = null;
+    getStorage = async () => {
+      if (!storageInstance) {
+        storageInstance = await storagePromise;
+      }
+      return storageInstance;
+    };
+    storage = new Proxy({}, {
+      get(target, prop) {
+        return async (...args) => {
+          const actualStorage = await getStorage();
+          const method = actualStorage[prop];
+          if (typeof method === "function") {
+            return method.apply(actualStorage, args);
+          }
+          return method;
+        };
+      }
+    });
   }
 });
 
@@ -5439,6 +5669,7 @@ import express2 from "express";
 // server/routes.ts
 init_storage();
 init_db();
+init_db();
 import { createServer } from "http";
 import { sql as sql2 } from "drizzle-orm";
 
@@ -5904,7 +6135,7 @@ var TrackingService = class {
    */
   async updateDeliveryLocation(locationUpdate) {
     try {
-      await db.insert(deliveryLocationTracking2).values({
+      await db.insert(deliveryLocationTracking).values({
         deliveryId: locationUpdate.deliveryId,
         deliveryPartnerId: await this.getDeliveryPartnerId(locationUpdate.deliveryId),
         currentLatitude: locationUpdate.latitude.toString(),
@@ -5965,10 +6196,10 @@ var TrackingService = class {
       if (!delivery2.length) {
         throw new Error("Delivery not found");
       }
-      const currentLocation = await db.select().from(deliveryLocationTracking2).where(and2(
-        eq3(deliveryLocationTracking2.deliveryId, deliveryId),
-        eq3(deliveryLocationTracking2.isActive, true)
-      )).orderBy(desc2(deliveryLocationTracking2.timestamp)).limit(1);
+      const currentLocation = await db.select().from(deliveryLocationTracking).where(and2(
+        eq3(deliveryLocationTracking.deliveryId, deliveryId),
+        eq3(deliveryLocationTracking.isActive, true)
+      )).orderBy(desc2(deliveryLocationTracking.timestamp)).limit(1);
       const route = await db.select().from(deliveryRoutes).where(eq3(deliveryRoutes.deliveryId, deliveryId)).limit(1);
       const statusHistory = await db.select().from(deliveryStatusHistory).where(eq3(deliveryStatusHistory.deliveryId, deliveryId)).orderBy(desc2(deliveryStatusHistory.timestamp));
       return {
@@ -6386,11 +6617,11 @@ var RealTimeTrackingService = class {
   async updateDeliveryLocation(locationUpdate) {
     const { deliveryId, deliveryPartnerId, latitude, longitude, heading, speed, accuracy } = locationUpdate;
     try {
-      await db.update(deliveryLocationTracking2).set({ isActive: false }).where(and3(
-        eq4(deliveryLocationTracking2.deliveryId, deliveryId),
-        eq4(deliveryLocationTracking2.isActive, true)
+      await db.update(deliveryLocationTracking).set({ isActive: false }).where(and3(
+        eq4(deliveryLocationTracking.deliveryId, deliveryId),
+        eq4(deliveryLocationTracking.isActive, true)
       ));
-      await db.insert(deliveryLocationTracking2).values({
+      await db.insert(deliveryLocationTracking).values({
         deliveryId,
         deliveryPartnerId,
         currentLatitude: latitude.toString(),
@@ -6552,10 +6783,10 @@ var RealTimeTrackingService = class {
         throw new Error("Delivery not found");
       }
       const deliveryData = delivery2[0];
-      const latestLocation = await db.select().from(deliveryLocationTracking2).where(and3(
-        eq4(deliveryLocationTracking2.deliveryId, deliveryId),
-        eq4(deliveryLocationTracking2.isActive, true)
-      )).orderBy(desc3(deliveryLocationTracking2.timestamp)).limit(1);
+      const latestLocation = await db.select().from(deliveryLocationTracking).where(and3(
+        eq4(deliveryLocationTracking.deliveryId, deliveryId),
+        eq4(deliveryLocationTracking.isActive, true)
+      )).orderBy(desc3(deliveryLocationTracking.timestamp)).limit(1);
       const routeInfo = await db.select().from(deliveryRoutes).where(eq4(deliveryRoutes.deliveryId, deliveryId)).limit(1);
       const statusHistory = await db.select().from(deliveryStatusHistory).where(eq4(deliveryStatusHistory.deliveryId, deliveryId)).orderBy(desc3(deliveryStatusHistory.timestamp));
       return {
@@ -7525,6 +7756,103 @@ async function registerRoutes(app2) {
       timestamp: (/* @__PURE__ */ new Date()).toISOString()
     });
   });
+  app2.post("/api/admin/clear-all-data", async (req, res) => {
+    try {
+      console.log("\u{1F5D1}\uFE0F Starting complete website data cleanup...");
+      const tables = [
+        "order_items",
+        "orders",
+        "deliveries",
+        "delivery_location_tracking",
+        "cart_items",
+        "wishlists",
+        "product_reviews",
+        "products",
+        "stores",
+        "delivery_partners",
+        "notifications",
+        "user_sessions",
+        "password_reset_tokens"
+        // 'users' - REMOVED: Preserve user accounts
+        // 'categories' - REMOVED: Preserve essential categories
+      ];
+      let totalDeleted = 0;
+      const results = {};
+      for (const table of tables) {
+        try {
+          const result = await db.execute(sql2.raw(`DELETE FROM ${table}`));
+          const count2 = result.rowCount || 0;
+          results[table] = count2;
+          totalDeleted += count2;
+          console.log(`\u2705 Cleared ${table}: ${count2} rows deleted`);
+        } catch (e) {
+          console.log(`\u26A0\uFE0F Table ${table}: ${e.message}`);
+          results[table] = `Error: ${e.message}`;
+        }
+      }
+      console.log("\u2705 Website data cleanup completed!");
+      res.json({
+        success: true,
+        message: "All website data cleared successfully",
+        totalRowsDeleted: totalDeleted,
+        details: results,
+        timestamp: (/* @__PURE__ */ new Date()).toISOString()
+      });
+    } catch (error) {
+      console.error("\u274C Error clearing data:", error);
+      res.status(500).json({
+        error: "Failed to clear data",
+        message: error.message
+      });
+    }
+  });
+  app2.post("/api/admin/init-categories", async (req, res) => {
+    try {
+      console.log("\u{1F4C1} Initializing essential categories...");
+      const defaultCategories = [
+        { name: "Electronics", icon: "smartphone", description: "Electronics and gadgets" },
+        { name: "Fashion", icon: "shirt", description: "Clothing and accessories" },
+        { name: "Food & Beverages", icon: "utensils", description: "Food delivery and dining" },
+        { name: "Health & Beauty", icon: "heart", description: "Health and beauty products" },
+        { name: "Sports & Fitness", icon: "dumbbell", description: "Sports equipment and fitness" },
+        { name: "Home & Garden", icon: "home", description: "Home improvement and gardening" },
+        { name: "Books & Education", icon: "book", description: "Books and educational materials" },
+        { name: "Automotive", icon: "car", description: "Auto parts and accessories" },
+        { name: "Baby & Kids", icon: "baby", description: "Baby and children products" },
+        { name: "Groceries", icon: "shopping-cart", description: "Daily grocery items" }
+      ];
+      const createdCategories = [];
+      for (const categoryData of defaultCategories) {
+        try {
+          const category = {
+            name: categoryData.name,
+            slug: categoryData.name.toLowerCase().replace(/\s+/g, "-").replace(/&/g, "and"),
+            description: categoryData.description,
+            icon: categoryData.icon
+          };
+          const created = await storage.createCategory(category);
+          createdCategories.push(created);
+          console.log(`\u2705 Created category: ${category.name}`);
+        } catch (e) {
+          console.log(`\u26A0\uFE0F Category ${categoryData.name}: ${e.message}`);
+        }
+      }
+      console.log("\u2705 Categories initialization completed!");
+      res.json({
+        success: true,
+        message: "Essential categories initialized successfully",
+        categoriesCreated: createdCategories.length,
+        categories: createdCategories,
+        timestamp: (/* @__PURE__ */ new Date()).toISOString()
+      });
+    } catch (error) {
+      console.error("\u274C Error initializing categories:", error);
+      res.status(500).json({
+        error: "Failed to initialize categories",
+        message: error.message
+      });
+    }
+  });
   app2.post("/api/auth/register", async (req, res) => {
     try {
       const userData = {
@@ -7681,7 +8009,7 @@ async function registerRoutes(app2) {
   app2.delete("/api/auth/delete-account", async (req, res) => {
     try {
       const { userId } = req.query;
-      const { reason } = req.body;
+      const { reason, confirmPassword, confirmText } = req.body;
       if (!userId) {
         return res.status(400).json({ error: "User ID required" });
       }
@@ -7689,17 +8017,31 @@ async function registerRoutes(app2) {
       if (isNaN(parsedUserId)) {
         return res.status(400).json({ error: "Invalid user ID" });
       }
+      if (confirmText !== "DELETE MY ACCOUNT") {
+        return res.status(400).json({ error: "Confirmation text required: 'DELETE MY ACCOUNT'" });
+      }
       const user = await storage.getUser(parsedUserId);
       if (!user) {
         return res.status(404).json({ error: "User not found" });
       }
-      if (reason) {
-        console.log(`User ${user.email} (ID: ${parsedUserId}) deleted account. Reason: ${reason}`);
-      } else {
-        console.log(`User ${user.email} (ID: ${parsedUserId}) deleted account. No reason provided.`);
+      if (user.role === "admin" || user.role === "shopkeeper") {
+        const userStores = await storage.getStoresByOwnerId(parsedUserId);
+        if (userStores.length > 0) {
+          console.log(`\u26A0\uFE0F WARNING: Preventing deletion of store owner with ${userStores.length} active stores`);
+          return res.status(403).json({
+            error: "Cannot delete account with active stores. Please contact support.",
+            storeCount: userStores.length
+          });
+        }
       }
+      console.log(`\u{1F5D1}\uFE0F ACCOUNT DELETION REQUEST: User ${user.email} (ID: ${parsedUserId})`);
+      console.log(`\u{1F4DD} Reason: ${reason || "No reason provided"}`);
+      console.log(`\u{1F464} User Role: ${user.role}`);
       await storage.deleteUserAccount(parsedUserId);
-      res.json({ message: "Account deleted successfully" });
+      res.json({
+        message: "Account deleted successfully",
+        details: "All user data including stores, products, reviews, and personal information have been permanently removed from our systems."
+      });
     } catch (error) {
       console.error("Account deletion error:", error);
       res.status(500).json({ error: "Failed to delete account" });
@@ -7900,7 +8242,14 @@ async function registerRoutes(app2) {
         products2 = await storage.searchProducts(search);
       } else if (category) {
         console.log(`[Products API] Fetching products by category: ${category}`);
-        products2 = await storage.getProductsByCategory(parseInt(category));
+        const categoryId = parseInt(category);
+        if (isNaN(categoryId)) {
+          console.log(`[Products API] Invalid category ID: ${category}, fetching all products`);
+          products2 = await storage.getAllProducts();
+        } else {
+          products2 = await storage.getProductsByCategory(categoryId);
+          console.log(`[Products API] Found ${products2.length} products for category ${categoryId}`);
+        }
       } else if (storeId) {
         console.log(`[Products API] Fetching products by store ID: ${storeId}`);
         products2 = await storage.getProductsByStoreId(parseInt(storeId));
@@ -9196,11 +9545,22 @@ async function registerRoutes(app2) {
       }
       const review = await storage.createStoreReview(validatedData);
       console.log(`\u2705 Created store review: Store ${validatedData.storeId}, Rating ${validatedData.rating}`);
+      console.log(`Review object returned:`, review);
       await storage.updateStoreRating(validatedData.storeId);
       console.log(`\u2705 Updated store ${validatedData.storeId} rating after review creation`);
-      const user = await storage.getUser(review.customerId);
+      const userId = validatedData.customerId;
+      const user = await storage.getUser(userId);
       const reviewWithUser = {
-        ...review,
+        id: review?.id,
+        storeId: validatedData.storeId,
+        customerId: validatedData.customerId,
+        rating: validatedData.rating,
+        title: validatedData.title,
+        comment: validatedData.comment,
+        isVerifiedPurchase: validatedData.isVerifiedPurchase,
+        isApproved: validatedData.isApproved,
+        helpfulCount: 0,
+        createdAt: review?.createdAt || (/* @__PURE__ */ new Date()).toISOString(),
         customer: user ? {
           id: user.id,
           username: user.username,
@@ -9238,6 +9598,131 @@ async function registerRoutes(app2) {
     } catch (error) {
       console.error("Error deleting store review:", error);
       res.status(500).json({ error: "Failed to delete store review" });
+    }
+  });
+  app2.get("/api/debug/database", async (req, res) => {
+    try {
+      const timeoutId = setTimeout(() => {
+        if (!res.headersSent) {
+          res.status(408).json({ error: "Database query timeout", timestamp: (/* @__PURE__ */ new Date()).toISOString() });
+        }
+      }, 1e4);
+      const tablesQuery = await pool.query(`
+        SELECT table_name, table_type
+        FROM information_schema.tables 
+        WHERE table_schema = 'public'
+        ORDER BY table_name
+        LIMIT 20
+      `);
+      clearTimeout(timeoutId);
+      if (res.headersSent) return;
+      const basicInfo = {
+        totalTables: tablesQuery.rows.length,
+        tableNames: tablesQuery.rows.map((row) => row.table_name),
+        timestamp: (/* @__PURE__ */ new Date()).toISOString(),
+        connectionStatus: "success"
+      };
+      res.json(basicInfo);
+    } catch (error) {
+      if (!res.headersSent) {
+        res.status(500).json({
+          error: error.message,
+          timestamp: (/* @__PURE__ */ new Date()).toISOString(),
+          connectionStatus: "failed"
+        });
+      }
+    }
+  });
+  app2.get("/api/debug/db-status", async (req, res) => {
+    try {
+      const result = await pool.query("SELECT current_database(), version()");
+      res.json({
+        database: result.rows[0].current_database,
+        version: result.rows[0].version,
+        timestamp: (/* @__PURE__ */ new Date()).toISOString()
+      });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+  app2.get("/api/products/:id/reviews", async (req, res) => {
+    try {
+      const productId = parseInt(req.params.id);
+      const { minRating } = req.query;
+      if (!productId) {
+        return res.status(400).json({ error: "Invalid product ID" });
+      }
+      let reviews = await storage.getProductReviews(productId);
+      if (minRating) {
+        const minRatingNum = parseInt(minRating);
+        reviews = reviews.filter((review) => review.rating >= minRatingNum);
+      }
+      const reviewsWithCustomers = await Promise.all(
+        reviews.map(async (review) => {
+          const customer = await storage.getUser(review.customerId);
+          return {
+            ...review,
+            customer: customer ? {
+              id: customer.id,
+              fullName: customer.fullName,
+              username: customer.username
+            } : null
+          };
+        })
+      );
+      res.json(reviewsWithCustomers);
+    } catch (error) {
+      console.error("Error fetching product reviews:", error);
+      res.status(500).json({ error: "Failed to fetch product reviews" });
+    }
+  });
+  app2.post("/api/products/:id/reviews", async (req, res) => {
+    try {
+      const productId = parseInt(req.params.id);
+      const reviewData = {
+        ...req.body,
+        productId
+      };
+      console.log("Creating product review with data:", reviewData);
+      if (!productId || !reviewData.customerId || !reviewData.rating) {
+        return res.status(400).json({
+          error: "Missing required fields: productId, customerId, and rating are required",
+          received: { productId, customerId: reviewData.customerId, rating: reviewData.rating }
+        });
+      }
+      const existingReviews = await storage.getProductReviews(productId);
+      const userAlreadyReviewed = existingReviews.some((review) => review.customerId === reviewData.customerId);
+      if (userAlreadyReviewed) {
+        return res.status(400).json({ error: "You have already reviewed this product" });
+      }
+      if (reviewData.rating < 1 || reviewData.rating > 5) {
+        return res.status(400).json({ error: "Rating must be between 1 and 5" });
+      }
+      const validatedData = {
+        productId,
+        customerId: parseInt(reviewData.customerId),
+        rating: parseInt(reviewData.rating),
+        title: reviewData.title || null,
+        comment: reviewData.comment || null,
+        images: reviewData.images || [],
+        orderId: reviewData.orderId ? parseInt(reviewData.orderId) : null,
+        isVerifiedPurchase: reviewData.isVerifiedPurchase || false,
+        isApproved: reviewData.isApproved !== false
+      };
+      const newReview = await storage.createProductReview(validatedData);
+      const customer = await storage.getUser(newReview.customerId);
+      const reviewWithCustomer = {
+        ...newReview,
+        customer: customer ? {
+          id: customer.id,
+          fullName: customer.fullName,
+          username: customer.username
+        } : null
+      };
+      res.status(201).json(reviewWithCustomer);
+    } catch (error) {
+      console.error("Error creating product review:", error);
+      res.status(400).json({ error: "Failed to create product review", details: error.message });
     }
   });
   app2.post("/api/store-reviews/:reviewId/helpful", async (req, res) => {
@@ -10563,6 +11048,10 @@ async function registerRoutes(app2) {
   app2.get("/api/notifications/user/:userId", async (req, res) => {
     try {
       const userId = parseInt(req.params.userId);
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
       const notifications2 = await storage.getNotificationsByUserId(userId);
       res.json(notifications2);
     } catch (error) {
@@ -11019,6 +11508,10 @@ async function registerRoutes(app2) {
   app2.get("/api/notifications/user/:userId", async (req, res) => {
     try {
       const userId = parseInt(req.params.userId);
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
       const notifications2 = await storage.getUserNotifications(userId);
       res.json(notifications2);
     } catch (error) {
@@ -11056,6 +11549,13 @@ async function registerRoutes(app2) {
       console.error("Error cleaning up test notifications:", error);
       res.status(500).json({ error: "Failed to clean up test notifications" });
     }
+  });
+  app2.post("/api/admin/cleanup-invalid-users", async (req, res) => {
+    res.json({
+      success: false,
+      message: "User cleanup endpoint disabled for safety",
+      details: ["This endpoint was causing automatic user deletion and has been disabled"]
+    });
   });
   app2.get("/api/orders/:orderId/tracking", async (req, res) => {
     try {
@@ -11388,6 +11888,82 @@ async function registerRoutes(app2) {
       console.error("Nearby stores fetch error:", error);
       console.error("Error stack:", error instanceof Error ? error.stack : error);
       res.status(500).json({ error: "Failed to fetch nearby stores" });
+    }
+  });
+  app2.get("/api/food/restaurants", async (req, res) => {
+    try {
+      const { lat, lon, radius } = req.query;
+      if (!lat || !lon) {
+        return res.status(400).json({ error: "User location (lat, lon) is required for food delivery" });
+      }
+      const userLat = parseFloat(lat);
+      const userLon = parseFloat(lon);
+      const radiusKm = radius ? parseFloat(radius) : 10;
+      if (isNaN(userLat) || isNaN(userLon)) {
+        return res.status(400).json({ error: "Invalid coordinates provided" });
+      }
+      if (radiusKm <= 0 || radiusKm > 50) {
+        return res.status(400).json({ error: "Radius must be between 1-50 km" });
+      }
+      console.log(`[FOOD API] Fetching restaurants within ${radiusKm}km of (${userLat}, ${userLon})`);
+      const restaurants = await storage.getFoodStoresWithinRadius(userLat, userLon, radiusKm);
+      res.json({
+        restaurants,
+        searchRadius: radiusKm,
+        userLocation: { lat: userLat, lon: userLon },
+        count: restaurants.length
+      });
+    } catch (error) {
+      console.error("Food restaurants fetch error:", error);
+      res.status(500).json({ error: "Failed to fetch nearby restaurants" });
+    }
+  });
+  app2.get("/api/food/items", async (req, res) => {
+    try {
+      const { lat, lon, radius, cuisine, spiceLevel, isVegetarian, search } = req.query;
+      if (!lat || !lon) {
+        return res.status(400).json({ error: "User location (lat, lon) is required for food delivery" });
+      }
+      const userLat = parseFloat(lat);
+      const userLon = parseFloat(lon);
+      const radiusKm = radius ? parseFloat(radius) : 10;
+      if (isNaN(userLat) || isNaN(userLon)) {
+        return res.status(400).json({ error: "Invalid coordinates provided" });
+      }
+      if (radiusKm <= 0 || radiusKm > 50) {
+        return res.status(400).json({ error: "Radius must be between 1-50 km" });
+      }
+      console.log(`[FOOD API] Fetching food items within ${radiusKm}km of (${userLat}, ${userLon})`);
+      let foodItems = await storage.getFoodItemsWithinRadius(userLat, userLon, radiusKm);
+      if (cuisine && cuisine !== "all") {
+      }
+      if (spiceLevel && spiceLevel !== "all") {
+        foodItems = foodItems.filter((item) => item.spiceLevel === spiceLevel);
+      }
+      if (isVegetarian === "true") {
+        foodItems = foodItems.filter((item) => item.isVegetarian === true);
+      }
+      if (search && search.toString().trim().length > 0) {
+        const searchTerm = search.toString().toLowerCase();
+        foodItems = foodItems.filter(
+          (item) => item.name.toLowerCase().includes(searchTerm) || item.description?.toLowerCase().includes(searchTerm) || item.storeName.toLowerCase().includes(searchTerm)
+        );
+      }
+      res.json({
+        items: foodItems,
+        searchRadius: radiusKm,
+        userLocation: { lat: userLat, lon: userLon },
+        count: foodItems.length,
+        filters: {
+          cuisine: cuisine || "all",
+          spiceLevel: spiceLevel || "all",
+          isVegetarian: isVegetarian === "true",
+          search: search || ""
+        }
+      });
+    } catch (error) {
+      console.error("Food items fetch error:", error);
+      res.status(500).json({ error: "Failed to fetch food items" });
     }
   });
   app2.get("/api/stores/:id", async (req, res) => {
@@ -13375,14 +13951,32 @@ async function registerRoutes(app2) {
       const { userId, page, action, productId, storeId } = req.body;
       const ipAddress = req.ip || req.connection.remoteAddress || null;
       const userAgent = req.get("User-Agent") || null;
-      await db.insert(websiteVisits).values({
-        userId: userId || null,
-        page,
-        ipAddress,
-        userAgent,
-        sessionId: req.session?.id || null,
-        referrer: req.get("Referer") || null
-      });
+      let validUserId = null;
+      if (userId) {
+        try {
+          const user = await storage.getUser(parseInt(userId));
+          if (user) {
+            validUserId = parseInt(userId);
+          } else {
+            console.log(`User ${userId} not found, tracking as anonymous`);
+          }
+        } catch (error) {
+          console.log(`Error validating user ${userId}, tracking as anonymous:`, error.message);
+        }
+      }
+      try {
+        await db.insert(websiteVisits).values({
+          userId: validUserId,
+          // This will be null for invalid users
+          page,
+          ipAddress,
+          userAgent,
+          sessionId: req.session?.id || null,
+          referrer: req.get("Referer") || null
+        });
+      } catch (dbError) {
+        console.error("Database error in website visits tracking:", dbError.message);
+      }
       res.json({ success: true });
     } catch (error) {
       console.error("Error tracking user behavior:", error);
@@ -14486,24 +15080,22 @@ async function runSimpleMigrations() {
           )
         `
       },
-      // Create default categories for restaurants and retail stores
+      // Create default categories for general e-commerce
       {
         name: "Insert default categories",
         query: sql3`
           INSERT INTO categories (name, slug, description, icon, created_at, updated_at)
           VALUES 
-            ('Appetizers', 'appetizers', 'Starters and small dishes', '🥗', NOW(), NOW()),
-            ('Main Courses', 'main-courses', 'Primary dishes and entrees', '🍛', NOW(), NOW()),
-            ('Beverages', 'beverages', 'Drinks and refreshments', '🥤', NOW(), NOW()),
-            ('Desserts', 'desserts', 'Sweet dishes and treats', '🍰', NOW(), NOW()),
-            ('Rice & Biryani', 'rice-biryani', 'Rice dishes and biryani varieties', '🍚', NOW(), NOW()),
-            ('Snacks', 'snacks', 'Light snacks and finger foods', '🍿', NOW(), NOW()),
-            ('Groceries', 'groceries', 'Food and household essentials', '🛒', NOW(), NOW()),
-            ('Electronics', 'electronics', 'Electronic devices and accessories', '📱', NOW(), NOW()),
-            ('Clothing', 'clothing', 'Apparel and fashion items', '👕', NOW(), NOW()),
-            ('Home & Kitchen', 'home-kitchen', 'Household and kitchen items', '🏠', NOW(), NOW()),
-            ('Health & Beauty', 'health-beauty', 'Personal care and beauty products', '💄', NOW(), NOW()),
-            ('Sports & Outdoors', 'sports-outdoors', 'Sports equipment and outdoor gear', '⚽', NOW(), NOW())
+            ('Electronics', 'electronics', 'Electronics and gadgets', 'smartphone', NOW(), NOW()),
+            ('Fashion', 'fashion', 'Clothing and accessories', 'shirt', NOW(), NOW()),
+            ('Food & Beverages', 'food-and-beverages', 'Food delivery and dining', 'utensils', NOW(), NOW()),
+            ('Health & Beauty', 'health-and-beauty', 'Health and beauty products', 'heart', NOW(), NOW()),
+            ('Sports & Fitness', 'sports-and-fitness', 'Sports equipment and fitness', 'dumbbell', NOW(), NOW()),
+            ('Home & Garden', 'home-and-garden', 'Home improvement and gardening', 'home', NOW(), NOW()),
+            ('Books & Education', 'books-and-education', 'Books and educational materials', 'book', NOW(), NOW()),
+            ('Automotive', 'automotive', 'Auto parts and accessories', 'car', NOW(), NOW()),
+            ('Baby & Kids', 'baby-and-kids', 'Baby and children products', 'baby', NOW(), NOW()),
+            ('Groceries', 'groceries', 'Daily grocery items', 'shopping-cart', NOW(), NOW())
           ON CONFLICT (slug) DO NOTHING
         `
       }

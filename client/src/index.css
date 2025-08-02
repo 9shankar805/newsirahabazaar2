@@ -102,7 +102,11 @@
 
   /* View All Button Styling */
   .mobile-view-all-category {
-    background: linear-gradient(135deg, hsl(var(--primary) / 0.1), hsl(var(--primary) / 0.05)) !important;
+    background: linear-gradient(
+      135deg,
+      hsl(var(--primary) / 0.1),
+      hsl(var(--primary) / 0.05)
+    ) !important;
     border: 1px solid hsl(var(--primary) / 0.2) !important;
   }
 
@@ -254,7 +258,7 @@
 
   /* Smooth sliding animation for line pagination */
   .mobile-categories-pagination .swiper-pagination-bullet::before {
-    content: '';
+    content: "";
     position: absolute;
     top: 0;
     left: 0;
@@ -273,7 +277,7 @@
 
   /* Force show pagination line on mobile categories */
   .mobile-categories-pagination::before {
-    content: '';
+    content: "";
     position: absolute;
     top: 50%;
     left: 50%;
@@ -331,7 +335,8 @@
   }
 }
 
-html, body {
+html,
+body {
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
@@ -385,7 +390,8 @@ body::-webkit-scrollbar {
 
 /* Custom marker animations and styles */
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
   }
   50% {
@@ -479,7 +485,6 @@ body::-webkit-scrollbar {
 }
 
 @media (max-width: 768px) {
-
   .swiper-button-next,
   .swiper-button-prev {
     display: none;
@@ -821,7 +826,8 @@ body::-webkit-scrollbar {
 
 /* Modern delivery partner dashboard animations */
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
     opacity: 1;
   }
@@ -903,7 +909,7 @@ body::-webkit-scrollbar {
   .floating-button-mobile-optimized:hover {
     transform: scale(1.05) translateZ(0) !important;
   }
-  
+
   .floating-button-mobile-optimized:focus {
     outline: 2px solid rgba(255, 255, 255, 0.5) !important;
     outline-offset: 2px !important;
@@ -915,18 +921,22 @@ body::-webkit-scrollbar {
       bottom: calc(5rem + env(safe-area-inset-bottom)) !important;
     }
   }
-  
+
   /* Fix for mobile viewport issues */
   @supports (height: 100dvh) {
     .floating-button-mobile-optimized {
-      bottom: max(5rem, calc(5rem + env(safe-area-inset-bottom, 0px))) !important;
+      bottom: max(
+        5rem,
+        calc(5rem + env(safe-area-inset-bottom, 0px))
+      ) !important;
     }
   }
 }
 
 /* Modern Product Detail - Noon Style */
 .modern-product-detail {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+    Ubuntu, Cantarell, sans-serif;
 }
 
 .modern-product-detail .image-carousel {
@@ -976,12 +986,12 @@ body::-webkit-scrollbar {
   .modern-product-detail .image-carousel {
     height: 320px;
   }
-  
+
   .modern-product-detail .price-section {
     padding: 1rem;
     background: linear-gradient(to bottom, #ffffff 0%, #fafafa 100%);
   }
-  
+
   .modern-product-detail .fixed-bottom-cart {
     position: fixed !important;
     bottom: 0 !important;
@@ -997,37 +1007,37 @@ body::-webkit-scrollbar {
     display: flex !important;
     align-items: center !important;
   }
-  
+
   .modern-product-detail .fixed-bottom-cart .modern-cart-button {
     height: 48px !important;
     min-height: 48px !important;
     font-size: 16px !important;
     font-weight: 600 !important;
   }
-  
+
   /* Mobile specific positioning */
   .modern-product-detail .fixed-bottom-cart {
     bottom: 64px !important; /* Above bottom navbar */
   }
-  
+
   /* Ensure content doesn't overlap with cart button and navbar */
   .modern-product-detail {
     padding-bottom: 144px !important; /* 64px navbar + 80px cart button */
     overflow-x: hidden !important;
     position: relative !important;
   }
-  
+
   /* Fix scroll overflow issues */
   .modern-product-detail .image-carousel {
     position: relative !important;
     overflow: hidden !important;
   }
-  
+
   /* Prevent horizontal scroll on mobile */
   body {
     overflow-x: hidden !important;
   }
-  
+
   /* Override any bottom navigation that might interfere */
   .modern-product-detail .fixed-bottom-cart {
     display: block !important;
@@ -1107,35 +1117,35 @@ body::-webkit-scrollbar {
     /* Prevent unwanted scrolling during swipe */
     overscroll-behavior: contain;
   }
-  
+
   .product-card .touch-pan-y {
     /* Allow vertical scrolling but capture horizontal swipes */
     touch-action: pan-y;
   }
-  
+
   /* Larger touch targets for mobile */
   .product-card button {
     min-height: 48px;
     min-width: 48px;
   }
-  
+
   /* Improve visibility of navigation elements */
   .product-card .absolute.opacity-70 {
     opacity: 0.9;
   }
-  
+
   /* Better mobile pagination dots */
   .product-card .rounded-full {
     /* Ensure touch targets are large enough */
     padding: 4px;
   }
-  
+
   /* Mobile image scrolling indicators */
   .product-card .absolute.top-2.right-2 {
     background: rgba(0, 0, 0, 0.8);
     backdrop-filter: blur(4px);
   }
-  
+
   /* Thumbnail selection spacing for mobile */
   .product-detail-thumbnails {
     gap: 0.75rem;

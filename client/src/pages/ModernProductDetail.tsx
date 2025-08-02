@@ -29,29 +29,46 @@ export default function ModernProductDetail() {
   const [, setLocation] = useLocation();
   const [quantity, setQuantity] = useState(1);
   const [showFullDescription, setShowFullDescription] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
   const { addToCart } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
   const { user } = useAuth();
   const { toast } = useToast();
   const [userLocation, setUserLocation] = useState<{lat: number, lon: number} | null>(null);
   const [storeDistance, setStoreDistance] = useState<string | null>(null);
+  const { mode } = useAppMode();
+  const [locationError, setLocationError] = useState<string | null>(null);
 
   // Get user location for distance calculation
   useEffect(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setUserLocation({
-            lat: position.coords.latitude,
-            lon: position.coords.longitude
-          });
-        },
-        (error) => {
-          console.log('Location access denied:', error);
-        },
-        { timeout: 10000, enableHighAccuracy: false }
-      );
+    if (!navigator.geolocation) {
+      setLocationError('Geolocation is not supported by your browser');
+      return;
     }
+
+    const handleSuccess = (position: GeolocationPosition) => {
+      setUserLocation({
+        lat: position.coords.latitude,
+        lon: position.coords.longitude
+      });
+      setLocationError(null);
+    };
+
+    const handleError = (error: GeolocationPositionError) => {
+      console.error('Location access error:', error);
+      setLocationError('Unable to retrieve your location');
+      // Fallback to default location or handle the error appropriately
+    };
+
+    navigator.geolocation.getCurrentPosition(
+      handleSuccess,
+      handleError,
+      { 
+        timeout: 10000, 
+        enableHighAccuracy: false,
+        maximumAge: 5 * 60 * 1000 // 5 minutes
+      }
+    );
   }, []);
 
   const { data: product, isLoading } = useQuery<Product>({
@@ -98,21 +115,40 @@ export default function ModernProductDetail() {
     }
   }, [store, userLocation]);
 
+  // Image carousel state
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const images = product ? getProductImages(product) : [];
+  const isWishlisted = product ? isInWishlist(product.id) : false;
 
+  const handleNextImage = () => {
+    setCurrentImageIndex((prevIndex) => 
+      prevIndex === images.length - 1 ? 0 : prevIndex + 1
+    );
+  };
+
+  const handlePrevImage = () => {
+    setCurrentImageIndex((prevIndex) =>
+      prevIndex === 0 ? images.length - 1 : prevIndex - 1
+    );
+  };
+
+  const handleThumbnailClick = (index: number) => {
+    setCurrentImageIndex(index);
+  };
 
   const handleAddToCart = async () => {
     if (!product) return;
-
+    
     try {
       await addToCart(product.id, quantity);
       toast({
         title: "Added to cart",
-        description: `${quantity} ${product.name}(s) added to your cart.`,
+        description: `${quantity} ${product.name} added to your cart.`,
       });
     } catch (error) {
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Failed to add to cart",
+        description: "Failed to add item to cart. Please try again.",
         variant: "destructive",
       });
     }
@@ -140,67 +176,39 @@ export default function ModernProductDetail() {
   };
 
   const handleShare = async () => {
-    console.log('Share button clicked');
-    if (!product) {
-      console.log('No product found');
-      return;
-    }
+    if (!product) return;
 
-    const shareUrl = window.location.href;
-    const shareText = `Check out ${product.name} on Siraha Bazaar - ₹${Number(product.price).toLocaleString()}`;
-    
-    console.log('Share URL:', shareUrl);
-    console.log('Share text:', shareText);
+    const shareData = {
+      title: product.name,
+      text: `Check out ${product.name} on our store!`,
+      url: window.location.href,
+    };
 
     try {
-      // Check if Web Share API is available
       if (navigator.share) {
-        console.log('Using Web Share API');
-        const shareData = {
-          title: product.name,
-          text: shareText,
-          url: shareUrl,
-        };
-        
         await navigator.share(shareData);
-        toast({
-          title: "✅ Shared successfully",
-          description: "Product has been shared.",
-        });
-      } else if (navigator.clipboard) {
-        // Fallback to clipboard
-        console.log('Using clipboard fallback');
-        await navigator.clipboard.writeText(shareUrl);
-        toast({
-          title: "📋 Link copied",
-          description: "Product link copied to clipboard.",
-        });
       } else {
-        // Final fallback - show the URL
-        console.log('Using final fallback');
-        const textArea = document.createElement('textarea');
-        textArea.value = shareUrl;
-        document.body.appendChild(textArea);
-        textArea.select();
-        document.execCommand('copy');
-        document.body.removeChild(textArea);
-        
-        toast({
-          title: "📋 Link copied",
-          description: "Product link copied to clipboard.",
-        });
+        setShowShareModal(true);
       }
-    } catch (error) {
-      console.error('Share error:', error);
+    } catch (err) {
+      console.error('Error sharing:', err);
+      await copyToClipboard(window.location.href);
       toast({
-        title: "🔗 Share link",
-        description: shareUrl,
-        duration: 5000,
+        title: "Link copied to clipboard!",
+        variant: "default",
       });
     }
   };
 
-
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch (err) {
+      console.error('Failed to copy text: ', err);
+      return false;
+    }
+  };
 
   if (isLoading) {
     return (
@@ -216,12 +224,7 @@ export default function ModernProductDetail() {
   if (!product) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="text-center px-4">
-          <h2 className="text-xl font-bold mb-4 text-gray-900">Product not found</h2>
-          <Link href="/products">
-            <Button className="bg-orange-500 hover:bg-orange-600">Back to Products</Button>
-          </Link>
-        </div>
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500"></div>
       </div>
     );
   }
@@ -230,13 +233,16 @@ export default function ModernProductDetail() {
     ? Math.round(((Number(product.originalPrice) - Number(product.price)) / Number(product.originalPrice)) * 100)
     : 0;
 
-  const images = getProductImages(product);
-  const isWishlisted = isInWishlist(product.id);
-
-  // Filter related products (excluding current product)
-  const relatedProducts = allRelatedProducts
-    .filter((relatedProduct: Product) => relatedProduct.id !== product?.id)
-    .slice(0, 8); // Limit to 8 related products
+  // Filter related products based on app mode
+  const relatedProducts = allRelatedProducts.filter((relatedProduct: Product) => {
+    if (mode === "shopping") {
+      // In shopping mode, exclude food items
+      return relatedProduct.productType !== "food";
+    } else {
+      // In food mode, show only food items
+      return relatedProduct.productType === "food";
+    }
+  }).filter((relatedProduct: Product) => relatedProduct.id !== product?.id); // Exclude current product
 
   // Debug icon rendering
   console.log('Rendering ModernProductDetail, icons should be visible');
@@ -262,20 +268,15 @@ export default function ModernProductDetail() {
         
         <div className="flex items-center gap-2">
         {/* Share Button */}
-        <button 
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            console.log('Share button clicked - direct handler');
-            handleShare();
-          }}
-          className="flex items-center justify-center p-3 hover:bg-gray-100 rounded-full transition-colors border border-gray-200 bg-white shadow-sm"
-          style={{ minWidth: '44px', minHeight: '44px' }}
-          title="Share Product"
+        <Button 
+          variant="outline" 
+          size="icon" 
+          className="rounded-full w-12 h-12"
+          onClick={handleShare}
+          aria-label="Share product"
         >
-          <Share2 className="h-6 w-6 text-gray-700" strokeWidth={2} />
-          <span className="sr-only">Share</span>
-        </button>
+          <Share2 className="h-5 w-5" />
+        </Button>
         
         {/* Wishlist Button */}
         <button 
@@ -302,24 +303,86 @@ export default function ModernProductDetail() {
         </div>
       </div>
 
-      {/* Single Product Image */}
+      {/* Product Image Gallery */}
       <div className="relative overflow-hidden">
-        <img
-          src={images[0] || getProductFallbackImage(product)}
-          alt={product.name}
-          className="w-full h-80 sm:h-96 object-cover bg-gray-50"
-          onError={(e) => {
-            const target = e.target as HTMLImageElement;
-            target.src = getProductFallbackImage(product);
-          }}
-          loading="lazy"
-        />
+        {/* Main Image */}
+        <div className="relative w-full h-80 sm:h-96 bg-gray-50">
+          <img
+            src={images[currentImageIndex] || getProductFallbackImage(product)}
+            alt={`${product.name} - Image ${currentImageIndex + 1}`}
+            className="w-full h-full object-cover"
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              target.src = getProductFallbackImage(product);
+            }}
+            loading="lazy"
+          />
 
-        {/* Discount Badge */}
-        {discount > 0 && (
-          <Badge className="absolute top-4 left-4 bg-red-500 text-white px-3 py-1 text-sm font-semibold">
-            {discount}% OFF
-          </Badge>
+          {/* Navigation Arrows - Only show if there are multiple images */}
+          {images.length > 1 && (
+            <>
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handlePrevImage();
+                }}
+                className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/30 text-white rounded-full p-2 hover:bg-black/50 transition-colors"
+                aria-label="Previous image"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M15 18l-6-6 6-6" />
+                </svg>
+              </button>
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleNextImage();
+                }}
+                className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/30 text-white rounded-full p-2 hover:bg-black/50 transition-colors"
+                aria-label="Next image"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M9 18l6-6-6-6" />
+                </svg>
+              </button>
+            </>
+          )}
+
+          {/* Discount Badge */}
+          {discount > 0 && (
+            <Badge className="absolute top-4 left-4 bg-red-500 text-white px-3 py-1 text-sm font-semibold">
+              {discount}% OFF
+            </Badge>
+          )}
+        </div>
+
+        {/* Thumbnail Navigation - Only show if there are multiple images */}
+        {images.length > 1 && (
+          <div className="flex gap-2 p-2 overflow-x-auto hide-scrollbar">
+            {images.map((img, index) => (
+              <button
+                key={index}
+                onClick={() => handleThumbnailClick(index)}
+                className={`flex-shrink-0 w-16 h-16 rounded-md overflow-hidden border-2 ${
+                  index === currentImageIndex 
+                    ? 'border-orange-500' 
+                    : 'border-transparent hover:border-gray-300'
+                } transition-colors`}
+                aria-label={`View image ${index + 1}`}
+              >
+                <img
+                  src={img}
+                  alt={`${product.name} thumbnail ${index + 1}`}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.src = getProductFallbackImage(product);
+                  }}
+                  loading="lazy"
+                />
+              </button>
+            ))}
+          </div>
         )}
       </div>
 
@@ -574,7 +637,87 @@ export default function ModernProductDetail() {
         </div>
       </div>
 
-
+      {/* Share Modal */}
+      {showShareModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setShowShareModal(false)}>
+          <div className="bg-white rounded-lg w-full max-w-md p-6" onClick={e => e.stopPropagation()}>
+            <h3 className="text-lg font-semibold mb-4">Share Product</h3>
+            <div className="space-y-3">
+              <Button 
+                variant="outline" 
+                className="w-full justify-start gap-3"
+                onClick={async () => {
+                  await copyToClipboard(window.location.href);
+                  setShowShareModal(false);
+                  toast({
+                    title: "Link copied to clipboard!",
+                    variant: "default",
+                  });
+                }}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                </svg>
+                Copy Link
+              </Button>
+              
+              {/* WhatsApp */}
+              <Button 
+                variant="outline" 
+                className="w-full justify-start gap-3 text-green-600 hover:text-green-700"
+                onClick={() => {
+                  window.open(`https://wa.me/?text=${encodeURIComponent(`Check out ${product.name}: ${window.location.href}`)}`, '_blank');
+                  setShowShareModal(false);
+                }}
+              >
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M17.5 14.4c-.3 0-.5.1-.7.2-.3 0-.5.2-.6.4-.1.1-.1.3-.2.4-.2.3-.4.6-.6.9-.1.1-.2.2-.4.2-.2 0-.4 0-.6-.1-.2-.1-.4-.2-.7-.3-1.2-.6-2.2-1.4-3-2.4-.8-1-1.4-2.1-1.8-3.3 0-.2 0-.4.1-.6 0-.1.1-.3.2-.4.2-.3.4-.5.6-.7.2-.2.3-.4.3-.6 0-.2 0-.4-.1-.6-.1-.2-.2-.4-.4-.5-.2-.2-.4-.3-.6-.4-.2 0-.4-.1-.6-.1H8.4c-.2 0-.4 0-.6.1-.4.1-.7.3-.9.6-.2.3-.3.6-.4 1-.1.3-.2.6-.2.9 0 .3 0 .6.1.9.1.3.2.6.4.9.2.3.3.6.5.9.1.3.3.5.4.8.1.3.2.4.4.7.1.2.2.4.3.7.1.2.1.4.2.7 0 .3 0 .5-.1.8 0 .2-.1.4-.3.6-.1.2-.3.3-.5.4-.2.1-.4.1-.6.1-.2 0-.4 0-.6-.1-.2 0-.4-.1-.6-.2-.2-.1-.4-.1-.6-.2-.2 0-.4 0-.6.1-.2 0-.4.1-.6.2-.2.1-.3.2-.5.4-.1.1-.3.2-.4.4-.1.2-.2.3-.3.5 0 .1-.1.3-.1.4 0 .1 0 .3.1.4.1.3.2.5.4.7.2.2.4.4.6.6.2.2.4.3.7.4.3.1.5.3.8.4.3.1.5.2.8.3.3.1.6.2.9.3.3.1.6.1.9.1.3 0 .6 0 .9-.1.3 0 .6-.1.9-.2.3-.1.6-.2.9-.4.3-.1.5-.3.8-.5.3-.2.5-.4.7-.7.2-.3.4-.5.5-.8.1-.3.2-.6.2-.9 0-.1 0-.2.1-.3 0-.1 0-.2.1-.3 0-.1.1-.2.1-.3 0-.1.1-.2.1-.3 0-.1.1-.2.1-.3.1-.2.2-.5.2-.7 0-.3-.1-.5-.3-.7-.2-.2-.4-.3-.6-.4z"></path>
+                </svg>
+                Share via WhatsApp
+              </Button>
+              
+              {/* Facebook */}
+              <Button 
+                variant="outline" 
+                className="w-full justify-start gap-3 text-blue-600 hover:text-blue-700"
+                onClick={() => {
+                  window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`, '_blank');
+                  setShowShareModal(false);
+                }}
+              >
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
+                </svg>
+                Share on Facebook
+              </Button>
+              
+              {/* Twitter */}
+              <Button 
+                variant="outline" 
+                className="w-full justify-start gap-3 text-sky-500 hover:text-sky-600"
+                onClick={() => {
+                  window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(`Check out ${product.name}`)}`, '_blank');
+                  setShowShareModal(false);
+                }}
+              >
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path>
+                </svg>
+                Share on Twitter
+              </Button>
+            </div>
+            <div className="mt-6 flex justify-end">
+              <Button 
+                variant="ghost" 
+                onClick={() => setShowShareModal(false)}
+              >
+                Close
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

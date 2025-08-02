@@ -535,8 +535,10 @@ export default function Homepage() {
       
       return response.json();
     },
-    retry: 3,
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    retry: 1,
+    staleTime: 15 * 60 * 1000, // 15 minutes
+    refetchOnWindowFocus: false,
+    refetchOnMount: false
   });
 
   // Fallback to regular API calls if recommendations fail
@@ -547,8 +549,10 @@ export default function Homepage() {
     refetch: refetchProducts,
   } = useQuery<Product[]>({
     queryKey: ["/api/products"],
-    retry: 3,
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    retry: 1,
+    staleTime: 15 * 60 * 1000, // 15 minutes
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
     enabled: !recommendations?.products?.length, // Only fetch if no recommendations
   });
 
@@ -559,10 +563,10 @@ export default function Homepage() {
     refetch: refetchStores,
   } = useQuery<Store[]>({
     queryKey: ["/api/stores"],
-    retry: 3,
-    staleTime: 0, // Always fetch fresh data to ensure ratings update immediately
-    refetchOnWindowFocus: true, // Refetch when window regains focus
-    refetchOnMount: true, // Always refetch on component mount
+    retry: 1,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
     enabled: !recommendations?.stores?.length, // Only fetch if no recommendations
   });
 

@@ -17,6 +17,7 @@ interface ProductWithDistance extends Product {
   storeDistance?: number;
   storeName?: string;
   deliveryTime?: string;
+  category?: string; // Add category to match the Product type
 }
 
 interface DistanceBasedProductSearchProps {
@@ -174,8 +175,18 @@ export default function DistanceBasedProductSearch({
     });
   }, [products, stores]);
 
+  // Filter products based on app mode
+  const filteredProducts = products.filter(product => {
+    if (bypassModeFiltering) return true; // Show all results when searching
+    if (isFoodMode) {
+      return product.productType === 'food';
+    } else {
+      return product.productType !== 'food';
+    }
+  });
+
   // Calculate distances and enrich products
-  const enrichedProducts: ProductWithDistance[] = products.map((product) => {
+  const enrichedProducts: ProductWithDistance[] = filteredProducts.map((product) => {
     const store = stores.find((s) => s.id === product.storeId);
     let distance = undefined;
     

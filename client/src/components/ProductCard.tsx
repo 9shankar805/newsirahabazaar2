@@ -16,10 +16,53 @@ interface ProductCardProps {
     storeDistance?: number;
     storeName?: string;
     deliveryTime?: string;
+    category?: string | { id: string; name: string };
   };
+  className?: string;
+  showStoreInfo?: boolean;
+  showQuickAdd?: boolean;
+  showWishlist?: boolean;
+  showCategory?: boolean;
+  showDescription?: boolean;
+  showRating?: boolean;
+  showStockStatus?: boolean;
+  showDiscountBadge?: boolean;
+  showCompare?: boolean;
+  showQuickView?: boolean;
+  showAddToCart?: boolean;
+  showHoverEffect?: boolean;
+  showImageCountBadge?: boolean;
+  showShareButton?: boolean;
+  showDeliveryInfo?: boolean;
+  showReturnPolicy?: boolean;
+  showCashOnDelivery?: boolean;
+  showInstallmentOption?: boolean;
+  showWarrantyInfo?: boolean;
 }
 
-export default function ProductCard({ product }: ProductCardProps) {
+export default function ProductCard({
+  product,
+  className,
+  showStoreInfo,
+  showQuickAdd,
+  showWishlist,
+  showCategory,
+  showDescription,
+  showRating,
+  showStockStatus,
+  showDiscountBadge,
+  showCompare,
+  showQuickView,
+  showAddToCart,
+  showHoverEffect,
+  showImageCountBadge,
+  showShareButton,
+  showDeliveryInfo,
+  showReturnPolicy,
+  showCashOnDelivery,
+  showInstallmentOption,
+  showWarrantyInfo,
+}: ProductCardProps) {
   const { addToCart } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
   const { user } = useAuth();
@@ -71,7 +114,7 @@ export default function ProductCard({ product }: ProductCardProps) {
     });
   };
 
-  const discount = product.originalPrice 
+  const discount = product.originalPrice
     ? Math.round(((Number(product.originalPrice) - Number(product.price)) / Number(product.originalPrice)) * 100)
     : 0;
 
@@ -80,7 +123,7 @@ export default function ProductCard({ product }: ProductCardProps) {
     if (!hasMultipleImages || !isHovering) return;
 
     // Only enable auto-scroll on desktop (hover support)
-    const isDesktop = window.matchMedia('(hover: hover)').matches;
+    const isDesktop = window.matchMedia("(hover: hover)").matches;
     if (!isDesktop) return;
 
     const interval = setInterval(() => {
@@ -97,12 +140,10 @@ export default function ProductCard({ product }: ProductCardProps) {
       const scrollLeft = index * scrollRef.current.offsetWidth;
       scrollRef.current.scrollTo({
         left: scrollLeft,
-        behavior: 'smooth'
+        behavior: "smooth",
       });
     }
   };
-
-
 
   // Touch handlers for mobile swiping
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -136,8 +177,8 @@ export default function ProductCard({ product }: ProductCardProps) {
 
   return (
     <Link href={`/products/${product.id}`}>
-      <div className="product-card overflow-hidden group">
-        <div 
+      <div className={`product-card overflow-hidden group ${className}`}>
+        <div
           className="relative overflow-hidden touch-pan-y"
           onMouseEnter={() => setIsHovering(true)}
           onMouseLeave={() => setIsHovering(false)}
@@ -159,7 +200,7 @@ export default function ProductCard({ product }: ProductCardProps) {
                 className="w-full h-40 sm:h-48 md:h-56 lg:h-60 object-cover flex-shrink-0"
                 onError={(e) => {
                   const target = e.target as HTMLImageElement;
-                  if (!target.src.includes('unsplash')) {
+                  if (!target.src.includes("unsplash")) {
                     target.src = getProductFallbackImage(product);
                   }
                 }}
@@ -170,22 +211,30 @@ export default function ProductCard({ product }: ProductCardProps) {
 
 
 
-          {/* Pagination Dots - Larger and more visible on mobile */}
+          {/* Pagination Dots - Using inline styles */}
           {hasMultipleImages && (
-            <div className="absolute bottom-1 left-1/2 -translate-x-1/2 flex gap-1 px-2 py-1 rounded-full bg-black/20 backdrop-blur-sm">
+            <div className="absolute bottom-1 left-1/2 -translate-x-1/2 flex gap-1.5 z-10" style={{ transform: 'translateX(-50%)' }}>
               {images.map((_, index) => (
                 <button
                   key={index}
-                  className={`transition-all duration-300 touch-manipulation ${
+                  style={{
+                    width: currentImageIndex === index ? '8px' : '6px',
+                    height: currentImageIndex === index ? '8px' : '6px',
+                    minWidth: currentImageIndex === index ? '8px' : '6px',
+                    minHeight: currentImageIndex === index ? '8px' : '6px',
+                    flex: '0 0 auto'
+                  }}
+                  className={`transition-all duration-200 touch-manipulation rounded-full ${
                     currentImageIndex === index 
-                      ? 'w-2 h-0.5 bg-white rounded-full shadow-sm sm:w-6 sm:h-2' 
-                      : 'w-0.5 h-0.5 bg-white/60 rounded-full hover:bg-white/80 sm:w-2 sm:h-2'
+                      ? 'bg-white/90' 
+                      : 'bg-white/50 hover:bg-white/70'
                   }`}
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
                     scrollToImage(index);
                   }}
+                  aria-label={`Go to image ${index + 1}`}
                 />
               ))}
             </div>
