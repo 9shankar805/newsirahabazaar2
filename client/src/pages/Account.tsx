@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { User, Mail, Phone, MapPin, Calendar, ShoppingBag, Store, Settings, Edit, Clock, AlertCircle, Check, Trash2 } from "lucide-react";
+import { formatJoinedDate } from "@/lib/dateUtils";
 import { Link } from "wouter";
 import PushNotificationSettings from "@/components/PushNotificationSettings";
 import SoundTestButton from "@/components/SoundTestButton";
@@ -134,7 +135,7 @@ export default function Account() {
               <div className="flex items-center space-x-3">
                 <Calendar className="h-4 w-4 text-muted-foreground" />
                 <span className="text-sm">
-                  Joined {new Date(user.createdAt).toLocaleDateString()}
+                  Joined {formatJoinedDate(user.createdAt)}
                 </span>
               </div>
               
@@ -272,7 +273,7 @@ export default function Account() {
                         <div>
                           <h4 className="font-medium">Order #{order.id}</h4>
                           <p className="text-sm text-muted-foreground">
-                            {new Date(order.createdAt).toLocaleDateString()}
+                            {formatJoinedDate(order.createdAt)}
                           </p>
                         </div>
                         <Badge className={getStatusColor(order.status)}>

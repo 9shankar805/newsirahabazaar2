@@ -51,6 +51,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { formatDateForCSV, formatDateWithTime } from "@/lib/dateUtils";
 import type { User, Product, Order, Coupon, Banner, PaymentTransaction, SupportTicket } from "@shared/schema";
 
 export default function AdminDashboard() {
@@ -233,8 +234,8 @@ export default function AdminDashboard() {
           `"${user.city || ''}"`,
           `"${user.state || ''}"`,
           `"${user.address || ''}"`,
-          new Date(user.createdAt).toLocaleDateString(),
-          user.approvalDate ? new Date(user.approvalDate).toLocaleDateString() : '',
+          formatDateForCSV(user.createdAt),
+          user.approvalDate ? formatDateForCSV(user.approvalDate) : '',
           user.approvedBy || '',
           `"${user.rejectionReason || ''}"`
         ].join(','))
@@ -279,13 +280,7 @@ export default function AdminDashboard() {
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
+    return formatDateWithTime(dateString);
   };
 
   const formatCurrency = (amount: string | number) => {
@@ -549,7 +544,7 @@ export default function AdminDashboard() {
                       <TableCell>
                         <div className="flex items-center gap-2">
                           <Calendar className="h-3 w-3 text-gray-400" />
-                          <span className="text-sm">{formatDate(user.createdAt)}</span>
+                          <span className="text-sm">{formatDateWithTime(user.createdAt)}</span>
                         </div>
                       </TableCell>
                       <TableCell>
@@ -717,12 +712,12 @@ export default function AdminDashboard() {
                       </div>
                       <div>
                         <span className="text-xs font-medium text-gray-500">Registration Date:</span>
-                        <p className="text-sm">{formatDate(selectedUser.createdAt)}</p>
+                        <p className="text-sm">{formatDateWithTime(selectedUser.createdAt)}</p>
                       </div>
                       {selectedUser.approvalDate && (
                         <div>
                           <span className="text-xs font-medium text-gray-500">Approval Date:</span>
-                          <p className="text-sm">{formatDate(selectedUser.approvalDate)}</p>
+                          <p className="text-sm">{formatDateWithTime(selectedUser.approvalDate)}</p>
                         </div>
                       )}
                       {selectedUser.approvedBy && (

@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { StarRating } from "@/components/ui/star-rating";
 import { useAuth } from "@/hooks/useAuth";
+import { formatJoinedDate } from "@/lib/dateUtils";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 
@@ -326,7 +327,7 @@ export function ProductReviews({ productId, productName }: ProductReviewsProps) 
                       </p>
                       <div className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
                         <Calendar className="h-3 w-3" />
-                        {new Date(review.createdAt).toLocaleDateString()}
+                        {formatJoinedDate(review.createdAt)}
                         {review.isVerifiedPurchase && (
                           <Badge variant="secondary" className="text-xs h-4">
                             Verified

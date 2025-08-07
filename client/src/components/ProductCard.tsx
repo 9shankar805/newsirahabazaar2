@@ -295,11 +295,11 @@ export default function ProductCard({
 
           <div className="flex items-center space-x-1 mb-2">
             <span className="text-xs font-bold text-foreground">
-              ₹{Number(product.price).toLocaleString()}
+              RS {Number(product.price).toLocaleString()}
             </span>
             {product.originalPrice && (
               <span className="text-[10px] text-muted-foreground line-through">
-                ₹{Number(product.originalPrice).toLocaleString()}
+                RS {Number(product.originalPrice).toLocaleString()}
               </span>
             )}
           </div>

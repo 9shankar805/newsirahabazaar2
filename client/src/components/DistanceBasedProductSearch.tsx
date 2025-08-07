@@ -520,10 +520,10 @@ export default function DistanceBasedProductSearch({
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Prices</SelectItem>
-                <SelectItem value="under-100">Under ₹100</SelectItem>
-                <SelectItem value="100-300">₹100 - ₹300</SelectItem>
-                <SelectItem value="300-500">₹300 - ₹500</SelectItem>
-                <SelectItem value="over-500">Over ₹500</SelectItem>
+                <SelectItem value="under-100">Under RS 100</SelectItem>
+                <SelectItem value="100-300">RS 100 - RS 300</SelectItem>
+                <SelectItem value="300-500">RS 300 - RS 500</SelectItem>
+                <SelectItem value="over-500">Over RS 500</SelectItem>
               </SelectContent>
             </Select>
           </div>

@@ -218,7 +218,7 @@ const OrderTracking = () => {
               </div>
               <div className="text-center">
                 <h3 className="font-semibold text-gray-700 mb-1">TOTAL</h3>
-                <p className="text-lg font-medium">₹{parseFloat(order.totalAmount).toLocaleString()}</p>
+                <p className="text-lg font-medium">RS {parseFloat(order.totalAmount).toLocaleString()}</p>
               </div>
               <div className="text-center">
                 <h3 className="font-semibold text-gray-700 mb-1">SHIP TO</h3>
@@ -390,7 +390,7 @@ const OrderTracking = () => {
                       <p className="text-sm text-gray-600">Quantity: {item.quantity}</p>
                     </div>
                     <div className="text-right">
-                      <p className="font-medium">₹{parseFloat(item.price).toLocaleString()}</p>
+                      <p className="font-medium">RS {parseFloat(item.price).toLocaleString()}</p>
                     </div>
                   </div>
                 ))}

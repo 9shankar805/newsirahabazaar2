@@ -137,11 +137,11 @@ export default function Wishlist() {
                   <div className="flex items-center justify-between mb-4">
                     <div className="space-y-1">
                       <p className="text-2xl font-bold text-primary">
-                        ₹{item.product?.price || "0"}
+                        RS {item.product?.price || "0"}
                       </p>
                       {item.product?.originalPrice && Number(item.product.originalPrice) > Number(item.product.price) && (
                         <p className="text-sm text-gray-500 line-through">
-                          ₹{item.product.originalPrice}
+                          RS {item.product.originalPrice}
                         </p>
                       )}
                     </div>

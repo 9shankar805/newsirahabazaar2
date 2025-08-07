@@ -126,12 +126,12 @@ export default function DeliveryPartnerNavbar() {
             {/* Earnings Today - Responsive */}
             <div className="hidden md:flex items-center space-x-1 sm:space-x-2 bg-white/10 px-2 sm:px-3 py-1 rounded-lg">
               <DollarSign className="h-3 w-3 sm:h-4 sm:w-4 text-green-300" />
-              <span className="text-xs sm:text-sm font-medium">₹425</span>
+              <span className="text-xs sm:text-sm font-medium">RS 425</span>
             </div>
 
             {/* Mobile Earnings - Compact */}
             <div className="md:hidden flex items-center bg-white/10 px-2 py-1 rounded">
-              <span className="text-xs font-medium">₹425</span>
+              <span className="text-xs font-medium">RS 425</span>
             </div>
 
             {/* User Dropdown - Mobile Responsive */}

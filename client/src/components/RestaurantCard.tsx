@@ -15,8 +15,8 @@ export default function RestaurantCard({ restaurant, showDistance = true }: Rest
   const [distance, setDistance] = useState<number | null>(null);
   const [isCalculatingDistance, setIsCalculatingDistance] = useState(false);
   
-  const deliveryFee = restaurant.deliveryFee ? `₹${restaurant.deliveryFee}` : "Free";
-  const minimumOrder = restaurant.minimumOrder ? `₹${restaurant.minimumOrder}` : "";
+  const deliveryFee = restaurant.deliveryFee ? `RS ${restaurant.deliveryFee}` : "Free";
+  const minimumOrder = restaurant.minimumOrder ? `RS ${restaurant.minimumOrder}` : "";
 
   useEffect(() => {
     if (showDistance && restaurant.latitude && restaurant.longitude) {

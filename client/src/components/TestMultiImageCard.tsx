@@ -213,11 +213,11 @@ export default function TestMultiImageCard() {
             
             <div className="flex items-center space-x-1 mb-2">
               <span className="text-xs font-bold text-foreground">
-                ₹{Number(mockProduct.price).toLocaleString()}
+                RS {Number(mockProduct.price).toLocaleString()}
               </span>
               {mockProduct.originalPrice && (
                 <span className="text-[10px] text-muted-foreground line-through">
-                  ₹{Number(mockProduct.originalPrice).toLocaleString()}
+                  RS {Number(mockProduct.originalPrice).toLocaleString()}
                 </span>
               )}
             </div>

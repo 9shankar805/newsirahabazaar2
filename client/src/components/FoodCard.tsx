@@ -100,11 +100,11 @@ export default function FoodCard({ food }: FoodCardProps) {
             </h3>
             <div className="flex flex-col items-end">
               <span className="font-bold text-sm sm:text-base md:text-lg text-red-600">
-                ₹{discountedPrice}
+                RS {discountedPrice}
               </span>
               {food.isOnOffer && food.offerPercentage && (
                 <span className="text-xs sm:text-sm text-gray-500 line-through">
-                  ₹{food.price}
+                  RS {food.price}
                 </span>
               )}
             </div>

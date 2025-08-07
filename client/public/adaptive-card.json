@@ -61,7 +61,7 @@
             },
             {
               "title": "Total Revenue:",
-              "value": "₹${totalRevenue}"
+              "value": "RS ${totalRevenue}"
             },
             {
               "title": "New Notifications:",
