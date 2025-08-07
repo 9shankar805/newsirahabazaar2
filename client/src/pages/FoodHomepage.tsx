@@ -96,16 +96,16 @@ export default function FoodHomepage() {
   const isPersonalized = recommendations?.isPersonalized || false;
 
   const featuredFood = recommendedProducts.length > 0 
-    ? recommendedProducts.slice(0, 8)
-    : foodItems?.filter(item => item.isOnOffer || item.isFastSell).slice(0, 8) || [];
+    ? recommendedProducts.slice(0, 12)
+    : foodItems?.filter(item => item.isOnOffer || item.isFastSell).slice(0, 12) || [];
 
   const popularRestaurants = recommendedStores.length > 0
-    ? recommendedStores.slice(0, 6)
-    : restaurants?.slice(0, 6) || [];
+    ? recommendedStores.slice(0, 8)
+    : restaurants?.slice(0, 8) || [];
 
   const quickBites = recommendedProducts.length > 0
-    ? recommendedProducts.filter(item => item.preparationTime && parseInt(item.preparationTime ?? "0") <= 20).slice(0, 6)
-    : foodItems?.filter(item => item.preparationTime && parseInt(item.preparationTime ?? "0") <= 20).slice(0, 6) || [];
+    ? recommendedProducts.filter(item => item.preparationTime && parseInt(item.preparationTime ?? "0") <= 20).slice(0, 10)
+    : foodItems?.filter(item => item.preparationTime && parseInt(item.preparationTime ?? "0") <= 20).slice(0, 10) || [];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-red-50 to-orange-50 dark:from-gray-900 dark:to-gray-800">

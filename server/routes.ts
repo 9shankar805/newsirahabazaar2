@@ -8119,12 +8119,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Sort by score and limit results
       const recommendedProducts = Array.from(productScores.values())
         .sort((a, b) => b.score - a.score)
-        .slice(0, 20)
+        .slice(0, 50)
         .map(item => item.product);
         
       const recommendedStores = Array.from(storeScores.values())
         .sort((a, b) => b.score - a.score)
-        .slice(0, 10)
+        .slice(0, 20)
         .map(item => item.store);
 
       res.json({
