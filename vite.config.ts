@@ -4,6 +4,21 @@ import path from "path";
 import runtimeErrorOverlay from "@replit/vite-plugin-runtime-error-modal";
 
 export default defineConfig({
+  server: {
+    fs: {
+      // Allow serving files from node_modules and parent directories
+      allow: [
+        // Allow serving files from the project root
+        process.cwd(),
+        // Allow serving files from node_modules
+        'node_modules',
+        // Allow serving files from the parent directory
+        '..',
+        // Explicitly allow the problematic path
+        'C:/Users/shekh/Downloads/EcommercePlatformfist12-1111-1jh-1111-21-1/EcommercePlatformfist12-1111-1jh-1111-21-1/node_modules',
+      ],
+    },
+  },
   plugins: [
     react(),
     runtimeErrorOverlay(),

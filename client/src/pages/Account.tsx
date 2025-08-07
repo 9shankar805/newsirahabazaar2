@@ -34,12 +34,101 @@ export default function Account() {
 
   if (!user) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold mb-4">Please log in to view your account</h1>
-          <Link href="/login">
-            <Button>Login</Button>
-          </Link>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
+        <div className="container mx-auto px-4 py-12">
+          <div className="max-w-md mx-auto">
+            <Card className="shadow-xl border-0">
+              <CardHeader className="text-center pb-8 pt-8">
+                <div className="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center">
+                  <User className="h-10 w-10 text-white" />
+                </div>
+                <CardTitle className="text-2xl font-bold text-gray-900 dark:text-white mb-3">
+                  Welcome to Your Account
+                </CardTitle>
+                <CardDescription className="text-gray-600 dark:text-gray-400 text-base">
+                  Sign in to access your profile, orders, and personalized recommendations
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="px-8 pb-8">
+                <div className="space-y-4">
+                  <Link href="/login" className="block">
+                    <Button 
+                      className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-3 text-base shadow-lg"
+                      size="lg"
+                      data-testid="button-login"
+                    >
+                      <User className="mr-2 h-5 w-5" />
+                      Sign In
+                    </Button>
+                  </Link>
+                  
+                  <div className="relative">
+                    <div className="absolute inset-0 flex items-center">
+                      <span className="w-full border-t border-gray-300 dark:border-gray-600" />
+                    </div>
+                    <div className="relative flex justify-center text-sm">
+                      <span className="bg-white dark:bg-gray-800 px-4 text-gray-500 dark:text-gray-400">
+                        New to Siraha Bazaar?
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <Link href="/register" className="block">
+                    <Button 
+                      variant="outline" 
+                      className="w-full border-2 border-blue-200 hover:border-blue-300 hover:bg-blue-50 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-700 text-blue-700 dark:text-blue-400 font-semibold py-3 text-base"
+                      size="lg"
+                      data-testid="button-signup"
+                    >
+                      <Mail className="mr-2 h-5 w-5" />
+                      Create Account
+                    </Button>
+                  </Link>
+                </div>
+                
+                <Separator className="my-6" />
+                
+                <div className="text-center space-y-4">
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    Join thousands of satisfied customers
+                  </p>
+                  <div className="grid grid-cols-3 gap-4 text-center">
+                    <div>
+                      <div className="text-lg font-bold text-blue-600 dark:text-blue-400">500+</div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400">Stores</div>
+                    </div>
+                    <div>
+                      <div className="text-lg font-bold text-green-600 dark:text-green-400">10K+</div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400">Products</div>
+                    </div>
+                    <div>
+                      <div className="text-lg font-bold text-orange-600 dark:text-orange-400">4.8★</div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400">Rating</div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
+                  <div className="flex items-center justify-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
+                    <ShoppingBag className="h-4 w-4" />
+                    <span>Browse without an account</span>
+                  </div>
+                  <div className="flex space-x-2 mt-3">
+                    <Link href="/products" className="flex-1">
+                      <Button variant="ghost" size="sm" className="w-full text-xs">
+                        Shop Products
+                      </Button>
+                    </Link>
+                    <Link href="/restaurants" className="flex-1">
+                      <Button variant="ghost" size="sm" className="w-full text-xs">
+                        Order Food
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
     );
