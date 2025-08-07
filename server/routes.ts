@@ -3965,11 +3965,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
               orderNumber: `SB${String(order.id).padStart(6, '0')}`,
               status: delivery.status,
               customerName: customer.fullName || customer.username,
-              customerPhone: customer.phone || '+977-9800000000',
+              customerPhone: customer.phone || null,
               
               // Pickup details
               pickupStoreName: store.name,
-              pickupStorePhone: store.phone || '+977-9850000000',
+              pickupStorePhone: store.phone || null,
               pickupAddress: store.address,
               pickupLatitude: storeCoords.latitude,
               pickupLongitude: storeCoords.longitude,

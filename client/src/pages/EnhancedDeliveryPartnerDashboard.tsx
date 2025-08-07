@@ -220,38 +220,39 @@ export default function EnhancedDeliveryPartnerDashboard() {
     queryFn: async (): Promise<EnhancedDeliveryStats> => {
       const response = await fetch(`/api/delivery-partners/${partner?.id}/enhanced-stats`);
       if (!response.ok) {
-        // Return mock data structure for development
+        console.error('Failed to fetch enhanced stats:', response.status);
+        // Return basic stats from partner data if API fails
         return {
-          todayDeliveries: 8,
-          todayEarnings: 640,
-          todayDistance: 45.2,
-          todayOnlineTime: 420, // 7 hours in minutes
+          todayDeliveries: 0,
+          todayEarnings: 0,
+          todayDistance: 0,
+          todayOnlineTime: 0,
           
-          weekDeliveries: 47,
-          weekEarnings: 3760,
-          weekDistance: 312.8,
-          weekAvgRating: 4.8,
+          weekDeliveries: 0,
+          weekEarnings: 0,
+          weekDistance: 0,
+          weekAvgRating: 0,
           
-          monthDeliveries: 195,
-          monthEarnings: 15600,
-          monthDistance: 1250.4,
+          monthDeliveries: 0,
+          monthEarnings: 0,
+          monthDistance: 0,
           
           totalDeliveries: parseInt(partner?.totalDeliveries || '0'),
           totalEarnings: parseFloat(partner?.totalEarnings || '0'),
-          totalDistance: 2847.6,
-          overallRating: parseFloat(partner?.rating || '4.5'),
-          successRate: 97.8,
+          totalDistance: 0,
+          overallRating: parseFloat(partner?.rating || '0'),
+          successRate: 0,
           
-          activeDeliveries: 2,
-          pendingAcceptance: 3,
+          activeDeliveries: 0,
+          pendingAcceptance: 0,
           
-          weeklyBonus: 500,
-          performanceBonus: 200,
-          fuelAllowance: 150,
+          weeklyBonus: 0,
+          performanceBonus: 0,
+          fuelAllowance: 0,
           
-          cityRank: 42,
-          totalPartners: 156,
-          badges: ['Top Performer', 'On-Time Delivery', 'Customer Favorite']
+          cityRank: 0,
+          totalPartners: 0,
+          badges: []
         };
       }
       return response.json();
@@ -292,86 +293,8 @@ export default function EnhancedDeliveryPartnerDashboard() {
     queryFn: async (): Promise<DeliveryDetails[]> => {
       const response = await fetch(`/api/deliveries/available?partnerId=${partner?.id}`);
       if (!response.ok) {
-        // Return mock data for development
-        return [
-          {
-            id: 1,
-            orderId: 101,
-            orderNumber: "SB001101",
-            status: "pending_acceptance",
-            customerName: "Priya Sharma",
-            customerPhone: "+977-9841234567",
-            
-            pickupStoreName: "Family Restaurant",
-            pickupStorePhone: "+977-9851234567",
-            pickupAddress: "Main Road, Siraha",
-            pickupLatitude: 26.6610,
-            pickupLongitude: 86.2070,
-            
-            deliveryAddress: "Housing Colony, Siraha",
-            deliveryLatitude: 26.6650,
-            deliveryLongitude: 86.2120,
-            
-            deliveryFee: 50,
-            extraCharges: 0,
-            totalEarnings: 50,
-            paymentMethod: "COD",
-            codAmount: 450,
-            
-            orderValue: 450,
-            orderItems: [
-              { name: "Dal Bhat Set", quantity: 2, price: 180, image: "/images/dal-bhat.jpg" },
-              { name: "Chicken Curry", quantity: 1, price: 270, image: "/images/chicken-curry.jpg" }
-            ],
-            
-            estimatedDistance: 3.2,
-            estimatedTime: 25,
-            assignedAt: new Date().toISOString(),
-            
-            customerInstructions: "Please call before arriving. Blue gate house.",
-            storeInstructions: "Order ready. Handle with care.",
-            
-            isLiveTracking: false
-          },
-          {
-            id: 2,
-            orderId: 102,
-            orderNumber: "SB001102",
-            status: "pending_acceptance",
-            customerName: "Rajesh Kumar",
-            customerPhone: "+977-9812345678",
-            
-            pickupStoreName: "Siraha Electronics",
-            pickupStorePhone: "+977-9823456789",
-            pickupAddress: "Electronics Market, Siraha",
-            pickupLatitude: 26.6590,
-            pickupLongitude: 86.2050,
-            
-            deliveryAddress: "New Colony, Siraha",
-            deliveryLatitude: 26.6680,
-            deliveryLongitude: 86.2150,
-            
-            deliveryFee: 30,
-            extraCharges: 10,
-            totalEarnings: 40,
-            paymentMethod: "Online",
-            codAmount: 0,
-            
-            orderValue: 2500,
-            orderItems: [
-              { name: "Samsung Mobile", quantity: 1, price: 2500, image: "/images/samsung-mobile.jpg" }
-            ],
-            
-            estimatedDistance: 2.8,
-            estimatedTime: 20,
-            assignedAt: new Date(Date.now() - 300000).toISOString(), // 5 minutes ago
-            
-            customerInstructions: "Fragile item. Please handle carefully.",
-            storeInstructions: "Check packaging before pickup.",
-            
-            isLiveTracking: false
-          }
-        ];
+        console.error('Failed to fetch available deliveries:', response.status);
+        return [];
       }
       return response.json();
     },
@@ -968,7 +891,7 @@ export default function EnhancedDeliveryPartnerDashboard() {
                         </div>
                         <p className="font-semibold text-sm">{delivery.pickupStoreName}</p>
                         <p className="text-xs text-gray-600 mb-2">{delivery.pickupAddress}</p>
-                        <p className="text-xs text-gray-500">{delivery.pickupStorePhone}</p>
+                        <p className="text-xs text-gray-500">{delivery.pickupStorePhone || "Phone not available"}</p>
                         {delivery.pickupLatitude && delivery.pickupLongitude && (
                           <div className="mt-2 flex items-center gap-2">
                             <Button
@@ -1000,7 +923,7 @@ export default function EnhancedDeliveryPartnerDashboard() {
                         </div>
                         <p className="font-semibold text-sm">{delivery.customerName}</p>
                         <p className="text-xs text-gray-600 mb-2">{delivery.deliveryAddress}</p>
-                        <p className="text-xs text-gray-500">{delivery.customerPhone}</p>
+                        <p className="text-xs text-gray-500">{delivery.customerPhone || "Phone not available"}</p>
                         {delivery.deliveryLatitude && delivery.deliveryLongitude && (
                           <div className="mt-2 flex items-center gap-2">
                             <Button
@@ -1233,10 +1156,14 @@ export default function EnhancedDeliveryPartnerDashboard() {
                               </div>
                               <div className="flex items-center gap-2">
                                 <Phone className="h-3 w-3 text-blue-600" />
-                                <a href={`tel:${delivery.pickupStorePhone || delivery.storePhone || '+977-9800000000'}`} 
-                                   className="text-blue-600 hover:underline font-medium">
-                                  {delivery.pickupStorePhone || delivery.storePhone || '+977-9800000000'}
-                                </a>
+                                {delivery.pickupStorePhone || delivery.storePhone ? (
+                                  <a href={`tel:${delivery.pickupStorePhone || delivery.storePhone}`} 
+                                     className="text-blue-600 hover:underline font-medium">
+                                    {delivery.pickupStorePhone || delivery.storePhone}
+                                  </a>
+                                ) : (
+                                  <span className="text-gray-500 text-xs">Phone not available</span>
+                                )}
                               </div>
                               <div className="flex items-start gap-2">
                                 <MapPin className="h-3 w-3 text-blue-600 mt-0.5 flex-shrink-0" />
@@ -1262,10 +1189,14 @@ export default function EnhancedDeliveryPartnerDashboard() {
                               </div>
                               <div className="flex items-center gap-2">
                                 <Phone className="h-3 w-3 text-green-600" />
-                                <a href={`tel:${delivery.customerPhone || '+977-9800000001'}`} 
-                                   className="text-green-600 hover:underline font-medium">
-                                  {delivery.customerPhone || '+977-9800000001'}
-                                </a>
+                                {delivery.customerPhone ? (
+                                  <a href={`tel:${delivery.customerPhone}`} 
+                                     className="text-green-600 hover:underline font-medium">
+                                    {delivery.customerPhone}
+                                  </a>
+                                ) : (
+                                  <span className="text-gray-500 text-xs">Phone not available</span>
+                                )}
                               </div>
                               <div className="flex items-start gap-2">
                                 <MapPin className="h-3 w-3 text-green-600 mt-0.5 flex-shrink-0" />
