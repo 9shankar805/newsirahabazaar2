@@ -1497,6 +1497,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get today's sales for a store (for shopkeeper dashboard)
+  app.get("/api/orders/store/:storeId/today-sales", async (req, res) => {
+    try {
+      const storeId = parseInt(req.params.storeId);
+      if (isNaN(storeId)) {
+        return res.status(400).json({ error: "Invalid store ID" });
+      }
+
+      const todaySales = await storage.getTodaySalesByStoreId(storeId);
+      res.json({ todaySales });
+    } catch (error) {
+      console.error("Error fetching today's sales:", error);
+      res.status(500).json({ error: "Failed to fetch today's sales" });
+    }
+  });
+
   app.post("/api/orders", async (req, res) => {
     try {
       const { order, items } = req.body;

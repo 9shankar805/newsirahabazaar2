@@ -83,6 +83,7 @@ export interface IStorage {
   getOrder(id: number): Promise<Order | undefined>;
   getOrdersByCustomerId(customerId: number): Promise<Order[]>;
   getOrdersByStoreId(storeId: number): Promise<Order[]>;
+  getTodaySalesByStoreId(storeId: number): Promise<number>;
   createOrder(order: InsertOrder): Promise<Order>;
   updateOrderStatus(id: number, status: string): Promise<Order | undefined>;
 
@@ -899,6 +900,41 @@ export class DatabaseStorage implements IStorage {
     }
 
     return storeOrders;
+  }
+
+  async getTodaySalesByStoreId(storeId: number): Promise<number> {
+    try {
+      // Get today's date boundaries (start of day to now)
+      const today = new Date();
+      const startOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 0, 0, 0, 0);
+      const endOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59, 999);
+
+      // Get all orders for today and calculate total sales for this store
+      const todayOrders = await db.select()
+        .from(orders)
+        .where(
+          and(
+            gte(orders.createdAt, startOfToday),
+            lte(orders.createdAt, endOfToday),
+            eq(orders.storeId, storeId),
+            or(
+              eq(orders.paymentStatus, 'completed'),
+              eq(orders.paymentStatus, 'paid'),
+              eq(orders.status, 'delivered')
+            )
+          )
+        );
+
+      // Sum up the total amount from today's completed orders
+      const totalSales = todayOrders.reduce((sum, order) => {
+        return sum + parseFloat(order.totalAmount.toString());
+      }, 0);
+
+      return totalSales;
+    } catch (error) {
+      console.error("Error calculating today's sales:", error);
+      return 0;
+    }
   }
 
   async createOrder(order: InsertOrder): Promise<Order> {

@@ -143,6 +143,20 @@ export default function ShopkeeperDashboard() {
     queryKey: ["/api/categories"],
   });
 
+  // Get today's sales for the current store
+  const { data: todaySalesData } = useQuery<{ todaySales: number }>({
+    queryKey: [`/api/orders/store/${currentStore?.id}/today-sales`],
+    queryFn: async () => {
+      if (!currentStore?.id) return { todaySales: 0 };
+      const response = await fetch(`/api/orders/store/${currentStore.id}/today-sales`);
+      if (!response.ok) throw new Error('Failed to fetch today\'s sales');
+      return response.json();
+    },
+    enabled: !!currentStore,
+    refetchInterval: 60000, // Refetch every minute to keep sales data fresh
+    refetchOnWindowFocus: true,
+  });
+
   // Get available delivery partners with user details
   const { data: deliveryPartners = [] } = useQuery({
     queryKey: ['/api/delivery-partners'],
@@ -256,6 +270,7 @@ export default function ShopkeeperDashboard() {
   const totalProducts = products.length;
   const totalRevenue = orders.reduce((sum, order) => sum + Number(order.totalAmount), 0);
   const pendingOrders = orders.filter(order => order.status === "pending").length;
+  const todaySales = todaySalesData?.todaySales || 0;
 
   const handleAddProduct = async (data: ProductForm) => {
     if (!currentStore) return;
@@ -390,10 +405,12 @@ export default function ShopkeeperDashboard() {
       queryClient.invalidateQueries({ queryKey: [`/api/orders/store/${currentStore?.id}`] });
       queryClient.invalidateQueries({ queryKey: [`/api/orders/store`] });
       queryClient.invalidateQueries({ queryKey: ["/api/orders"] });
+      queryClient.invalidateQueries({ queryKey: [`/api/orders/store/${currentStore?.id}/today-sales`] });
 
       // Force refetch immediately
       if (currentStore?.id) {
         queryClient.refetchQueries({ queryKey: [`/api/orders/store/${currentStore.id}`] });
+        queryClient.refetchQueries({ queryKey: [`/api/orders/store/${currentStore.id}/today-sales`] });
       }
     } catch (error) {
       console.error("Order status update error:", error);
@@ -512,7 +529,7 @@ export default function ShopkeeperDashboard() {
           {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-6">
             {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
               <Card>
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
@@ -557,6 +574,18 @@ export default function ShopkeeperDashboard() {
                       <p className="text-2xl font-bold">{pendingOrders}</p>
                     </div>
                     <Clock className="h-8 w-8 text-orange-600" />
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card data-testid="card-today-sales">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Today's Sales in Rs</p>
+                      <p className="text-2xl font-bold" data-testid="text-today-sales">₹{todaySales.toLocaleString()}</p>
+                    </div>
+                    <TrendingUp className="h-8 w-8 text-blue-600" />
                   </div>
                 </CardContent>
               </Card>
